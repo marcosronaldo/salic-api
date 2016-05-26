@@ -10,7 +10,7 @@ info:
   license:
     name: ODbL 1.0
     url: 'http://opendatacommons.org/licenses/odbl/summary/'
-host: 'http://hmg.api.salic.cultura.gov.br/alpha'
+host: 'hmg.api.salic.cultura.gov.br'
 basePath: /alpha
 schemes:
   - http
