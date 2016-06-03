@@ -139,7 +139,8 @@ class InteressadoDb(Base):
     Cidade = Column(String)
     tipoPessoa = Column(String)
     
-    captacao_related = relationship('CaptacaoDb', primaryjoin='Interessado.CgcCpf==CaptacaoDb.CgcCpfMecena')
+    captacao_related = relationship('CaptacaoDb', primaryjoin='InteressadoDb.CgcCpf==CaptacaoDb.CgcCpfMecena')
+    projeto_related = relationship('ProjetoDb', primaryjoin='InteressadoDb.CgcCpf==ProjetoDb.CgcCpf')
     
     def __init__(self):
         pass
@@ -150,11 +151,13 @@ class CaptacaoDb(Base):
     Idcaptacao = Column(Integer, primary_key=True)
     AnoProjeto = Column(String)
     Sequencial = Column(String)
-    PRONAC = column_property(AnoProjeto + Sequencial)
+    PRONAC = column_property    (AnoProjeto + Sequencial)
     CaptacaoReal = Column(String)
     DtRecibo = Column(Date)
     
     CgcCpfMecena = Column(String, ForeignKey('Interessado.CgcCpf'))
     interessado_related = relationship('InteressadoDb', foreign_keys=[CgcCpfMecena])
-    #projeto_related = relationship('ProjetoDb', primaryjoin='ProjetoDb.PRONAC==CaptacaoDb.PRONAC')
+
+    projeto_related = relationship('ProjetoDb', primaryjoin='CaptacaoDb.PRONAC==ProjetoDb.PRONAC')
+
         

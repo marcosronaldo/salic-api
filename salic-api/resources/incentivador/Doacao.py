@@ -16,32 +16,21 @@ class Doacao(ResourceBase):
         
     
      def get(self, cgccpf):
-         
-        if request.args.get('limit') is not None:
-            limit = int(request.args.get('limit'))
-        else:
-            limit = LIMIT_PAGING
-            
-        if request.args.get('offset') is not None:
-            offset = int(request.args.get('offset'))
-        else:
-            offset = OFFSET_PAGING
         
         try:        
-            results, n_records = self.query_handler.get_doacoes(cgccpf, limit, offset)
+            results = self.query_handler.get_doacoes(cgccpf = cgccpf)
         except Exception as e:
             Log.error( str(e))
             result = {'message' : 'internal error',
                       'message_code' :  13,
                       'more' : 'something is broken'
                       }
-            return self.result_return(result, status_code = 503)   
+            return self.render(result, status_code = 503)   
          
-        if n_records == 0:
-            result = {'message' : 'No donations was found for cgccpf %s'%(cgccpf),
+        if len(results) == 0:
+            result = {'message' : 'No funding info was found with your criteria',
                                  'message_code' : 11}
             
-            return self.result_return(result, status_code = 404)
+            return self.render(result, status_code = 404)
         
-        headers = {'X-Total-Count' : n_records}
-        return self.result_return(results, headers)
+        return self.render(results)
