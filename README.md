@@ -1,6 +1,7 @@
-# SALIC api [![Gitter](https://badges.gitter.im/Lafaiet/salicapi.svg)](https://gitter.im/Lafaiet/salicapi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+# SALIC api [![Gitter](https://badges.gitter.im/Lafaiet/salicapi.svg)](https://gitter.im/Lafaiet/salicapi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=102)](https://github.com/ellerbrock/open-source-badge/) [![Open Source Love](https://badges.frapsoft.com/os/gpl/gpl.svg?v=102)](http://www.gnu.org/licenses/gpl.html)
 
-API aberta para o portal NOVO SALIC. Tem por objetivo expor os dados de projetos da lei Rouanet.
+
+API aberta para o portal [NOVO SALIC](http://novosalic.cultura.gov.br/cidadao/consultar). Tem por objetivo expor os dados de projetos da lei Rouanet.
 
 
 ## Requisitos
@@ -36,10 +37,13 @@ Se tudo ocorrer bem, a aplicação deve estar instalada em **/opt/salic/salic-ap
 -	`python-dev`
 -	`python-pip`
 -	`freetds-dev`
+-	`libxml2-dev`
+- `libxslt1-dev`
+- `libz-dev`
 
 ### Pacotes python
 
-Basta executar 
+Basta executar
 
 ```bash
 $ sudo pip install -r requirements.txt
