@@ -6,12 +6,12 @@ from jsonschema import validate, Draft3Validator
 
 
 schema = {
-          
+
     'type': 'object',
     'properties': {
         'PRONAC' : {'type' : 'number'},
     }
-          
+
 }
 
 def testPRONAC(form, field):
@@ -20,11 +20,11 @@ def testPRONAC(form, field):
         int(field.data)
     except:
         raise ValidationError('PRONAC must be integer')
-    
+
 class InputValidation():
-   
+
     def __init__(self, fields):
        self.fields = fields
-       
+
     def validate(self):
         Draft3Validator(schema).validate(self.fields)

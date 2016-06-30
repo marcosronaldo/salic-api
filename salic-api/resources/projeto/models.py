@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
+
 from sqlalchemy import case, func
 
 from ..ModelsBase import ModelsBase
 from ..SharedModels import AreaModel, SegmentoModel
 from ..SharedModels import (ProjetoModel, InteressadoModel, MecanismoModel,
                             SituacaoModel, PreProjetoModel, EnquadramentoModel,
-                            PreProjetoModel, CaptacaoModel
+                            PreProjetoModel, CaptacaoModel, CertidoesNegativasModel
                             )
 
 
@@ -22,8 +24,10 @@ class ProjetoModelObject(ModelsBase):
 
     def all(self, limit, offset, PRONAC = None, nome = None, proponente = None,
                           cgccpf = None, area = None, segmento = None,
-                          UF = None, municipio = None, data_inicio = None, data_termino = None, extra_fields = False,
-                          ano_projeto = None):
+                          UF = None, municipio = None, data_inicio = None,
+                          data_inicio_min = None, data_inicio_max = None,
+                          data_termino = None, data_termino_min = None,
+                          data_termino_max = None, extra_fields = False, ano_projeto = None):
 
         start_row = offset
         end_row = offset+limit
@@ -129,8 +133,20 @@ class ProjetoModelObject(ModelsBase):
         if data_inicio is not None:
             res = res.filter(ProjetoModel.DtInicioExecucao == data_inicio)
 
+        if data_inicio_min is not None:
+            res = res.filter(ProjetoModel.DtInicioExecucao >= data_inicio_min)
+
+        if data_inicio_max is not None:
+            res = res.filter(ProjetoModel.DtInicioExecucao <= data_inicio_max)
+
         if data_termino is not None:
             res = res.filter(ProjetoModel.DtFimExecucao == data_termino)
+
+        if data_termino_min is not None:
+            res = res.filter(ProjetoModel.DtFimExecucao >= data_termino_min)
+
+        if data_termino_max is not None:
+            res = res.filter(ProjetoModel.DtFimExecucao <= data_termino_max)
 
         if ano_projeto is not None:
             res = res.filter(ProjetoModel.AnoProjeto == ano_projeto)
@@ -190,4 +206,34 @@ class SegmentoModelObject(ModelsBase):
 
     def all(self):
         res  = self.sql_connector.session.query(SegmentoModel.Descricao.label('segmento'))
+        return res.all()
+
+class CertidoesNegativasModelObject(ModelsBase):
+
+    def __init__(self):
+        super (CertidoesNegativasModelObject,self).__init__()
+
+
+    def all(self, PRONAC = None, CgcCpf = None):
+
+        descricao_case = case([
+                                (CertidoesNegativasModel.CodigoCertidao == '49', u'Quitação de Tributos Federais'),
+                                (CertidoesNegativasModel.CodigoCertidao == '51', 'FGTS'),
+                                (CertidoesNegativasModel.CodigoCertidao == '52', 'INSS'),
+                                (CertidoesNegativasModel.CodigoCertidao == '244', 'CADIN'),
+        ])
+
+        situacao_case = case([(CertidoesNegativasModel.cdSituacaoCertidao == 0, u'Pendente')],
+        else_ = u'Não Pendente'
+        )
+
+        res  = self.sql_connector.session.query(CertidoesNegativasModel.DtEmissao.label('data_emissao'),
+                                                CertidoesNegativasModel.DtValidade.label('data_validade'),
+                                                descricao_case.label('descricao'),
+                                                situacao_case.label('situacao'),
+                                                )
+
+        if PRONAC is not None:
+            res = res.filter(CertidoesNegativasModel.PRONAC == PRONAC)
+
         return res.all()
