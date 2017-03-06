@@ -26,20 +26,22 @@ class ProjetoList(ResourceBase):
             if arg!= 'limit' and arg != 'offset':
                 query_args+=arg+'='+request.args[arg]+'&'
 
+        if args['offset']-args['limit'] >= 0:
+            self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
+            
+
+        if args['offset']+args['limit'] <= args['last_offset']:
+            self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
+        
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['last_offset'])+query_args
         self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
-        self.links["next"] += '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
-
-        if args['offset']-args['limit'] < 0:
-            self.links["prev"] += '?limit=%d&offset=%d'%(args['limit'], 0)+query_args
-
-        else:
-            self.links["prev"] += '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
 
         self.proponents_links = []
 
         for proponente_id in args['proponentes_ids']:
             url_id = encrypt(proponente_id)
-            link = app.config['API_ROOT_URL']+'proponentes/?url_id=%s'%url_id
+            link = app.config['API_ROOT_URL']+'proponentes/%s'%url_id
             self.proponents_links.append(link)
 
 
@@ -47,13 +49,14 @@ class ProjetoList(ResourceBase):
         super (ProjetoList,self).__init__()
         self.links = {
                     "self" : app.config['API_ROOT_URL']+'projetos/',
-                    "prev" : app.config['API_ROOT_URL']+'projetos/',
-                    "next" : app.config['API_ROOT_URL']+'projetos/',
         }
 
         def hal_builder(data, args = {}):
             
-            hal_data = {'_links' : self.links}
+            total = args['total']
+            count = len(data)
+
+            hal_data = {'_links' : self.links, 'total' : total, 'count' : count}
             
             for p_index in range(len(data)):
                 projeto = data[p_index]
@@ -135,8 +138,8 @@ class ProjetoList(ResourceBase):
         if request.args.get('cgccpf') is not None:
             cgccpf = request.args.get('cgccpf')
 
-        if request.args.get('url_id') is not None:
-            cgccpf = decrypt(request.args.get('url_id'))
+        if request.args.get('proponente_id') is not None:
+            cgccpf = decrypt(request.args.get('proponente_id'))
 
         if request.args.get('area') is not None:
            area = request.args.get('area')
@@ -186,7 +189,7 @@ class ProjetoList(ResourceBase):
 
             if sort_field not in self.sort_fields:
                 Log.error('sorting field error: '+str(sort_field))
-                result = {'message' : 'field error: "sort"',
+                result = {'message' : 'field error: "%s"'%sort_field,
                       'message_code' :  10,
                       }
                 return self.render(result, status_code = 405)
@@ -208,7 +211,7 @@ class ProjetoList(ResourceBase):
                       }
             return self.render(result, status_code = 503)
 
-        if n_records == 0:
+        if n_records == 0 or len(results) == 0:
             results = {'message' : 'No project was found with your criteria',
                         'message_code' : 11
                         }
@@ -219,8 +222,6 @@ class ProjetoList(ResourceBase):
 
         data = listify_queryset(results)
 
-        proponentes_ids = []
-
         for projeto in data:
 
             "Removing IdPRONAC"
@@ -228,12 +229,10 @@ class ProjetoList(ResourceBase):
 
             "Getting rid of blanks"
             projeto["cgccpf"]  = remove_blanks(str(projeto["cgccpf"]))
-            proponentes_ids.append(projeto['cgccpf'])
 
             "Sanitizing text values"
             projeto['acessibilidade'] = sanitize(projeto['acessibilidade'])
             projeto['objetivos'] = sanitize(projeto['objetivos'])
-            projeto['justificativa'] = sanitize(projeto['justificativa'])
             projeto['etapa'] = sanitize(projeto['etapa'])
             projeto['ficha_tecnica'] = sanitize(projeto['ficha_tecnica'])
             projeto['impacto_ambiental'] = sanitize(projeto['impacto_ambiental'])
@@ -244,13 +243,17 @@ class ProjetoList(ResourceBase):
 
             projeto['sinopse'] = sanitize(projeto["sinopse"],  truncated = False)
             projeto['resumo'] = sanitize(projeto["resumo"],  truncated = False)
+            projeto['justificativa'] = sanitize(projeto['justificativa'])
 
         if cgccpf is not None:
             data = self.get_unique(cgccpf, data)
 
+        proponentes_ids = []
+
         for projeto_index in range(len(data)):
+            proponentes_ids.append(projeto['cgccpf'])
             data[projeto_index]['cgccpf'] = cgccpf_mask(data[projeto_index]['cgccpf'])
 
-        self.build_links(args = {'limit' : limit, 'offset' : offset, 'proponentes_ids' : proponentes_ids})
+        self.build_links(args = {'limit' : limit, 'offset' : offset, 'proponentes_ids' : proponentes_ids, 'last_offset' : n_records-1})
 
         return self.render(data, headers)

@@ -12,7 +12,9 @@ from ..security import encrypt, decrypt
 import pymssql, json
 
 
-class Incentivador(ResourceBase):
+class IncentivadorList(ResourceBase):
+
+    sort_fields = ['total_doado']
 
     def build_links(self, args = {}):
 
@@ -22,45 +24,52 @@ class Incentivador(ResourceBase):
             if arg!= 'limit' and arg != 'offset':
                 query_args+=arg+'='+request.args[arg]+'&'
 
+        if args['offset']-args['limit'] >= 0:
+            self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
+            
+
+        if args['offset']+args['limit'] <= args['last_offset']:
+            self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
+        
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['last_offset'])+query_args
         self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
-        self.links["next"] += '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
+        
 
-        if args['offset']-args['limit'] < 0:
-            self.links["prev"] += '?limit=%d&offset=%d'%(args['limit'], 0)+query_args
-
-        else:
-            self.links["prev"] += '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
 
         self.doacoes_links = []
 
         for incentivador_id in args['incentivadores_ids']:
-            url_id = encrypt(incentivador_id)
-            link = app.config['API_ROOT_URL']+'incentivadores/%s/doacoes/'%url_id
-            self.doacoes_links.append(link)
+            links = {}
+            incentivador_id_enc = encrypt(incentivador_id)
+
+            links['self'] = app.config['API_ROOT_URL'] + 'incentivadores/%s'%incentivador_id_enc
+            links['doacoes'] = app.config['API_ROOT_URL']+'incentivadores/%s/doacoes/'%incentivador_id_enc
+
+            self.doacoes_links.append(links)
 
     def __init__(self):
         self.tipos_pessoa = {'1' : 'fisica', '2' : 'juridica'}
-        super (Incentivador,self).__init__()
+        super (IncentivadorList,self).__init__()
 
         self.links = {
                     "self" : app.config['API_ROOT_URL']+'incentivadores/',
-                    "prev" : app.config['API_ROOT_URL']+'incentivadores/',
-                    "next" : app.config['API_ROOT_URL']+'incentivadores/',
         }
 
         def hal_builder(data, args = {}):
             
-            hal_data = {'_links' : self.links}
+            total = args['total']
+            count = len(data)
+
+            hal_data = {'_links' : self.links, 'total' : total, 'count' : count}
             
             for index in range(len(data)):
                 incentivador = data[index]
 
-                self_link = app.config['API_ROOT_URL']+'incentivadores/'
                 doacoes_links = self.doacoes_links[index]
 
-                incentivador['_links'] = {}
-                incentivador['_links']['self'] = self_link
-                incentivador['_links']['doacoes'] = doacoes_links
+                incentivador['_links'] = doacoes_links
+                
 
             hal_data['_embedded'] = {'incentivadores' : data}
             return hal_data
@@ -86,6 +95,8 @@ class Incentivador(ResourceBase):
         UF = None
         tipo_pessoa = None
         PRONAC = None
+        sort_field = None
+        sort_order = None
 
         if request.args.get('nome') is not None:
             nome = request.args.get('nome')
@@ -93,9 +104,9 @@ class Incentivador(ResourceBase):
         if request.args.get('cgccpf') is not None:
             cgccpf = request.args.get('cgccpf')
 
-        if request.args.get('url_id') is not None:
-            url_id = request.args.get('url_id')
-            cgccpf = decrypt(url_id)
+        if request.args.get('incentivador_id') is not None:
+            incentivador_id = request.args.get('incentivador_id')
+            cgccpf = decrypt(incentivador_id)
 
         if request.args.get('municipio') is not None:
             municipio = request.args.get('municipio')
@@ -109,8 +120,27 @@ class Incentivador(ResourceBase):
         if request.args.get('PRONAC') is not None:
             PRONAC = request.args.get('PRONAC')
 
+        if request.args.get('sort') is not None:
+            sorting = request.args.get('sort').split(':')
+
+            if len(sorting) == 2:
+                sort_field = sorting[0]
+                sort_order = sorting[1]
+            elif len(sorting) == 1:
+                sort_field = sorting[0]
+                sort_order = 'asc'
+
+            if sort_field not in self.sort_fields:
+                Log.error('sorting field error: '+str(sort_field))
+                result = {'message' : 'field error: "%s"'%sort_field,
+                      'message_code' :  10,
+                      }
+                return self.render(result, status_code = 405)
+
         try:
-            results, n_records = IncentivadorModelObject().all(limit, offset, nome, cgccpf, municipio, UF,tipo_pessoa, PRONAC)
+            results, n_records = IncentivadorModelObject().all(limit, offset, nome, cgccpf,
+                                                                municipio, UF,tipo_pessoa, PRONAC,
+                                                                sort_field, sort_order)
 
         except Exception as e:
             Log.error( str(e))
@@ -120,7 +150,7 @@ class Incentivador(ResourceBase):
                       }
             return self.render(result, status_code = 503)
 
-        if n_records == 0:
+        if n_records == 0 or len(results) == 0:
 
             result = {'message' : 'No donator was found with your criteria',
                                  'message_code' : 11}
@@ -139,8 +169,9 @@ class Incentivador(ResourceBase):
 
         if cgccpf is not None:
             data = self.get_unique(cgccpf, data)
+            incentivadores_ids = [cgccpf]
 
-        self.build_links(args = {'limit' : limit, 'offset' : offset, 'incentivadores_ids' : incentivadores_ids})
+        self.build_links(args = {'limit' : limit, 'offset' : offset, 'incentivadores_ids' : incentivadores_ids, 'last_offset' : n_records-1})
 
         for incentivador in data:
             incentivador["cgccpf"] = cgccpf_mask(incentivador["cgccpf"])
