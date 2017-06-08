@@ -21,10 +21,11 @@ class MSSql_connector(SQL_connector):
     def __init__(self):
 
         if app.config['SQL_DRIVER'] == 'pymssql':
-          engine = create_engine(r"mssql+pymssql://{0}:{1}@{2}/{3}".format( 
+          engine = create_engine(r"mssql+pymssql://{0}:{1}@{2}:{3}/{4}".format( 
                                           app.config['DATABASE_USER'],
                                           app.config['DATABASE_PASSWORD'],
                                           app.config['DATABASE_HOST'],
+                                          app.config['DATABASE_PORT'],
                                           app.config['DATABASE_NAME']))
 
         else:
