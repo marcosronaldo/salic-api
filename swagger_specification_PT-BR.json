@@ -14,8 +14,8 @@
             "url": "http://opendatacommons.org/licenses/oDbl/summary/"
         }
     },
-    "host": "hmg.api.salic.cultura.gov.br",
-    "basePath": "/beta",
+    "host": "api.salic.cultura.gov.br",
+    "basePath": "/v1",
     "schemes": [
         "http"
     ],
