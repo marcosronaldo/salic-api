@@ -39,15 +39,18 @@ class MSSql_connector(SQL_connector):
 
         # create a Session
         Session = sessionmaker(bind=engine)
+        # Session = sessionmaker(autoflush=False)
         try:
             self.session = Session()
             Log.info('Connection Openned')
         except:
             Log.info('Can\'t create database session')
             raise
-        finally:
-            self.session.close()
-            Log.info('Database connection closed')
+
+
+    def __del__(self):
+        self.session.close()
+        Log.info('Database connection closed')
 
 
 # def test():
