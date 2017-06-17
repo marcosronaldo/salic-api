@@ -39,7 +39,7 @@ class MSSql_connector(SQL_connector):
 
         # create a Session
         Session = sessionmaker(bind=engine)
-        # Session = sessionmaker(autoflush=False)
+
         try:
             self.session = Session()
             Log.info('Connection Openned')
@@ -49,36 +49,6 @@ class MSSql_connector(SQL_connector):
 
 
     def __del__(self):
+        # close session after query executes
         self.session.close()
         Log.info('Database connection closed')
-
-
-# def test():
-#     print 'Testing class...'
-#     sys.path.append('..')
-#     from models import *
-#     session = MSSql_connector().session
-#     #res  = session.query(ProjetoModel).order_by(ProjetoModel.IdPRONAC).slice(1,2)
-#
-#     try:
-#         #res  = session.query(func.sac.Modelo.fnValorDaProposta(ProjetoModel.idProjeto)).order_by(ProjetoModel.IdPRONAC).slice(1,10)
-#         res = session.query(
-#                             InteressadoModel.Nome
-#                             ).join(CaptacaoModel).filter(InteressadoModel.Uf=='go')
-#         for r in res:
-#             print r
-#      #      print json.dumps(r.to_dict())
-#
-#     except Exception as e:
-#         print 'Error occured : '+str(e)
-#
-#     #res  = session.query(ProjetoModel).filter(ProjetoModel.IdPRONAC == 1).all()
-#     #res = session.query(func.count(distinct(ProjetoModel.NomeProjeto)))
-#
-#     #data_dict = row2dict(res)
-#     #print data_dict
-#     #print dir(res)
-#
-#
-# if __name__ == '__main__':
-#     test()
