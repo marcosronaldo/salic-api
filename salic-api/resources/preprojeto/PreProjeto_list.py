@@ -13,6 +13,8 @@ class PreProjetoList(ResourceBase):
 
         query_args = '&'
 
+        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+
         for arg in request.args:
             if arg!= 'limit' and arg != 'offset':
                 query_args+=arg+'='+request.args[arg]+'&'
@@ -21,11 +23,11 @@ class PreProjetoList(ResourceBase):
             self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
             
 
-        if args['offset']+args['limit'] <= args['last_offset']:
+        if args['offset']+args['limit'] <= last_offset:
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
         
         self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
-        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['last_offset'])+query_args
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], last_offset)+query_args
         self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
 
 
@@ -150,6 +152,6 @@ class PreProjetoList(ResourceBase):
             preprojeto['sinopse'] = sanitize(preprojeto["sinopse"], truncated = False)
             preprojeto['resumo'] = sanitize(preprojeto["resumo"], truncated = False)
 
-        self.build_links(args = {'limit' : limit, 'offset' : offset, 'last_offset' : n_records-1})
+        self.build_links(args = {'limit' : limit, 'offset' : offset, 'n_records' : n_records})
 
         return self.render(data, headers)

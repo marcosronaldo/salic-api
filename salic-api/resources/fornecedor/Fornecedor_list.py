@@ -19,6 +19,8 @@ class FornecedorList(ResourceBase):
 
         query_args = '&'
 
+        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+
         for arg in request.args:
             if arg!= 'limit' and arg != 'offset':
                 query_args+=arg+'='+request.args[arg]+'&'
@@ -27,11 +29,11 @@ class FornecedorList(ResourceBase):
             self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
             
 
-        if args['offset']+args['limit'] <= args['last_offset']:
+        if args['offset']+args['limit'] < args['n_records']:
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
         
         self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
-        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['last_offset'])+query_args
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], last_offset)+query_args
         self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
 
         self.fornecedores_links = []
@@ -114,6 +116,7 @@ class FornecedorList(ResourceBase):
 
         try:
             results = FornecedordorModelObject().all(limit, offset, cgccpf = cgccpf, PRONAC =  PRONAC, nome  = nome)
+            n_records = FornecedordorModelObject().count(cgccpf = cgccpf, PRONAC =  PRONAC, nome  = nome)
         except Exception as e:
             Log.error( str(e))
             result = {'message' : 'internal error',
@@ -124,10 +127,6 @@ class FornecedorList(ResourceBase):
 
         results = listify_queryset(results)
 
-        n_records = FornecedordorModelObject().count(cgccpf = cgccpf, PRONAC =  PRONAC, nome  = nome)
-        n_records = listify_queryset(n_records)
-
-        n_records = n_records[0]['total']
 
         if n_records == 0 or len(results) == 0:
 
@@ -149,7 +148,7 @@ class FornecedorList(ResourceBase):
         if cgccpf is not None:
             data = self.get_unique(cgccpf, data)
 
-        self.build_links(args = {'limit' : limit, 'offset' : offset, 'fornecedores_ids' : fornecedores_ids, 'last_offset' : n_records-1})
+        self.build_links(args = {'limit' : limit, 'offset' : offset, 'fornecedores_ids' : fornecedores_ids, 'n_records' : n_records})
 
         for fornecedor in data:
             fornecedor["cgccpf"] = cgccpf_mask(fornecedor["cgccpf"])

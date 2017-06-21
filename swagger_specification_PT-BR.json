@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Essa é uma API aberta para acesso aos dados do portal [**SALIC.**](http://novosalic.cultura.gov.br/cidadao/consultar) \n\nSALIC é um sistema que reúne dados a respeito de propostas de projetos culturais a serem incentivados pelo Ministério da Cultura (**MINC**) por meio da lei Rouanet. Veja mais informações [aqui](http://www.cultura.gov.br/programa-nacional-de-apoio-a-cultura-pronac-).\n\n\n\n\n# **Formatos de Resposta** \n\n Atualmente a API suporta exportação dos dados nos formatos * <code>HAL+JSON</code>(padrão) * * <code>XML</code> e * <code>CSV</code>. A escolha do formato deve ser definido a cada chamada, por meio do campo de cabeçalho <code>Accept</code>. \n\n # **Limitação de uso** \n\nPara requisições sem autenticação, você pode fazer até **2000 requisições diárias**. Requisições não autenticadas estão ligadas ao endereço IP de origem, não ao usuário fazendo a requisição. \n\nO cabeçalho da resposta lhe diz tudo o que você precisa saber sobre o seu limite de uso atualmente:\n<table> <tr> <td>**Campo do Cabeçalho**</td> <td>**Descrição**</td> </tr>\n<tr> <td>X-RateLimit-Limit</td> <td>Número de requisições permitidas no período.</td> </tr>\n<tr> <td>X-RateLimit-Remaining</td> <td>Número de requisições restantes na janela de limite atual.</td> </tr>\n<tr> <td>X-RateLimit-Reset</td> <td>Tempo para que a janela de limite resete em segundos UTC epoch.</td> </tr>\n<tr> <td>Retry-After</td> <td>Segundos para tentar novamente ou a data http quando a janela de limite será resetada.</td> </tr>\n</table>\n\n\n # **Paginação** \n\n Para alguns recursos que possam gerar um grande volume de resultados, a API provê um sistema de  paginação. Ao fazer sua requisição, basta fazer uso dos campos <code>limit</code> **[1-100]** e <code>offset</code> **[0-Total-Count]** para navegar pelos resultados. Você também pode se guiar pelos links <code>first, self, prev, next, last</code> contidos nas respostas. Sua resposta conterá campos <code>count</code> e <code>total</code> que se referem ao total de objetos retornados e total de entradas contidas na base de dados repectivamente. Adicionamente, um campo de cabeçalho chamado <code>X-Total-Count</code> será enviado junto às respostas, denotando também o total de entradas contidas na base de dados que atendam ao seu critério de busca.",
+        "description": "Essa é uma API aberta para acesso aos dados do portal [**SALIC.**](http://novosalic.cultura.gov.br/cidadao/consultar) \n\nSALIC é um sistema que reúne dados a respeito de propostas de projetos culturais a serem incentivados pelo Ministério da Cultura (**MINC**) por meio da lei Rouanet. Veja mais informações [aqui](http://www.cultura.gov.br/programa-nacional-de-apoio-a-cultura-pronac-).\n\n\n\n\n# **Formatos de Resposta** \n\n Atualmente a API suporta exportação dos dados nos formatos * <code>HAL+JSON</code>(padrão) * * <code>XML</code> e * <code>CSV</code>. A escolha do formato deve ser definido a cada chamada, por meio do campo de cabeçalho <code>Accept</code> ou pelo parâmetro de pesquisa <code>format</code>. \n\n\n # **Paginação** \n\n Para alguns recursos que possam gerar um grande volume de resultados, a API provê um sistema de  paginação. Ao fazer sua requisição, basta fazer uso dos campos <code>limit</code> **[1-100]** e <code>offset</code> **[0-Total-Count]** para navegar pelos resultados. Você também pode se guiar pelos links <code>first, self, prev, next, last</code> contidos nas respostas. Sua resposta conterá campos <code>count</code> e <code>total</code> que se referem ao total de objetos retornados e total de entradas contidas na base de dados repectivamente. Adicionamente, um campo de cabeçalho chamado <code>X-Total-Count</code> será enviado junto às respostas, denotando também o total de entradas contidas na base de dados que atendam ao seu critério de busca.",
         "version": "0.2.1-beta",
         "title": "SALIC API",
         "termsOfService": "http://www.cultura.gov.br/programa-nacional-de-apoio-a-cultura-pronac-",
@@ -40,6 +40,18 @@
                         "required": true,
                         "type": "string",
                         "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -232,7 +244,19 @@
                     {
                         "in": "query",
                         "name": "sort",
-                        "description": "Ordenar a busca por um dos campos : PRONAC, ano_projeto, data_inicio, data_termino, valor_solicitado, outras_fontes, valor_captado, valor_proposta, valor_aprovado, valor_projeto. Formato: sort=CAMPO ou sort=CAMPO:asc ou ainda sort=CAMPO:desc ",
+                        "description": "Ordenar a busca por um dos campos : PRONAC, ano_projeto, data_inicio, data_termino, valor_solicitado, outras_fontes, valor_captado, valor_proposta, valor_aprovado, valor_projeto. Formato: sort=CAMPO ou sort=CAMPO:asc ou ainda sort=CAMPO:desc. Padrão : ano_projeto:desc",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
                         "required": false,
                         "type": "string"
                     }
@@ -439,6 +463,18 @@
                         "required": false,
                         "type": "string",
                         "format": "date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -509,6 +545,18 @@
                         "required": true,
                         "type": "string",
                         "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -643,7 +691,19 @@
                     {
                         "in": "query",
                         "name": "sort",
-                        "description": "Ordenar a busca por um dos campos : total_doado.Formato: sort=CAMPO ou sort=CAMPO:asc ou ainda sort=CAMPO:desc ",
+                        "description": "Ordenar a busca por um dos campos : total_doado.Formato: sort=CAMPO ou sort=CAMPO:asc ou ainda sort=CAMPO:desc. Padrão : Internamente baseado no cgccpf",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
                         "required": false,
                         "type": "string"
                     }
@@ -712,6 +772,18 @@
                         "description": "id do incentivador",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -776,6 +848,37 @@
                         "name": "incentivador_id",
                         "description": "id do incentivador",
                         "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Número de doações a serem retornadas",
+                        "required": false,
+                        "type": "integer",
+                        "default": 100,
+                        "minimum": 1,
+                        "maximum": 100
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Número de paginação de resultados",
+                        "required": false,
+                        "type": "integer",
+                        "default": 0,
+                        "minimum": 0
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
                         "type": "string"
                     }
                 ],
@@ -885,6 +988,18 @@
                         "type": "integer",
                         "default": 0,
                         "minimum": 0
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -954,6 +1069,18 @@
                         "description": "id do fornecedor",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -1015,6 +1142,37 @@
                         "name": "fornecedor_id",
                         "description": "id do fornecedor",
                         "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Número de produtos a serem retornados",
+                        "required": false,
+                        "type": "integer",
+                        "default": 100,
+                        "minimum": 1,
+                        "maximum": 100
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Número de paginação de resultados",
+                        "required": false,
+                        "type": "integer",
+                        "default": 0,
+                        "minimum": 0
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
                         "type": "string"
                     }
                 ],
@@ -1145,7 +1303,19 @@
                     {
                         "in": "query",
                         "name": "sort",
-                        "description": "Ordenar a busca por um dos campos : total_captado.Formato: sort=CAMPO ou sort=CAMPO:asc ou ainda sort=CAMPO:desc ",
+                        "description": "Ordenar a busca por um dos campos : total_captado.Formato: sort=CAMPO ou sort=CAMPO:asc ou ainda sort=CAMPO:desc. Padrão : Internamente baseado no cgccpf",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
                         "required": false,
                         "type": "string"
                     }
@@ -1216,6 +1386,18 @@
                         "name": "proponente_id",
                         "description": "id do proponente",
                         "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "description": "Formato de retorno",
+                        "enum": [
+                            "json",
+                            "xml",
+                            "csv"
+                        ],
+                        "required": false,
                         "type": "string"
                     }
                 ],
@@ -1403,10 +1585,6 @@
                 }
             }
         },
-        "Pedido": {
-            "type": "object",
-            "properties": {}
-        },
         "Divulgacao": {
             "type": "object",
             "properties": {
@@ -1540,15 +1718,140 @@
         },
         "RelacaoPagamento": {
             "type": "object",
-            "properties": {}
+            "properties": {
+                "id_planilha_aprovacao": {
+                    "type": "integer"
+                },
+                "justificativa": {
+                    "type": "string"
+                },
+                "data_pagamento": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "cgccpf": {
+                    "type": "string"
+                },
+                "data_aprovacao": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "valor_pagamento": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "nm_arquivo": {
+                    "type": "string"
+                },
+                "id_arquivo": {
+                    "type": "integer"
+                },
+                "nome_fornecedor": {
+                    "type": "string"
+                },
+                "id_comprovante_pagamento": {
+                    "type": "integer"
+                },
+                "nr_documento_pagamento": {
+                    "type": "string"
+                },
+                "tipo_documento": {
+                    "type": "string"
+                }
+            }
         },
-        "Parecer": {
+        "Readequacao": {
             "type": "object",
-            "properties": {}
+            "properties": {
+                "is_arquivo": {
+                    "type": "string"
+                },
+                "nome_arquivo": {
+                    "type": "string"
+                },
+                "st_atendimento": {
+                    "type": "string"
+                },
+                "descricao_readequacao": {
+                    "type": "string"
+                },
+                "descricao_justificativa": {
+                    "type": "string"
+                },
+                "descricao_encaminhamento": {
+                    "type": "string"
+                },
+                "descricao_avaliacao": {
+                    "type": "string"
+                },
+                "descricao_solicitacao": {
+                    "type": "integer"
+                },
+                "id_avaliador": {
+                    "type": "integer"
+                },
+                "id_tipo_readequacao": {
+                    "type": "integer"
+                },
+                "si_encaminhamento": {
+                    "type": "integer"
+                },
+                "id_readequacao": {
+                    "type": "integer"
+                },
+                "id_solicitante": {
+                    "type": "integer"
+                },
+                "st_estado": {
+                    "type": "boolean"
+                },
+                "data_solicitacao": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "data_avaliador": {
+                    "type": "string",
+                    "format": "date"
+                }
+            }
         },
         "RelatorioFisco": {
             "type": "object",
-            "properties": {}
+            "properties": {
+                "etapa": {
+                    "type": "string"
+                },
+                "unidade": {
+                    "type": "string"
+                },
+                "item": {
+                    "type": "string"
+                },
+                "perc_executado": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "perc_a_executar": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "valor_programado": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "qtd_programada": {
+                    "type": "integer"
+                },
+                "valor_executado": {
+                    "type": "integer"
+                },
+                "id_planilha_etapa": {
+                    "type": "integer"
+                }
+            }
         },
         "ProjetoDetail": {
             "type": "object",
@@ -1690,20 +1993,9 @@
                     }
                 },
                 "readequacoes": {
-                    "type": "object",
-                    "properties": {
-                        "pedidos": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Pedido"
-                            }
-                        },
-                        "pareceres": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Parecer"
-                            }
-                        }
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Readequacao"
                     }
                 },
                 "documentos_anexados": {

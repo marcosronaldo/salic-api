@@ -17,11 +17,27 @@ class Doacao(ResourceBase):
 
      def build_links(self, args = {}):
 
-        self.links = {'self' : ''}
-
+        query_args = '&'
         incentivador_id = args['incentivador_id']
 
-        self.links["self"] = app.config['API_ROOT_URL'] + 'incentivadores/%s/doacoes/'%incentivador_id
+        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+
+        self.links['self'] += incentivador_id + '/doacoes/'
+
+        for arg in request.args:
+            if arg!= 'limit' and arg != 'offset':
+                query_args+=arg+'='+request.args[arg]+'&'
+
+        if args['offset']-args['limit'] >= 0:
+            self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
+            
+
+        if args['offset']+args['limit'] <= last_offset:
+            self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
+        
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], last_offset)+query_args
+        self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
 
         self.doacoes_links = []
 
@@ -36,9 +52,16 @@ class Doacao(ResourceBase):
      def __init__(self):
         super (Doacao,self).__init__()
 
+        self.links = {
+                    "self" : app.config['API_ROOT_URL']+'incentivadores/',
+        }
+
         def hal_builder(data, args = {}):
 
-            hal_data = {'_links' : ''}
+            total = args['total']
+            count = len(data)
+
+            hal_data = {'_links' : '', 'total' : total, 'count' : count}
             
             hal_data['_links']  = self.links
 
@@ -57,10 +80,19 @@ class Doacao(ResourceBase):
      def get(self, incentivador_id):
 
         cgccpf = decrypt(incentivador_id)
-        print cgccpf
+
+        if request.args.get('limit') is not None:
+            limit = int(request.args.get('limit'))
+        else:
+            limit = app.config['LIMIT_PAGING']
+
+        if request.args.get('offset') is not None:
+            offset = int(request.args.get('offset'))
+        else:
+            offset = app.config['OFFSET_PAGING']
 
         try:
-            results = DoacaoModelObject().all(cgccpf = cgccpf)
+            results, n_records = DoacaoModelObject().all(limit, offset, cgccpf)
         except Exception as e:
             Log.error( str(e))
             result = {'message' : 'internal error',
@@ -69,11 +101,13 @@ class Doacao(ResourceBase):
                       }
             return self.render(result, status_code = 503)
 
-        if len(results) == 0:
+        if n_records == 0 or len(results) == 0:
             result = {'message' : 'No funding info was found with your criteria',
                                  'message_code' : 11}
 
             return self.render(result, status_code = 404)
+
+        headers = {'X-Total-Count' : n_records}
 
         data = listify_queryset(results)
 
@@ -81,10 +115,11 @@ class Doacao(ResourceBase):
             doacao["cgccpf"] = remove_blanks(doacao['cgccpf'])
 
         data = self.get_unique(cgccpf, data)
-
-        self.build_links(args = {'incentivador_id' : incentivador_id, 'doacoes' : data})
+       
+        self.build_links(args = {'incentivador_id' : incentivador_id, 'doacoes' : data,
+                                 'limit' : limit, 'offset' : offset, 'n_records' : n_records})
 
         for doacao in data:
             doacao["cgccpf"] = cgccpf_mask(doacao["cgccpf"])
 
-        return self.render(data)
+        return self.render(data, headers)

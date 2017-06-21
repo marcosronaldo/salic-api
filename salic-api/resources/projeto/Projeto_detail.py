@@ -4,8 +4,9 @@ from ..ResourceBase import *
 from models import (
                     ProjetoModelObject, CertidoesNegativasModelObject,
                     DivulgacaoModelObject,DescolamentoModelObject,
-                    DistribuicaoModelObject, AdequacoesPedidoModelObject,
-                    AdequacoesParecerModelObject, CaptacaoModelObject
+                    DistribuicaoModelObject, ReadequacaoModelObject,
+                    AdequacoesPedidoModelObject, AdequacoesParecerModelObject,
+                    CaptacaoModelObject
                     )
 from ..serialization import listify_queryset
 from ..format_utils import truncate, remove_blanks, cgccpf_mask
@@ -40,9 +41,19 @@ class ProjetoDetail(ResourceBase):
                 captacao_links = {}
                 captacao_links['projeto'] = app.config['API_ROOT_URL'] + 'projetos/%s'%args['PRONAC']
                 url_id = encrypt(captacao['cgccpf'])
-                captacao_links['incentivador'] = app.config['API_ROOT_URL'] + 'incentivadores/?url_id=%s'%url_id
+                captacao_links['incentivador'] = app.config['API_ROOT_URL'] + 'incentivadores/%s'%url_id
 
                 self.captacoes_links.append(captacao_links)
+
+        self.produtos_links = []
+
+        for produto in args['produtos']:
+                produto_links = {}
+                fornecedor_id = encrypt(produto['cgccpf'])
+                produto_links['projeto'] = app.config['API_ROOT_URL'] + 'projetos/%s'%args['PRONAC']
+                produto_links['fornecedor'] = app.config['API_ROOT_URL'] + 'fornecedores/%s'%fornecedor_id
+
+                self.produtos_links.append(produto_links)
 
 
     def __init__(self):
@@ -58,14 +69,23 @@ class ProjetoDetail(ResourceBase):
             
             hal_data['_links']  = self.links
 
-            hal_data['_embedded'] = {'captacoes' : []}
+            hal_data['_embedded'] = {'captacoes' : [], 'relacao_bens_captal' : [],
+                                    'marcas_anexadas' : [], 'deslocamento' : [],
+                                    'divulgacao' : [], 'relatorio_fisco' : [],
+                                    'certidoes_negativas' : [], 'relacao_pagamentos' : [],
+                                    'readequacoes' : [], 'documentos_anexados' : [],
+                                    'distribuicao' : [], 'prorrogacao' : []}
 
             for index in range(len(data['captacoes'])):
                 data['captacoes'][index]['_links'] = self.captacoes_links[index]
+
+            for index in range(len(data['relacao_pagamentos'])):
+                data['relacao_pagamentos'][index]['_links'] = self.produtos_links[index]
                 
 
-            hal_data['_embedded']['captacoes'] = data['captacoes']
-            del data['captacoes']
+            for emb_field in hal_data['_embedded']:
+                hal_data['_embedded'][emb_field] = data[emb_field]
+                del data[emb_field]
 
 
             return hal_data
@@ -265,9 +285,9 @@ class ProjetoDetail(ResourceBase):
         projeto['distribuicao'] = distribuicoes_satitized
 
         try:
-            readequacoes_pedido = AdequacoesPedidoModelObject().all(projeto['IdPRONAC'])
+            readequacoes = ReadequacaoModelObject().all(projeto['IdPRONAC'])
         except Exception as e:
-            Log.error('Database error trying to fetch \"readequacoes_pedido data\"')
+            Log.error('Database error trying to fetch \"readequacoes data\"')
             Log.error( str(e))
             result = {'message' : 'internal error',
                       'message_code' :  13,
@@ -275,35 +295,12 @@ class ProjetoDetail(ResourceBase):
                       }
             return self.render(result, status_code = 503)
 
-        readequacoes_pedido = listify_queryset(readequacoes_pedido)
+        readequacoes = listify_queryset(readequacoes)
 
-        for readequacao in readequacoes_pedido:
-            readequacao['dsJustificativa'] = sanitize(readequacao['dsJustificativa'], truncated = False)
-            readequacao['dsAvaliacao'] = sanitize(readequacao['dsAvaliacao'], truncated = False)
-            readequacao['dsSolicitacao'] = sanitize(readequacao['dsSolicitacao'], truncated = False)
-
-        try:
-            readequacoes_parecer = AdequacoesParecerModelObject().all(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"readequacoes_parecer data\"')
-            Log.error( str(e))
-            result = {'message' : 'internal error',
-                      'message_code' :  13,
-                      'more' : 'something is broken'
-                      }
-            return self.render(result, status_code = 503)
-
-        readequacoes_parecer = listify_queryset(readequacoes_parecer)
-
-        for readequacao in readequacoes_parecer:
-            readequacao['dsJustificativa'] = sanitize(readequacao['dsJustificativa'], truncated = False)
-            readequacao['dsAvaliacao'] = sanitize(readequacao['dsAvaliacao'], truncated = False)
-            readequacao['dsSolicitacao'] = sanitize(readequacao['dsSolicitacao'], truncated = False)
-
-        readequacoes = {}
-
-        readequacoes['pedido'] = readequacoes_pedido
-        readequacoes['parecer'] = readequacoes_parecer
+        for readequacao in readequacoes:
+            readequacao['descricao_justificativa'] = sanitize(readequacao['descricao_justificativa'], truncated = False)
+            readequacao['descricao_avaliacao'] = sanitize(readequacao['descricao_avaliacao'], truncated = False)
+            readequacao['descricao_solicitacao'] = sanitize(readequacao['descricao_solicitacao'], truncated = False)
 
         projeto['readequacoes'] = readequacoes
 
@@ -399,10 +396,15 @@ class ProjetoDetail(ResourceBase):
         "Removing IdPRONAC"
         del projeto['IdPRONAC']
 
-        self.build_links(args = {'PRONAC' : projeto['PRONAC'], 'proponente_id' : projeto['cgccpf'], 'captacoes' : projeto['captacoes']})
+        self.build_links(args = {'PRONAC' : projeto['PRONAC'], 'proponente_id' : projeto['cgccpf'],
+                                'captacoes' : projeto['captacoes'], 'produtos' : relacao_pagamentos})
+        
         projeto['cgccpf'] = cgccpf_mask(projeto['cgccpf'])
 
         for captacao in projeto['captacoes']:
             captacao['cgccpf'] = cgccpf_mask(captacao['cgccpf'])
+
+        for produto in projeto['relacao_pagamentos']:
+            produto['cgccpf'] = cgccpf_mask(produto['cgccpf'])
 
         return self.render(projeto)

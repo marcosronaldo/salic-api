@@ -67,9 +67,9 @@ def remove_blanks(word):
 def cgccpf_mask(cgccpf):
 
     if validate_cpf(cgccpf):
-        cgccpf = '******'+cgccpf[6:]
+        cgccpf = '***'+cgccpf[3:9]+'**'
 
-    return cgccpf
+    return cgccpf 
 
 def remove_html_tags(word):
     if word is None:

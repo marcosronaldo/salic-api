@@ -3,6 +3,7 @@
 from sqlalchemy import case, func, and_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import text
+from sqlalchemy.sql.functions import coalesce
 from sqlalchemy.sql.expression import asc, desc
 
 from ..ModelsBase import ModelsBase
@@ -19,6 +20,8 @@ import sys
 sys.path.append('../../')
 from utils.Timer import Timer
 from utils.Log import Log
+
+from ..serialization import listify_queryset
 
 
 
@@ -65,12 +68,13 @@ class ProjetoModelObject(ModelsBase):
         return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac})
 
 
-    def payments_listing(self, idPronac = None, cgccpf = None):
+    def payments_listing(self, limit = None, offset = None, idPronac = None, cgccpf = None):
         #Relação de pagamentos
 
         if idPronac != None:
 
-            query = text("""
+            if limit == None:
+                query = text("""
                         SELECT
                                 d.Descricao as nome,
                                 b.idComprovantePagamento as id_comprovante_pagamento,
@@ -108,12 +112,63 @@ class ProjetoModelObject(ModelsBase):
                                 LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
                                 LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
                                 LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
+
+                                ORDER BY data_pagamento
                                 """
                                 )
-            return self.sql_connector.session.execute(query, {'idPronac' : idPronac})
+
+            else:
+                query = text("""
+                        SELECT
+                                d.Descricao as nome,
+                                b.idComprovantePagamento as id_comprovante_pagamento,
+                                a.idPlanilhaAprovacao as id_planilha_aprovacao,
+                                g.CNPJCPF as cgccpf,
+                                e.Descricao as nome_fornecedor,
+                                b.DtPagamento as data_aprovacao,
+                                CASE tpDocumento
+                                    WHEN 1 THEN ('Boleto Bancario')
+                                    WHEN 2 THEN ('Cupom Fiscal')
+                                    WHEN 3 THEN ('Guia de Recolhimento')
+                                    WHEN 4 THEN ('Nota Fiscal/Fatura')
+                                    WHEN 5 THEN ('Recibo de Pagamento')
+                                    WHEN 6 THEN ('RPA')
+                                    ELSE ''
+                                END as tipo_documento,
+                                b.nrComprovante as nr_comprovante,
+                                b.dtEmissao as data_pagamento,
+                                CASE
+                                  WHEN b.tpFormaDePagamento = '1'
+                                     THEN 'Cheque'
+                                  WHEN b.tpFormaDePagamento = '2'
+                                     THEN 'Transferencia Bancaria'  WHEN b.tpFormaDePagamento = '3'
+                                     THEN 'Saque/Dinheiro'
+                                     ELSE ''
+                                END as tipo_forma_pagamento,
+                                b.nrDocumentoDePagamento nr_documento_pagamento,
+                                a.vlComprovado as valor_pagamento,
+                                b.idArquivo as id_arquivo,
+                                b.dsJustificativa as justificativa,
+                                f.nmArquivo as nm_arquivo FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
+                                INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
+                                LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
+                                LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
+                                LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
+                                LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
+                                LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
+
+                                ORDER BY data_pagamento
+                                OFFSET :offset ROWS
+                                FETCH NEXT :limit ROWS ONLY;
+
+                                """
+                                )
+            return self.sql_connector.session.execute(query, {'idPronac' : idPronac,'offset' : offset, 'limit' : limit})
 
         else:
-            query = text("""
+
+            if limit == None:
+                query = text("""
                         SELECT
                                 d.Descricao as nome,
                                 b.idComprovantePagamento as id_comprovante_pagamento,
@@ -153,10 +208,106 @@ class ProjetoModelObject(ModelsBase):
                                 LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
                                 JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
                                 LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
+
+                                ORDER BY data_pagamento
+                                
                                 """
                                 )
 
-            return self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'})
+            else:
+                query = text("""
+                            SELECT
+                                    d.Descricao as nome,
+                                    b.idComprovantePagamento as id_comprovante_pagamento,
+                                    a.idPlanilhaAprovacao as id_planilha_aprovacao,
+                                    g.CNPJCPF as cgccpf,
+                                    e.Descricao as nome_fornecedor,
+                                    b.DtPagamento as data_aprovacao,
+                                    Projetos.AnoProjeto + Projetos.Sequencial as PRONAC,
+                                    CASE tpDocumento
+                                        WHEN 1 THEN ('Boleto Bancario')
+                                        WHEN 2 THEN ('Cupom Fiscal')
+                                        WHEN 3 THEN ('Guia de Recolhimento')
+                                        WHEN 4 THEN ('Nota Fiscal/Fatura')
+                                        WHEN 5 THEN ('Recibo de Pagamento')
+                                        WHEN 6 THEN ('RPA')
+                                        ELSE ''
+                                    END as tipo_documento,
+                                    b.nrComprovante as nr_comprovante,
+                                    b.dtEmissao as data_pagamento,
+                                    CASE
+                                      WHEN b.tpFormaDePagamento = '1'
+                                         THEN 'Cheque'
+                                      WHEN b.tpFormaDePagamento = '2'
+                                         THEN 'Transferencia Bancaria'  WHEN b.tpFormaDePagamento = '3'
+                                         THEN 'Saque/Dinheiro'
+                                         ELSE ''
+                                    END as tipo_forma_pagamento,
+                                    b.nrDocumentoDePagamento nr_documento_pagamento,
+                                    a.vlComprovado as valor_pagamento,
+                                    b.idArquivo as id_arquivo,
+                                    b.dsJustificativa as justificativa,
+                                    f.nmArquivo as nm_arquivo FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
+                                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
+                                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
+                                    LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
+                                    LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
+                                    LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
+                                    JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
+                                    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
+
+                                    ORDER BY data_pagamento
+                                    OFFSET :offset ROWS
+                                    FETCH NEXT :limit ROWS ONLY;
+                                    
+                                    """
+                                    )
+
+            return self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%', 'offset' : offset, 'limit' : limit})
+
+
+    def payments_listing_count(self, idPronac = None, cgccpf = None):
+        #Número de pagamentos/produtos
+
+        if idPronac != None:
+
+            query = text("""
+                        SELECT
+                                COUNT(b.idArquivo) AS total
+                                
+                                FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
+                                INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
+                                LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
+                                LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
+                                LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
+                                LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
+                                LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
+                                """
+                                )
+            result = self.sql_connector.session.execute(query, {'idPronac' : idPronac})
+
+        else:
+            query = text("""
+                        SELECT
+                                COUNT(b.idArquivo) AS total
+
+                                FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
+                                INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
+                                LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
+                                LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
+                                LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
+                                LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
+                                JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
+                                LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
+                                """
+                                )
+
+            result =  self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'})
+
+        n_records = listify_queryset(result)
+
+        return n_records[0]['total']
+
 
 
 
@@ -166,15 +317,24 @@ class ProjetoModelObject(ModelsBase):
 
         query = text("""
                     SELECT
-                    f.idPlanilhaEtapa,
-                    f.Descricao AS Etapa,
-                    d.Descricao AS Item,
-                    g.Descricao AS Unidade,
-                    (c.qtItem*nrOcorrencia) AS qteProgramada,
-                    (c.qtItem*nrOcorrencia*c.vlUnitario) AS vlProgramado,
-                    ((sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario)) * 100) AS PercExecutado,
-                    (sum(b.vlComprovacao)) AS vlExecutado,
-                    (100 - (sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario)) * 100) AS PercAExecutar
+                    f.idPlanilhaEtapa as id_planilha_etapa,
+                    f.Descricao AS etapa,
+                    d.Descricao AS item,
+                    g.Descricao AS unidade,
+                    (c.qtItem*nrOcorrencia) AS qtd_programada,
+                    (c.qtItem*nrOcorrencia*c.vlUnitario) AS valor_programado,
+                        
+                        CASE c.qtItem*nrOcorrencia*c.vlUnitario
+                            WHEN 0 then NULL
+                            ELSE ROUND(sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario) * 100, 2)
+                        END AS perc_executado,
+                    
+                        CASE c.qtItem*nrOcorrencia*c.vlUnitario
+                            WHEN 0 then NULL
+                            ELSE ROUND(100 - (sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario) * 100), 2) 
+                        END AS perc_a_executar,
+
+                    (sum(b.vlComprovacao)) AS valor_executado
                  FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                  INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                  INNER JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
@@ -251,8 +411,7 @@ class ProjetoModelObject(ModelsBase):
                              ProjetoModel.ProvidenciaTomada.label('providencia'),
                              )
 
-        valor_proposta_case = case([(ProjetoModel.IdPRONAC != None, func.sac.dbo.fnValorDaProposta(ProjetoModel.IdPRONAC)),],
-        else_ = func.sac.dbo.fnValorSolicitado(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial))
+        valor_proposta_case = coalesce(func.sac.dbo.fnValorDaProposta(ProjetoModel.idProjeto), func.sac.dbo.fnValorSolicitado(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial))
 
         valor_aprovado_case = case([(ProjetoModel.Mecanismo == '2' or ProjetoModel.Mecanismo == '6', func.sac.dbo.fnValorAprovadoConvenio(ProjetoModel.AnoProjeto,ProjetoModel.Sequencial)),],
         else_ = func.sac.dbo.fnValorAprovado(ProjetoModel.AnoProjeto,ProjetoModel.Sequencial))
@@ -559,6 +718,44 @@ class DistribuicaoModelObject(ModelsBase):
         res  = res.filter(and_(ProjetoModel.IdPRONAC == IdPRONAC, PlanoDistribuicaoModel.stPlanoDistribuicaoProduto == 1))
 
         return res.all()
+
+
+
+class ReadequacaoModelObject(ModelsBase):
+
+    def __init__(self):
+        super (ReadequacaoModelObject,self).__init__()
+
+    def all(self, IdPRONAC):
+
+        stmt = text(
+                    """
+                    SELECT
+                a.idReadequacao as id_readequacao,
+                a.dtSolicitacao as data_solicitacao,
+                CAST(a.dsSolicitacao AS TEXT) AS descricao_solicitacao,
+                CAST(a.dsJustificativa AS TEXT) AS descricao_justificativa,
+                a.idSolicitante AS id_solicitante,
+                a.idAvaliador AS id_avaliador,
+                a.dtAvaliador AS data_avaliador,
+                CAST(a.dsAvaliacao AS TEXT) AS descricao_avaliacao,
+                a.idTipoReadequacao AS id_tipo_readequacao,
+                CAST(c.dsReadequacao AS TEXT) AS descricao_readequacao,
+                a.stAtendimento AS st_atendimento,
+                a.siEncaminhamento AS si_encaminhamento,
+                CAST(b.dsEncaminhamento AS TEXT) AS descricao_encaminhamento,
+                a.stEstado AS st_estado,
+                e.idArquivo AS is_arquivo,
+                e.nmArquivo AS nome_arquivo
+             FROM SAC.dbo.tbReadequacao AS a
+             INNER JOIN SAC.dbo.tbTipoEncaminhamento AS b ON a.siEncaminhamento = b.idTipoEncaminhamento INNER JOIN SAC.dbo.tbTipoReadequacao AS c ON c.idTipoReadequacao = a.idTipoReadequacao
+             LEFT JOIN BDCORPORATIVO.scCorp.tbDocumento AS d ON d.idDocumento = a.idDocumento
+             LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS e ON e.idArquivo = d.idArquivo WHERE (a.idPronac = :IdPRONAC) AND (a.siEncaminhamento <> 12)
+                    """
+        )
+
+        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC})
+
 
 
 class AdequacoesPedidoModelObject(ModelsBase):

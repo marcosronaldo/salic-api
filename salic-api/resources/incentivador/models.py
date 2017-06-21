@@ -93,7 +93,10 @@ class DoacaoModelObject(ModelsBase):
 
 
 
-    def all(self, cgccpf = None):
+    def all(self, limit, offset, cgccpf = None):
+
+        start_row = offset
+        end_row = offset+limit
 
         res = self.sql_connector.session.query(
                                                CaptacaoModel.PRONAC,
@@ -111,7 +114,13 @@ class DoacaoModelObject(ModelsBase):
         if cgccpf is not None:
             res = res.filter(InteressadoModel.CgcCpf.like('%' + cgccpf + '%') )
 
-        return res.all()
+        res = res.order_by(desc(CaptacaoModel.DtRecibo))
+        
+        total_records = res.count()
+
+        res = res.slice(start_row, end_row)
+
+        return res.all(), total_records
 
     def total(self, cgccpf):
 

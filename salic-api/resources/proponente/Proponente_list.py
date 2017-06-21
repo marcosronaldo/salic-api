@@ -21,6 +21,8 @@ class ProponenteList(ResourceBase):
 
         query_args = '&'
 
+        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+
         for arg in request.args:
             if arg!= 'limit' and arg != 'offset':
                 query_args+=arg+'='+request.args[arg]+'&'
@@ -29,11 +31,11 @@ class ProponenteList(ResourceBase):
             self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
             
 
-        if args['offset']+args['limit'] <= args['last_offset']:
+        if args['offset']+args['limit'] <= last_offset:
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
         
         self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
-        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['last_offset'])+query_args
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], last_offset)+query_args
         self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
 
         self.proponentes_links = []
@@ -159,7 +161,7 @@ class ProponenteList(ResourceBase):
             data = self.get_unique(cgccpf, data)
             proponentes_ids = [cgccpf]
 
-        self.build_links(args = {'limit' : limit, 'offset' : offset, 'proponentes_ids' : proponentes_ids, 'last_offset' : n_records-1})
+        self.build_links(args = {'limit' : limit, 'offset' : offset, 'proponentes_ids' : proponentes_ids, 'n_records' : n_records})
 
         for projeto_index in range(len(data)):
             data[projeto_index]['cgccpf'] = cgccpf_mask(data[projeto_index]['cgccpf'])

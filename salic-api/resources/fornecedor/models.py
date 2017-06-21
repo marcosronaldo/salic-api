@@ -2,6 +2,7 @@ from sqlalchemy.sql import text
 from ..ModelsBase import ModelsBase
 from ..SharedModels import InteressadoModel, ProjetoModel
 from ..projeto.models import ProjetoModelObject
+from ..serialization import listify_queryset
 
 
 class FornecedordorModelObject(ModelsBase):
@@ -78,7 +79,7 @@ class FornecedordorModelObject(ModelsBase):
                    LEFT JOIN Agentes.dbo.Internet AS Internet ON b.idFornecedor = Internet.idAgente
                    JOIN SAC.dbo.Projetos AS Projetos ON PlanilhaAprovacao.idPronac = Projetos.IdPRONAC
 
-                   WHERE (Projetos.AnoProjeto + Projetos.Sequencial = :PRONAC) AND g.CNPJCPFIS NOT NULL
+                   WHERE (Projetos.AnoProjeto + Projetos.Sequencial = :PRONAC) AND g.CNPJCPF IS NOT NULL
 
                    ORDER BY cgccpf
                    OFFSET :offset ROWS
@@ -134,7 +135,7 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            return self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'})
+            result =  self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'})
 
 
         elif nome is not None:
@@ -155,7 +156,7 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            return self.sql_connector.session.execute(query, {'nome' : '%'+nome+'%'})
+            result = self.sql_connector.session.execute(query, {'nome' : '%'+nome+'%'})
 
 
 
@@ -178,7 +179,7 @@ class FornecedordorModelObject(ModelsBase):
                   
               """)
 
-            return self.sql_connector.session.execute(query, {'PRONAC' : PRONAC})
+            result = self.sql_connector.session.execute(query, {'PRONAC' : PRONAC})
 
         else:
             query = text ("""
@@ -199,7 +200,11 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            return self.sql_connector.session.execute(query, {})
+            result = self.sql_connector.session.execute(query, {})
+
+        n_records = listify_queryset(result)
+
+        return n_records[0]['total']
 
 
 class ProductModelObject(ModelsBase):
@@ -208,6 +213,16 @@ class ProductModelObject(ModelsBase):
         super (ProductModelObject,self).__init__()
 
 
-  def all(self, cgccpf):
-      return ProjetoModelObject().payments_listing(cgccpf = cgccpf)
+  def all(self, limit, offset, cgccpf):
+      return ProjetoModelObject().payments_listing(limit, offset, cgccpf = cgccpf)
+
+
+  def count(self, cgccpf):
+      return ProjetoModelObject().payments_listing_count(cgccpf = cgccpf)
+
+      # n_records = listify_queryset(result)
+
+      # print 'full list:' + str(n_records)
+
+      # return n_records[0]['total']
 

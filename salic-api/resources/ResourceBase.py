@@ -4,6 +4,7 @@ from flask import Response
 from flask_restful import Resource
 from APIError import APIError
 from rate_limiting import shared_limiter
+from security import md5hash
 import sys
 sys.path.append('../')
 from app import app
@@ -44,18 +45,35 @@ class ResourceBase(Resource):
 
     def render(self, data, headers =  {}, status_code  = 200, raw = False):
 
-        if request.headers['Accept'] == 'application/xml':
+        if not self.resolve_content():
+            data = {'message' : 'invalid format',
+                    'code' : 55}
+            status_code = 405
+
+        if self.content_type == 'xml':
             if raw:
                 data = data
             else:
                 data = serialize(data, 'xml')
             response = Response(data, content_type='application/xml; charset=utf-8')
 
-        elif request.headers['Accept'] == 'text/csv':
+        elif self.content_type == 'csv':
             if raw:
                 data = data
             else:
                 data = serialize(data, 'csv')
+
+            resource_path = request.path.split("/")
+
+            if resource_path[len(resource_path)-1] != "":
+                resource_type = resource_path[len(resource_path)-1]
+
+            else:
+                resource_type = resource_path[len(resource_path)-2]
+
+            args_hash = md5hash(format_args(request.args))
+
+            headers["Content-Disposition"] = "attachment; filename=salicapi-%s-%s.csv"%(resource_type, args_hash)
 
             response = Response(data, content_type='text/csv; charset=utf-8')
 
@@ -81,7 +99,8 @@ class ResourceBase(Resource):
         access_control_headers =  "Content-Length, Content-Type, "
         access_control_headers += "Date, Server, "
         access_control_headers += "X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, "
-        access_control_headers += "X-Total-Count"
+        access_control_headers += "X-Total-Count, "
+        access_control_headers += "Content-Disposition"
 
         headers['Access-Control-Expose-Headers'] = access_control_headers
 
@@ -111,11 +130,57 @@ class ResourceBase(Resource):
         return exact_matches
 
 
+    def get_last_offset(self, n_records, limit):
+
+        if n_records%limit == 0:
+            return (n_records/limit-1)*limit
+
+        else:
+            return n_records - (n_records%limit)
+
+
+    def resolve_content(self):
+        # Content Type resolution
+        if request.args.get('format') is not None:
+            
+            format =  request.args.get('format')
+
+            if format =='json':
+                self.content_type = 'json'
+                return True
+
+            elif format == 'xml':
+                self.content_type = 'xml'
+                return True
+
+            elif format == 'csv':
+                self.content_type = 'csv'
+                return True
+
+            else:
+                self.content_type = 'json'
+                return False
+
+        else:
+            if request.headers['Accept'] == 'application/xml':
+                self.content_type = 'xml'
+                return True
+
+            elif request.headers['Accept'] == 'text/csv':
+                self.content_type = 'csv'
+                return True
+
+            else:
+                self.content_type = 'json'
+                return True
+
+
+
 def format_args(hearder_args):
     formated = ''
 
     for key in hearder_args:
-        formated = formated + str(key) + ' = ' + hearder_args[key]+' '
+        formated = formated + str(key) + '=' + hearder_args[key]+'&'
 
     return formated
 
@@ -128,6 +193,8 @@ def request_start():
     Log.info(request.path+' '+format_args(request.args)\
                  +' '+real_ip\
                  +' '+content_type)
+
+
 
     #Test content_type
 
