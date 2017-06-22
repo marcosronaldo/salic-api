@@ -17,7 +17,7 @@ class FornecedordorModelObject(ModelsBase):
             query = text ("""
               SELECT
                    DISTINCT g.CNPJCPF as cgccpf, e.Descricao as nome, Internet.Descricao as email
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -28,21 +28,21 @@ class FornecedordorModelObject(ModelsBase):
                    LEFT JOIN Agentes.dbo.Internet AS Internet ON b.idFornecedor = Internet.idAgente
 
                    WHERE (g.CNPJCPF LIKE :cgccpf) AND g.CNPJCPF IS NOT NULL
-                   
+
                    ORDER BY cgccpf
                    OFFSET :offset ROWS
                    FETCH NEXT :limit ROWS ONLY;
 
               """)
 
-            return self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%', 'offset' : offset, 'limit' : limit})
+            return self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%', 'offset' : offset, 'limit' : limit}).fetchall()
 
 
         elif nome is not None:
             query = text ("""
               SELECT
                    DISTINCT g.CNPJCPF as cgccpf, e.Descricao as nome, Internet.Descricao as email
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -60,7 +60,7 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            return self.sql_connector.session.execute(query, {'nome' : '%'+nome+'%', 'offset' : offset, 'limit' : limit})
+            return self.sql_connector.session.execute(query, {'nome' : '%'+nome+'%', 'offset' : offset, 'limit' : limit}).fetchall()
 
 
 
@@ -68,7 +68,7 @@ class FornecedordorModelObject(ModelsBase):
             query = text ("""
               SELECT
                    DISTINCT g.CNPJCPF as cgccpf, e.Descricao as nome, Internet.Descricao as email
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -87,13 +87,14 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            return self.sql_connector.session.execute(query, {'PRONAC' : PRONAC, 'offset' : offset, 'limit' : limit})
+            return self.sql_connector.session.execute(query, {'PRONAC' : PRONAC, 'offset' : offset, 'limit' : limit}).fetchall()
 
         else:
+
             query = text ("""
               SELECT
                    DISTINCT g.CNPJCPF as cgccpf, e.Descricao as nome, Internet.Descricao as email
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -105,7 +106,7 @@ class FornecedordorModelObject(ModelsBase):
                    JOIN SAC.dbo.Projetos AS Projetos ON PlanilhaAprovacao.idPronac = Projetos.IdPRONAC
 
                    WHERE g.CNPJCPF IS NOT NULL
-                   
+
                    ORDER BY cgccpf
                    OFFSET :offset ROWS
                    FETCH NEXT :limit ROWS ONLY;
@@ -113,7 +114,7 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            return self.sql_connector.session.execute(query, {'offset' : offset, 'limit' : limit})
+            return self.sql_connector.session.execute(query, {'offset' : offset, 'limit' : limit}).fetchall()
 
     def count(self, cgccpf = None, PRONAC = None, nome = None):
 
@@ -121,7 +122,7 @@ class FornecedordorModelObject(ModelsBase):
             query = text ("""
               SELECT
                    COUNT(DISTINCT g.CNPJCPF) AS total
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -135,14 +136,14 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            result =  self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'})
+            result =  self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'}).fetchall()
 
 
         elif nome is not None:
             query = text ("""
               SELECT
                    COUNT(DISTINCT g.CNPJCPF) AS total
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -156,7 +157,7 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            result = self.sql_connector.session.execute(query, {'nome' : '%'+nome+'%'})
+            result = self.sql_connector.session.execute(query, {'nome' : '%'+nome+'%'}).fetchall()
 
 
 
@@ -164,7 +165,7 @@ class FornecedordorModelObject(ModelsBase):
             query = text ("""
               SELECT
                    COUNT(DISTINCT g.CNPJCPF) AS total
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -176,16 +177,16 @@ class FornecedordorModelObject(ModelsBase):
                    JOIN SAC.dbo.Projetos AS Projetos ON PlanilhaAprovacao.idPronac = Projetos.IdPRONAC
 
                    WHERE (Projetos.AnoProjeto + Projetos.Sequencial = :PRONAC) AND g.CNPJCPF IS NOT NULL
-                  
+
               """)
 
-            result = self.sql_connector.session.execute(query, {'PRONAC' : PRONAC})
+            result = self.sql_connector.session.execute(query, {'PRONAC' : PRONAC}).fetchall()
 
         else:
             query = text ("""
               SELECT
                    COUNT(DISTINCT g.CNPJCPF) AS total
-                    
+
                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS PlanilhaAprovacao ON a.idPlanilhaAprovacao = PlanilhaAprovacao.idPlanilhaAprovacao
@@ -200,7 +201,7 @@ class FornecedordorModelObject(ModelsBase):
 
               """)
 
-            result = self.sql_connector.session.execute(query, {})
+            result = self.sql_connector.session.execute(query, {}).fetchall()
 
         n_records = listify_queryset(result)
 
@@ -225,4 +226,3 @@ class ProductModelObject(ModelsBase):
       # print 'full list:' + str(n_records)
 
       # return n_records[0]['total']
-

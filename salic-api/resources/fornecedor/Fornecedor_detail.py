@@ -31,10 +31,10 @@ class FornecedorDetail(ResourceBase):
         }
 
         def hal_builder(data, args = {}):
-            
+
             hal_data = data
             hal_data['_links'] = self.links
-            
+
             return hal_data
 
         self.to_hal = hal_builder
@@ -48,7 +48,6 @@ class FornecedorDetail(ResourceBase):
         try:
             results = FornecedordorModelObject().all(limit=1, offset=0, cgccpf = cgccpf)
         except Exception as e:
-            Log.error( str(e))
             result = {'message' : 'internal error',
                       'message_code' :  17,
                       'more' : 'something is broken'
@@ -71,12 +70,12 @@ class FornecedorDetail(ResourceBase):
         data = results
         fornecedor = data[0]
 
-      
+
         fornecedor["cgccpf"]  = remove_blanks(fornecedor["cgccpf"])
 
         self.build_links(args = {'fornecedor_id' : fornecedor_id})
 
-       
+
         fornecedor["cgccpf"] = cgccpf_mask(fornecedor["cgccpf"])
 
 

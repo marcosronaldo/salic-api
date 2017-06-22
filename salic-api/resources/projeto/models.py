@@ -32,20 +32,19 @@ class ProjetoModelObject(ModelsBase):
 
     def attached_documents(self, idPronac ):
         query = text("""SAC.dbo.paDocumentos :idPronac""")
-        return self.sql_connector.session.execute(query, {'idPronac' : idPronac})
+        return self.sql_connector.session.execute(query, {'idPronac' : idPronac}).fetchall()
 
     def attached_brands(self, idPronac):
 
         query = text("""
                     SELECT a.idArquivo as id_arquivo, a.nmArquivo as nome_arquivo, a.dtEnvio as data_envio, d.idDocumento as id_documento, CAST(dsDocumento AS TEXT) AS descricao
-                           
                     FROM BDCORPORATIVO.scCorp.tbArquivoImagem AS ai
                     INNER JOIN BDCORPORATIVO.scCorp.tbArquivo AS a ON ai.idArquivo = a.idArquivo
                     INNER JOIN BDCORPORATIVO.scCorp.tbDocumento AS d ON a.idArquivo = d.idArquivo
                     INNER JOIN BDCORPORATIVO.scCorp.tbDocumentoProjeto AS dp ON dp.idDocumento = d.idDocumento
                     INNER JOIN SAC.dbo.Projetos AS p ON dp.idPronac = p.IdPRONAC WHERE (dp.idTipoDocumento = 1) AND (p.idPronac = :IdPRONAC)
         """)
-        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac})
+        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac}).fetchall()
 
     def postpone_request(self, idPronac):
 
@@ -65,7 +64,7 @@ class ProjetoModelObject(ModelsBase):
                         LEFT JOIN TABELAS.dbo.Usuarios AS b ON a.Logon = b.usu_codigo WHERE (idPronac = :IdPRONAC)
         """)
 
-        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac})
+        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac}).fetchall()
 
 
     def payments_listing(self, limit = None, offset = None, idPronac = None, cgccpf = None):
@@ -163,7 +162,8 @@ class ProjetoModelObject(ModelsBase):
 
                                 """
                                 )
-            return self.sql_connector.session.execute(query, {'idPronac' : idPronac,'offset' : offset, 'limit' : limit})
+
+            return self.sql_connector.session.execute(query, {'idPronac' : idPronac,'offset' : offset, 'limit' : limit}).fetchall()
 
         else:
 
@@ -210,7 +210,7 @@ class ProjetoModelObject(ModelsBase):
                                 LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
 
                                 ORDER BY data_pagamento
-                                
+
                                 """
                                 )
 
@@ -259,11 +259,11 @@ class ProjetoModelObject(ModelsBase):
                                     ORDER BY data_pagamento
                                     OFFSET :offset ROWS
                                     FETCH NEXT :limit ROWS ONLY;
-                                    
+
                                     """
                                     )
 
-            return self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%', 'offset' : offset, 'limit' : limit})
+            return self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%', 'offset' : offset, 'limit' : limit}).fetchall()
 
 
     def payments_listing_count(self, idPronac = None, cgccpf = None):
@@ -274,7 +274,7 @@ class ProjetoModelObject(ModelsBase):
             query = text("""
                         SELECT
                                 COUNT(b.idArquivo) AS total
-                                
+
                                 FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                                 INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                                 LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
@@ -284,7 +284,7 @@ class ProjetoModelObject(ModelsBase):
                                 LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
                                 """
                                 )
-            result = self.sql_connector.session.execute(query, {'idPronac' : idPronac})
+            result = self.sql_connector.session.execute(query, {'idPronac' : idPronac}).fetchall()
 
         else:
             query = text("""
@@ -302,7 +302,7 @@ class ProjetoModelObject(ModelsBase):
                                 """
                                 )
 
-            result =  self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'})
+            result =  self.sql_connector.session.execute(query, {'cgccpf' : '%'+cgccpf+'%'}).fetchall()
 
         n_records = listify_queryset(result)
 
@@ -323,15 +323,15 @@ class ProjetoModelObject(ModelsBase):
                     g.Descricao AS unidade,
                     (c.qtItem*nrOcorrencia) AS qtd_programada,
                     (c.qtItem*nrOcorrencia*c.vlUnitario) AS valor_programado,
-                        
+
                         CASE c.qtItem*nrOcorrencia*c.vlUnitario
                             WHEN 0 then NULL
                             ELSE ROUND(sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario) * 100, 2)
                         END AS perc_executado,
-                    
+
                         CASE c.qtItem*nrOcorrencia*c.vlUnitario
                             WHEN 0 then NULL
-                            ELSE ROUND(100 - (sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario) * 100), 2) 
+                            ELSE ROUND(100 - (sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario) * 100), 2)
                         END AS perc_a_executar,
 
                     (sum(b.vlComprovacao)) AS valor_executado
@@ -351,7 +351,7 @@ class ProjetoModelObject(ModelsBase):
                     """
                     )
 
-        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac})
+        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac}).fetchall()
 
 
     def goods_capital_listing(self, idPronac):
@@ -383,7 +383,7 @@ class ProjetoModelObject(ModelsBase):
                  WHERE (c.idPronac = :IdPRONAC)
         """)
 
-        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac})
+        return self.sql_connector.session.execute(query, {'IdPRONAC' : idPronac}).fetchall()
 
 
     def all(self, limit, offset, PRONAC = None, nome = None, proponente = None,
@@ -481,7 +481,7 @@ class ProjetoModelObject(ModelsBase):
                                                   .join(PreProjetoModel)\
                                                   .join(MecanismoModel)\
                                                   .outerjoin(EnquadramentoModel, EnquadramentoModel.IdPRONAC ==  ProjetoModel.IdPRONAC)
-                                                
+
 
 
         if PRONAC is not None:
@@ -648,7 +648,7 @@ class DivulgacaoModelObject(ModelsBase):
                     """
                     )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC})
+        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC}).fetchall()
 
 
 class DescolamentoModelObject(ModelsBase):
@@ -683,7 +683,7 @@ class DescolamentoModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC})
+        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC}).fetchall()
 
 class DistribuicaoModelObject(ModelsBase):
 
@@ -754,7 +754,7 @@ class ReadequacaoModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC})
+        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC}).fetchall()
 
 
 
@@ -792,7 +792,7 @@ class AdequacoesPedidoModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC})
+        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC}).fetchall()
 
 class AdequacoesParecerModelObject(ModelsBase):
 
@@ -829,4 +829,4 @@ class AdequacoesParecerModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC})
+        return self.sql_connector.session.execute(stmt, {'IdPRONAC' : IdPRONAC}).fetchall()

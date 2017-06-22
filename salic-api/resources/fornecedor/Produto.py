@@ -24,11 +24,11 @@ class Produto(ResourceBase):
 
         if args['offset']-args['limit'] >= 0:
             self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
-            
+
 
         if args['offset']+args['limit'] <= last_offset:
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
-        
+
         self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
         self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], last_offset)+query_args
         self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
@@ -61,7 +61,7 @@ class Produto(ResourceBase):
             for index in range(len(data)):
                 produto = data[index]
                 produto['_links'] = self.produtos_links[index]
-                
+
             hal_data['_embedded']['produtos'] = data
 
             return hal_data
@@ -70,7 +70,7 @@ class Produto(ResourceBase):
 
 
      def get(self, fornecedor_id):
-      
+
         cgccpf = decrypt(fornecedor_id)
 
         if request.args.get('limit') is not None:
@@ -94,7 +94,6 @@ class Produto(ResourceBase):
             results = ProductModelObject().all(limit, offset, cgccpf)
             n_records = ProductModelObject().count(cgccpf)
         except Exception as e:
-            Log.error( str(e))
             result = {'message' : 'internal error',
                       'message_code' :  17,
                       'more' : 'something is broken'

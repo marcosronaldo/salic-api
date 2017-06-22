@@ -27,11 +27,11 @@ class FornecedorList(ResourceBase):
 
         if args['offset']-args['limit'] >= 0:
             self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
-            
+
 
         if args['offset']+args['limit'] < args['n_records']:
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
-        
+
         self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
         self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], last_offset)+query_args
         self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
@@ -60,7 +60,7 @@ class FornecedorList(ResourceBase):
             count = len(data)
 
             hal_data = {'_links' : self.links, 'total' : total, 'count' : count}
-            
+
             for f_index in range(len(data)):
                 fornecedor = data[f_index]
 
@@ -95,9 +95,6 @@ class FornecedorList(ResourceBase):
 
         nome = None
         cgccpf = None
-        municipio = None
-        UF = None
-        tipo_pessoa = None
         PRONAC = None
 
         if request.args.get('nome') is not None:
@@ -107,18 +104,15 @@ class FornecedorList(ResourceBase):
             cgccpf = request.args.get('cgccpf')
 
         if request.args.get('fornecedor_id') is not None:
-            fornecedor_id = request.args.get('fornecedor_id')
-            cgccpf = decrypt(fornecedor_id)
+            cgccpf = decrypt(request.args.get('fornecedor_id'))
 
         if request.args.get('PRONAC') is not None:
             PRONAC = request.args.get('PRONAC')
-
 
         try:
             results = FornecedordorModelObject().all(limit, offset, cgccpf = cgccpf, PRONAC =  PRONAC, nome  = nome)
             n_records = FornecedordorModelObject().count(cgccpf = cgccpf, PRONAC =  PRONAC, nome  = nome)
         except Exception as e:
-            Log.error( str(e))
             result = {'message' : 'internal error',
                       'message_code' :  17,
                       'more' : 'something is broken'
