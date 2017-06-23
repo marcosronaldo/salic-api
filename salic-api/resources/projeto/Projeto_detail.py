@@ -49,6 +49,9 @@ class ProjetoDetail(ResourceBase):
 
         for produto in args['produtos']:
                 produto_links = {}
+                # TODO - Alterar a API para tratar de agentes sem cgccpf, agentes extrangeiros
+                if produto['cgccpf'] == None:
+                    produto['cgccpf'] = '00000000000000'
                 fornecedor_id = encrypt(produto['cgccpf'])
                 produto_links['projeto'] = app.config['API_ROOT_URL'] + 'projetos/%s'%args['PRONAC']
                 produto_links['fornecedor'] = app.config['API_ROOT_URL'] + 'fornecedores/%s'%fornecedor_id
@@ -66,7 +69,7 @@ class ProjetoDetail(ResourceBase):
         def hal_builder(data, args = {}):
 
             hal_data = data
-            
+
             hal_data['_links']  = self.links
 
             hal_data['_embedded'] = {'captacoes' : [], 'relacao_bens_captal' : [],
@@ -81,7 +84,7 @@ class ProjetoDetail(ResourceBase):
 
             for index in range(len(data['relacao_pagamentos'])):
                 data['relacao_pagamentos'][index]['_links'] = self.produtos_links[index]
-                
+
 
             for emb_field in hal_data['_embedded']:
                 hal_data['_embedded'][emb_field] = data[emb_field]
@@ -398,7 +401,7 @@ class ProjetoDetail(ResourceBase):
 
         self.build_links(args = {'PRONAC' : projeto['PRONAC'], 'proponente_id' : projeto['cgccpf'],
                                 'captacoes' : projeto['captacoes'], 'produtos' : relacao_pagamentos})
-        
+
         projeto['cgccpf'] = cgccpf_mask(projeto['cgccpf'])
 
         for captacao in projeto['captacoes']:
