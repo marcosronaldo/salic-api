@@ -1,9 +1,9 @@
-# SALIC api [![Gitter](https://badges.gitter.im/Lafaiet/salicapi.svg)](https://gitter.im/Lafaiet/salicapi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=102)](https://github.com/ellerbrock/open-source-badge/) [![Open Source Love](https://badges.frapsoft.com/os/gpl/gpl.svg?v=102)](http://www.gnu.org/licenses/gpl.html)
+# SALIC api [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=102)](https://github.com/ellerbrock/open-source-badge/) [![Open Source Love](https://badges.frapsoft.com/os/gpl/gpl.svg?v=102)](http://www.gnu.org/licenses/gpl.html)
 
 
-API aberta para o portal [NOVO SALIC](http://novosalic.cultura.gov.br/cidadao/consultar). Tem por objetivo expor os dados de projetos da lei Rouanet.
+API aberta para o sistema [SALIC](http://salic.cultura.gov.br/cidadao/consultar). Tem por objetivo expor os dados de projetos da lei Rouanet.
 
-A documentação da API pode ser acessada [aqui](http://hmg.api.salic.cultura.gov.br/doc/).
+A documentação da API pode ser acessada [aqui](http://api.salic.cultura.gov.br/doc/).
 
 O projeto ainda se encontra em **implantação**, sujeito ainda a muitas alterações, reformulações e atualizacões.
 
@@ -57,7 +57,7 @@ $ sudo pip install -r requirements.txt
 ## Configuração
 
 Edite o arquivo **salic-api/app/example_config.py** de acordo com seu ambiente.
-Edite o arquivo **salic-api/app/general_config.py** apontando o arquivo de configuração a ser usado. 
+Edite o arquivo **salic-api/app/general_config.py** apontando o arquivo de configuração a ser usado.
 
 ## Execução
 
