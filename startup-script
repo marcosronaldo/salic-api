@@ -36,7 +36,7 @@ do_stop() {
 	then
 		do_force_stop
 	else
-		echo "Salic API already stoped"
+		echo "Salic API already stopped"
 	fi
 }
 
