@@ -6,6 +6,7 @@ PROJECT_PATH="`dirname \"$0\"`"
 
 echo "Syncing project..."
 cd $PROJECT_PATH
+git checkout install.sh
 git checkout master &> /dev/null
 git fetch &> /dev/null
 git pull origin master
