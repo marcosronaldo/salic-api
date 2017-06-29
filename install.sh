@@ -11,7 +11,7 @@ git fetch &> /dev/null
 git pull origin master
 echo "Repository Updated"
 
-if pgrep -f /opt/salic/salic-api/run.py; then
+if [ $PID ]; then
 
     echo "Stopping services"
     /etc/init.d/salic-api stop
