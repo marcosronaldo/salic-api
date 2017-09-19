@@ -54,6 +54,18 @@ Basta executar
 $ sudo pip install -r requirements.txt
 ```
 
+Caso apareça a seguinte mensagem..
+ ```bashs
+ Could not import setuptools which is required to install from a source distribution.
+ Please install setuptools.
+ ```
+ ..basta reinstalar o setuptools
+ ```bashs
+ sudo pip install -U setuptools
+ ```
+ 
+ 
+
 ## Configuração
 
 Edite o arquivo **salic-api/app/example_config.py** de acordo com seu ambiente.
