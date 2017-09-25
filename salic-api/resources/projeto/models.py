@@ -509,22 +509,22 @@ class ProjetoModelObject(ModelsBase):
             res = res.filter(InteressadoModel.Cidade == municipio)
 
         if data_inicio is not None:
-            res = res.filter(ProjetoModel.DtInicioExecucao == data_inicio)
+            res = res.filter(ProjetoModel.DtInicioExecucao >= data_inicio).filter(projetoModel.DtInicioExecucao <= data_inicio + ' 23:59:59')
 
         if data_inicio_min is not None:
             res = res.filter(ProjetoModel.DtInicioExecucao >= data_inicio_min)
 
         if data_inicio_max is not None:
-            res = res.filter(ProjetoModel.DtInicioExecucao <= data_inicio_max)
+            res = res.filter(ProjetoModel.DtInicioExecucao <= data_inicio_max + ' 23:59:59')
 
         if data_termino is not None:
-            res = res.filter(ProjetoModel.DtFimExecucao == data_termino)
+            res = res.filter(ProjetoModel.DtFimExecucao >= data_termino).filter(ProjetoModel.DtFimExecucao <= data_termino + ' 23:59:59')
 
         if data_termino_min is not None:
             res = res.filter(ProjetoModel.DtFimExecucao >= data_termino_min)
 
         if data_termino_max is not None:
-            res = res.filter(ProjetoModel.DtFimExecucao <= data_termino_max)
+            res = res.filter(ProjetoModel.DtFimExecucao <= data_termino_max + ' 23:59:59')
 
         if ano_projeto is not None:
             res = res.filter(ProjetoModel.AnoProjeto == ano_projeto)
