@@ -1,0 +1,25 @@
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+        count_threshold: 3
+        python:
+          python_version: 3
+          mass_threshold: 60
+  fixme:
+    enabled: true
+  radon:
+    enabled: true
+  pep8:
+    enabled: true
+    checks:
+      E501:
+        enabled: false
+      E731:
+        enabled: false
+ratings:
+  paths:
+  - "salic-api/**.py"
+exclude_paths:
+  - "__init__.py"
