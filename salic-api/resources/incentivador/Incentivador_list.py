@@ -9,35 +9,38 @@ from ..format_utils import remove_blanks, cgccpf_mask
 from ..security import encrypt, decrypt
 
 
-import pymssql, json
+import pymssql
+import json
 
 
 class IncentivadorList(ResourceBase):
 
     sort_fields = ['total_doado']
 
-    def build_links(self, args = {}):
+    def build_links(self, args={}):
 
         query_args = '&'
 
         last_offset = self.get_last_offset(args['n_records'], args['limit'])
 
         for arg in request.args:
-            if arg!= 'limit' and arg != 'offset':
-                query_args+=arg+'='+request.args[arg]+'&'
+            if arg != 'limit' and arg != 'offset':
+                query_args += arg + '=' + request.args[arg] + '&'
 
-        if args['offset']-args['limit'] >= 0:
-            self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']-args['limit'])+query_args
-            
+        if args['offset'] - args['limit'] >= 0:
+            self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d' % (
+                args['limit'], args['offset'] - args['limit']) + query_args
 
-        if args['offset']+args['limit'] <= last_offset:
-            self.links["next"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], args['offset']+args['limit'])+query_args
-        
-        self.links["first"] = self.links["self"] + '?limit=%d&offset=0'%(args['limit'])+query_args
-        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d'%(args['limit'], last_offset)+query_args
-        self.links["self"] += '?limit=%d&offset=%d'%(args['limit'], args['offset'])+query_args
-        
+        if args['offset'] + args['limit'] <= last_offset:
+            self.links["next"] = self.links["self"] + '?limit=%d&offset=%d' % (
+                args['limit'], args['offset'] + args['limit']) + query_args
 
+        self.links["first"] = self.links["self"] + \
+            '?limit=%d&offset=0' % (args['limit']) + query_args
+        self.links["last"] = self.links["self"] + \
+            '?limit=%d&offset=%d' % (args['limit'], last_offset) + query_args
+        self.links["self"] += '?limit=%d&offset=%d' % (
+            args['limit'], args['offset']) + query_args
 
         self.doacoes_links = []
 
@@ -45,39 +48,39 @@ class IncentivadorList(ResourceBase):
             links = {}
             incentivador_id_enc = encrypt(incentivador_id)
 
-            links['self'] = app.config['API_ROOT_URL'] + 'incentivadores/%s'%incentivador_id_enc
-            links['doacoes'] = app.config['API_ROOT_URL']+'incentivadores/%s/doacoes/'%incentivador_id_enc
+            links['self'] = app.config['API_ROOT_URL'] + \
+                'incentivadores/%s' % incentivador_id_enc
+            links['doacoes'] = app.config['API_ROOT_URL'] + \
+                'incentivadores/%s/doacoes/' % incentivador_id_enc
 
             self.doacoes_links.append(links)
 
     def __init__(self):
-        self.tipos_pessoa = {'1' : 'fisica', '2' : 'juridica'}
-        super (IncentivadorList,self).__init__()
+        self.tipos_pessoa = {'1': 'fisica', '2': 'juridica'}
+        super(IncentivadorList, self).__init__()
 
         self.links = {
-                    "self" : app.config['API_ROOT_URL']+'incentivadores/',
+            "self": app.config['API_ROOT_URL'] + 'incentivadores/',
         }
 
-        def hal_builder(data, args = {}):
-            
+        def hal_builder(data, args={}):
+
             total = args['total']
             count = len(data)
 
-            hal_data = {'_links' : self.links, 'total' : total, 'count' : count}
-            
+            hal_data = {'_links': self.links, 'total': total, 'count': count}
+
             for index in range(len(data)):
                 incentivador = data[index]
 
                 doacoes_links = self.doacoes_links[index]
 
                 incentivador['_links'] = doacoes_links
-                
 
-            hal_data['_embedded'] = {'incentivadores' : data}
+            hal_data['_embedded'] = {'incentivadores': data}
             return hal_data
 
         self.to_hal = hal_builder
-
 
     def get(self):
 
@@ -133,47 +136,48 @@ class IncentivadorList(ResourceBase):
                 sort_order = 'asc'
 
             if sort_field not in self.sort_fields:
-                Log.error('sorting field error: '+str(sort_field))
-                result = {'message' : 'field error: "%s"'%sort_field,
-                      'message_code' :  10,
-                      }
-                return self.render(result, status_code = 405)
+                Log.error('sorting field error: ' + str(sort_field))
+                result = {'message': 'field error: "%s"' % sort_field,
+                          'message_code':  10,
+                          }
+                return self.render(result, status_code=405)
 
         try:
             results, n_records = IncentivadorModelObject().all(limit, offset, nome, cgccpf,
-                                                                municipio, UF,tipo_pessoa, PRONAC,
-                                                                sort_field, sort_order)
+                                                               municipio, UF, tipo_pessoa, PRONAC,
+                                                               sort_field, sort_order)
 
         except Exception as e:
-            Log.error( str(e))
-            result = {'message' : 'internal error',
-                      'message_code' :  13,
-                      'more' : 'something is broken'
+            Log.error(str(e))
+            result = {'message': 'internal error',
+                      'message_code':  13,
+                      'more': 'something is broken'
                       }
-            return self.render(result, status_code = 503)
+            return self.render(result, status_code=503)
 
         if n_records == 0 or len(results) == 0:
 
-            result = {'message' : 'No donator was found with your criteria',
-                                 'message_code' : 11}
+            result = {'message': 'No donator was found with your criteria',
+                      'message_code': 11}
 
-            return self.render(result, status_code = 404)
+            return self.render(result, status_code=404)
 
-        headers = {'X-Total-Count' : n_records}
+        headers = {'X-Total-Count': n_records}
 
         data = listify_queryset(results)
         incentivadores_ids = []
 
         for incentivador in data:
             "Getting rid of blanks"
-            incentivador["cgccpf"]  = remove_blanks(str(incentivador["cgccpf"]))
+            incentivador["cgccpf"] = remove_blanks(str(incentivador["cgccpf"]))
             incentivadores_ids.append(incentivador['cgccpf'])
 
         if cgccpf is not None:
             data = self.get_unique(cgccpf, data)
             incentivadores_ids = [cgccpf]
 
-        self.build_links(args = {'limit' : limit, 'offset' : offset, 'incentivadores_ids' : incentivadores_ids, 'n_records' : n_records})
+        self.build_links(args={'limit': limit, 'offset': offset,
+                               'incentivadores_ids': incentivadores_ids, 'n_records': n_records})
 
         for incentivador in data:
             incentivador["cgccpf"] = cgccpf_mask(incentivador["cgccpf"])

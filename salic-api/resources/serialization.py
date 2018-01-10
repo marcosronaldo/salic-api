@@ -9,11 +9,14 @@ import logging
 log = logging.getLogger('dicttoxml')
 log.setLevel(logging.ERROR)
 
+
 def to_xml(data):
     return dicttoxml.dicttoxml(data)
 
+
 def to_json(data):
     return json.dumps(data, ensure_ascii=False, encoding='utf-8')
+
 
 def to_csv(data):
 
@@ -28,9 +31,9 @@ def to_csv(data):
     csv_data += keys[0]
 
     for key_index in range(1, len(keys)):
-        csv_data+=',%s'%(keys[key_index])
+        csv_data += ',%s' % (keys[key_index])
 
-    csv_data+=u"\n"
+    csv_data += u"\n"
     for data_row in data:
 
         # First item, especial case
@@ -40,14 +43,14 @@ def to_csv(data):
             uni_data = u''
 
         elif isinstance(item, float) or isinstance(item, int):
-                uni_data = str(item).decode('utf8')
+            uni_data = str(item).decode('utf8')
 
-        elif isinstance(item, list) or isinstance(item, dict): #TODO: fix these special cases
-                uni_data = u"null"
+        elif isinstance(item, list) or isinstance(item, dict):  # TODO: fix these special cases
+            uni_data = u"null"
         else:
-            uni_data = u'\"'+item+u'\"'
+            uni_data = u'\"' + item + u'\"'
 
-        csv_data+='%s'%(uni_data)
+        csv_data += '%s' % (uni_data)
 
         # Remaining items
         for key_index in range(1, len(keys)):
@@ -59,14 +62,15 @@ def to_csv(data):
             elif isinstance(item, float) or isinstance(item, int):
                 uni_data = str(item).decode('utf8')
 
-            elif isinstance(item, list) or isinstance(item, dict): #TODO: fix these special cases
+            # TODO: fix these special cases
+            elif isinstance(item, list) or isinstance(item, dict):
                 uni_data = u"null"
             else:
-                uni_data = u'\"'+item+u'\"'
+                uni_data = u'\"' + item + u'\"'
 
-            csv_data+=',%s'%(uni_data)
+            csv_data += ',%s' % (uni_data)
 
-        csv_data+=u"\n"
+        csv_data += u"\n"
 
     return csv_data
 

@@ -1,7 +1,6 @@
 from jsonschema import validate, Draft3Validator
 
 
-
 def validate_input(input, schema):
 
     try:

@@ -11,6 +11,6 @@ class ModelsBase(object):
         self.sql_connector = SQL_connector()
 
     def count(self, q):
-      count_q = q.statement.with_only_columns([func.count()]).order_by(None)
-      count = q.session.execute(count_q).scalar()
-      return count or 0
+        count_q = q.statement.with_only_columns([func.count()]).order_by(None)
+        count = q.session.execute(count_q).scalar()
+        return count or 0

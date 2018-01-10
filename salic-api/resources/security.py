@@ -7,6 +7,7 @@ import md5
 key = app.config['URL_KEY']
 key = b''.join(key)
 
+
 def encrypt(text):
 
     iv = Random.new().read(AES.block_size)
@@ -15,6 +16,7 @@ def encrypt(text):
     msg = iv + cipher.encrypt(b''.join(text))
 
     return msg.encode('hex')
+
 
 def decrypt(cypher_text):
 
@@ -37,7 +39,7 @@ def md5hash(text):
     m = md5.new()
     m.update(text)
     return m.hexdigest()
-    
+
 # msg = encrypt('10301681000181')
 # print msg
 # print decrypt(msg)

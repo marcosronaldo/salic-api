@@ -1,11 +1,11 @@
-#Application version
+# Application version
 VERSION = "0.0.2"
 
 # API version
 BASE_VERSION = 'beta'
 
 SALIC_BASE_URL = 'http://novosalic.cultura.gov.br/'
-API_ROOT_URL = 'http://vm-debian:8000/%s/'%BASE_VERSION
+API_ROOT_URL = 'http://vm-debian:8000/%s/' % BASE_VERSION
 
 URL_KEY = ''
 
@@ -40,9 +40,9 @@ DATABASE_PORT = '1433'
 
 # Rate limiting
 RATE_LIMITING_ACTIVE = False
-GLOBAL_RATE_LIMITS =  "1000 per day"
+GLOBAL_RATE_LIMITS = "1000 per day"
 
-#LOGGING
+# LOGGING
 LOGFILE = '/opt/salic/salic-api/log/salic_api.log'
 LEVELOFLOG = 'DEBUG'
 STREAMTYPE = 'SCREEN'

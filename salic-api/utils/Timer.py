@@ -3,7 +3,7 @@ from Log import Log
 
 
 class Timer(object):
-    def __init__(self, action = None, verbose=False):
+    def __init__(self, action=None, verbose=False):
         self.verbose = verbose
         self.action = action or "default"
 
@@ -18,14 +18,14 @@ class Timer(object):
         self.secs = self.end - self.start
         self.msecs = self.secs * 1000  # millisecs
         if self.verbose:
-            Log.debug('elapsed time for action \"%s\": %f ms' % (self.action, self.msecs))
-
+            Log.debug('elapsed time for action \"%s\": %f ms' %
+                      (self.action, self.msecs))
 
 
 if __name__ == "__main__":
 
-    with Timer(action = 'sleeping', verbose = True):
+    with Timer(action='sleeping', verbose=True):
         print 'Waiting...'
         time.sleep(2)
 
-    #print "=> elapsed: %s s" % t.secs
+    # print "=> elapsed: %s s" % t.secs

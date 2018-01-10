@@ -4,8 +4,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import column_property
 
 
-
 Base = declarative_base()
+
 
 class ProjetoModel(Base):
 
@@ -21,10 +21,10 @@ class ProjetoModel(Base):
 
     UfProjeto = Column(String)
 
-    SolicitadoReal  = Column(String)
-    SolicitadoUfir  = Column(String)
-    SolicitadoCusteioUfir  = Column(String)
-    SolicitadoCusteioReal  = Column(String)
+    SolicitadoReal = Column(String)
+    SolicitadoUfir = Column(String)
+    SolicitadoCusteioUfir = Column(String)
+    SolicitadoCusteioReal = Column(String)
     SolicitadoCapitalUfir = Column(String)
     SolicitadoCapitalReal = Column(String)
 
@@ -41,13 +41,16 @@ class ProjetoModel(Base):
     Area_related = relationship("AreaModel", foreign_keys=[Area])
 
     CgcCpf = Column(String, ForeignKey("Interessado.CgcCpf"))
-    Interessado_related = relationship("InteressadoModel", foreign_keys=[CgcCpf])
+    Interessado_related = relationship(
+        "InteressadoModel", foreign_keys=[CgcCpf])
 
     idProjeto = Column(Integer, ForeignKey("PreProjeto.idPreProjeto"))
-    preprojeto_related = relationship("PreProjetoModel", foreign_keys=[idProjeto])
+    preprojeto_related = relationship(
+        "PreProjetoModel", foreign_keys=[idProjeto])
 
     Mecanismo = Column(String, ForeignKey("Mecanismo.Codigo"))
-    mecanismo_related = relationship("MecanismoModel", foreign_keys=[Mecanismo])
+    mecanismo_related = relationship(
+        "MecanismoModel", foreign_keys=[Mecanismo])
 
     def __init__(self):
         pass
@@ -64,23 +67,24 @@ class PreProjetoModel(Base):
     DtArquivamento = Column(Date)
 
     Mecanismo = Column(String, ForeignKey("Mecanismo.Codigo"))
-    mecanismo_related = relationship("MecanismoModel", foreign_keys=[Mecanismo])
+    mecanismo_related = relationship(
+        "MecanismoModel", foreign_keys=[Mecanismo])
 
     Objetivos = Column(String)
-    Justificativa  = Column(String)
-    Acessibilidade  = Column(String)
-    DemocratizacaoDeAcesso  = Column(String)
-    EtapaDeTrabalho  = Column(String)
-    FichaTecnica  = Column(String)
+    Justificativa = Column(String)
+    Acessibilidade = Column(String)
+    DemocratizacaoDeAcesso = Column(String)
+    EtapaDeTrabalho = Column(String)
+    FichaTecnica = Column(String)
     ResumoDoProjeto = Column(String)
     Sinopse = Column(String)
     ImpactoAmbiental = Column(String)
     EspecificacaoTecnica = Column(String)
     EstrategiadeExecucao = Column(String)
 
-
     def __init__(self):
         pass
+
 
 class SegmentoModel(Base):
 
@@ -90,6 +94,7 @@ class SegmentoModel(Base):
 
     def __init__(self):
         pass
+
 
 class EnquadramentoModel(Base):
 
@@ -103,6 +108,7 @@ class EnquadramentoModel(Base):
     def __init__(self):
         pass
 
+
 class MecanismoModel(Base):
 
     __tablename__ = 'Mecanismo'
@@ -111,6 +117,7 @@ class MecanismoModel(Base):
 
     def __init__(self):
         pass
+
 
 class SituacaoModel(Base):
 
@@ -121,6 +128,7 @@ class SituacaoModel(Base):
     def __init__(self):
         pass
 
+
 class AreaModel(Base):
 
     __tablename__ = 'Area'
@@ -129,6 +137,7 @@ class AreaModel(Base):
 
     def __init__(self):
         pass
+
 
 class InteressadoModel(Base):
 
@@ -140,11 +149,14 @@ class InteressadoModel(Base):
     Cidade = Column(String)
     tipoPessoa = Column(String)
 
-    captacao_related = relationship('CaptacaoModel', primaryjoin='InteressadoModel.CgcCpf==CaptacaoModel.CgcCpfMecena')
-    projeto_related = relationship('ProjetoModel', primaryjoin='InteressadoModel.CgcCpf==ProjetoModel.CgcCpf')
+    captacao_related = relationship(
+        'CaptacaoModel', primaryjoin='InteressadoModel.CgcCpf==CaptacaoModel.CgcCpfMecena')
+    projeto_related = relationship(
+        'ProjetoModel', primaryjoin='InteressadoModel.CgcCpf==ProjetoModel.CgcCpf')
 
     def __init__(self):
         pass
+
 
 class CaptacaoModel(Base):
 
@@ -152,14 +164,16 @@ class CaptacaoModel(Base):
     Idcaptacao = Column(Integer, primary_key=True)
     AnoProjeto = Column(String)
     Sequencial = Column(String)
-    PRONAC = column_property (AnoProjeto + Sequencial)
+    PRONAC = column_property(AnoProjeto + Sequencial)
     CaptacaoReal = Column(String)
     DtRecibo = Column(Date)
 
     CgcCpfMecena = Column(String, ForeignKey('Interessado.CgcCpf'))
-    interessado_related = relationship('InteressadoModel', foreign_keys=[CgcCpfMecena])
+    interessado_related = relationship(
+        'InteressadoModel', foreign_keys=[CgcCpfMecena])
 
     #projeto_related = relationship('ProjetoModel', primaryjoin='CaptacaoModel.PRONAC==ProjetoModel.PRONAC')
+
 
 class CertidoesNegativasModel(Base):
 
@@ -175,6 +189,7 @@ class CertidoesNegativasModel(Base):
     cdSituacaoCertidao = Column(Integer)
     CgcCpf = Column(String)
 
+
 class VerificacaoModel(Base):
 
     __tablename__ = 'Verificacao'
@@ -183,6 +198,7 @@ class VerificacaoModel(Base):
     idTipo = Column(Integer)
     Descricao = Column(String)
     stEstado = Column(Integer)
+
 
 class PlanoDivulgacaoModel(Base):
 
@@ -194,7 +210,7 @@ class PlanoDivulgacaoModel(Base):
     stPlanoDivulgacao = Column(Integer)
 
     idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
-    projeto_related = relationship('ProjetoModel', foreign_keys = [idProjeto])
+    projeto_related = relationship('ProjetoModel', foreign_keys=[idProjeto])
 
 
 class ProdutoModel(Base):
@@ -213,29 +229,28 @@ class PlanoDistribuicaoModel(Base):
 
     __tablename__ = 'PlanoDistribuicaoProduto'
 
-
     idPlanoDistribuicao = Column(Integer, primary_key=True)
 
     idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
-    projeto_related = relationship('ProjetoModel', foreign_keys = [idProjeto])
+    projeto_related = relationship('ProjetoModel', foreign_keys=[idProjeto])
 
     idProduto = Column(Integer,  ForeignKey('Produto.Codigo'))
-    produto_related = relationship('ProdutoModel', foreign_keys = [idProduto])
+    produto_related = relationship('ProdutoModel', foreign_keys=[idProduto])
 
     stPrincipal = Column(Integer)
 
     Segmento = Column(String, ForeignKey('Segmento.Codigo'))
-    segmento_related = relationship('SegmentoModel', foreign_keys = [Segmento])
+    segmento_related = relationship('SegmentoModel', foreign_keys=[Segmento])
 
     Area = Column(String, ForeignKey('Area.Codigo'))
-    area_related = relationship('AreaModel', foreign_keys = [Area])
+    area_related = relationship('AreaModel', foreign_keys=[Area])
 
     idPosicaoDaLogo = Column(Integer, ForeignKey('Verificacao.idVerificacao'))
-    vetificacao_related = relationship('VerificacaoModel', foreign_keys = [idPosicaoDaLogo])
+    vetificacao_related = relationship(
+        'VerificacaoModel', foreign_keys=[idPosicaoDaLogo])
 
     PrecoUnitarioNormal = Column(String)
     PrecoUnitarioPromocional = Column(String)
-
 
     QtdeProduzida = Column(Integer)
     QtdeProponente = Column(Integer)

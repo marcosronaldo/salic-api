@@ -20,11 +20,11 @@ class ResourceBase(Resource):
     # Rate limiting setup --------------------
 
     if app.config['RATE_LIMITING_ACTIVE']:
-        Log.info('Rate limiting active : %s'%(app.config['GLOBAL_RATE_LIMITS']))
+        Log.info('Rate limiting active : %s' %
+                 (app.config['GLOBAL_RATE_LIMITS']))
         decorators = [shared_limiter]
     else:
         Log.info('Rate limiting is turned off')
-
 
     # Caching setup --------------------
     if app.config['CACHING_ACTIVE']:
@@ -42,12 +42,11 @@ class ResourceBase(Resource):
 
         self.to_hal = None
 
-
-    def render(self, data, headers =  {}, status_code  = 200, raw = False):
+    def render(self, data, headers={}, status_code=200, raw=False):
 
         if not self.resolve_content():
-            data = {'message' : 'invalid format',
-                    'code' : 55}
+            data = {'message': 'invalid format',
+                    'code': 55}
             status_code = 405
 
         if self.content_type == 'xml':
@@ -55,7 +54,8 @@ class ResourceBase(Resource):
                 data = data
             else:
                 data = serialize(data, 'xml')
-            response = Response(data, content_type='application/xml; charset=utf-8')
+            response = Response(
+                data, content_type='application/xml; charset=utf-8')
 
         elif self.content_type == 'csv':
             if raw:
@@ -65,38 +65,38 @@ class ResourceBase(Resource):
 
             resource_path = request.path.split("/")
 
-            if resource_path[len(resource_path)-1] != "":
-                resource_type = resource_path[len(resource_path)-1]
+            if resource_path[len(resource_path) - 1] != "":
+                resource_type = resource_path[len(resource_path) - 1]
 
             else:
-                resource_type = resource_path[len(resource_path)-2]
+                resource_type = resource_path[len(resource_path) - 2]
 
             args_hash = md5hash(format_args(request.args))
 
-            headers["Content-Disposition"] = "attachment; filename=salicapi-%s-%s.csv"%(resource_type, args_hash)
+            headers["Content-Disposition"] = "attachment; filename=salicapi-%s-%s.csv" % (
+                resource_type, args_hash)
 
             response = Response(data, content_type='text/csv; charset=utf-8')
 
-
         # JSON or invalid Content-Type
-        else :
+        else:
             if raw:
                 data = data
             else:
                 if self.to_hal is not None and status_code == 200:
                     if 'X-Total-Count' in headers:
-                        args = {'total' : headers['X-Total-Count']}
+                        args = {'total': headers['X-Total-Count']}
                     else:
                         args = {}
-                        
-                    data = self.to_hal(data, args = args)
+
+                    data = self.to_hal(data, args=args)
 
                 data = serialize(data, 'json')
 
-            response = Response(data, content_type='application/hal+json; charset=utf-8')
+            response = Response(
+                data, content_type='application/hal+json; charset=utf-8')
 
-
-        access_control_headers =  "Content-Length, Content-Type, "
+        access_control_headers = "Content-Length, Content-Type, "
         access_control_headers += "Date, Server, "
         access_control_headers += "X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, "
         access_control_headers += "X-Total-Count, "
@@ -111,10 +111,10 @@ class ResourceBase(Resource):
         if real_ip == None:
             real_ip = ''
 
-        Log.info(request.path+' '+real_ip+' '+str(status_code) + ' '+str(response.headers.get('Content-Length')))
+        Log.info(request.path + ' ' + real_ip + ' ' + str(status_code) +
+                 ' ' + str(response.headers.get('Content-Length')))
 
         return response
-
 
         # Given a cgc/cpf/cnpj, makes sure it return only elements with exact match
     # Used to correct the use of SQL LIKE statement
@@ -122,30 +122,28 @@ class ResourceBase(Resource):
 
         exact_matches = []
 
-        for e in elements: 
+        for e in elements:
 
             if e['cgccpf'] == cgccpf:
                 exact_matches.append(e)
 
         return exact_matches
 
-
     def get_last_offset(self, n_records, limit):
 
-        if n_records%limit == 0:
-            return (n_records/limit-1)*limit
+        if n_records % limit == 0:
+            return (n_records / limit - 1) * limit
 
         else:
-            return n_records - (n_records%limit)
-
+            return n_records - (n_records % limit)
 
     def resolve_content(self):
         # Content Type resolution
         if request.args.get('format') is not None:
-            
-            format =  request.args.get('format')
 
-            if format =='json':
+            format = request.args.get('format')
+
+            if format == 'json':
                 self.content_type = 'json'
                 return True
 
@@ -175,12 +173,11 @@ class ResourceBase(Resource):
                 return True
 
 
-
 def format_args(hearder_args):
     formated = ''
 
     for key in hearder_args:
-        formated = formated + str(key) + '=' + hearder_args[key]+'&'
+        formated = formated + str(key) + '=' + hearder_args[key] + '&'
 
     return formated
 
@@ -190,13 +187,11 @@ def request_start():
     content_type = request.headers.get('Accept') or ''
     real_ip = request.headers.get('X-Real-Ip') or ''
 
-    Log.info(request.path+' '+format_args(request.args)\
-                 +' '+real_ip\
-                 +' '+content_type)
+    Log.info(request.path + ' ' + format_args(request.args)
+             + ' ' + real_ip
+             + ' ' + content_type)
 
-
-
-    #Test content_type
+    # Test content_type
 
     # if content_type and content_type not in  AVAILABLE_CONTENT_TYPES:
     #     results = {'message' : 'Content-Type not supported',
@@ -204,8 +199,3 @@ def request_start():
     #             }
     #     return {'error' : 'content-type'}
     #     return self.render(results, status_code = 405)
-
-
-
-
-

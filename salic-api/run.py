@@ -24,7 +24,8 @@ if __name__ == '__main__':
     if arguments.dev:
         app.config['DEBUG'] = True
         Log.info("Running webserver in DEBUG mode")
-        app.run(host = app.config['WEBSERVER_ADDR'], port = app.config['WEBSERVER_PORT'])
+        app.run(host=app.config['WEBSERVER_ADDR'],
+                port=app.config['WEBSERVER_PORT'])
     else:
         Log.info("Running webserver in DEPLOYMENT mode")
         sockets = tornado.netutil.bind_sockets(app.config['WEBSERVER_PORT'])
