@@ -27,9 +27,7 @@ from resources.incentivador.Doacao import Doacao
 
 from resources.fornecedor.Fornecedor_list import FornecedorList
 from resources.fornecedor.Fornecedor_detail import FornecedorDetail
-
 from resources.fornecedor.Produto import Produto
-
 
 from resources.api_doc.SwaggerDef import SwaggerDef
 

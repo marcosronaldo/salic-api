@@ -33,3 +33,4 @@ general_config_deploy.py
 tests.py
 
 *.csv
+.vscode

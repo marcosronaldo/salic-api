@@ -38,8 +38,9 @@ class IncentivadorModelObject(ModelsBase):
         ).join(CaptacaoModel)
 
         if PRONAC is not None:
-            res = res.join(ProjetoModel, CaptacaoModel.PRONAC ==
-                           ProjetoModel.PRONAC)
+            res = res.join(
+                ProjetoModel, 
+                CaptacaoModel.PRONAC == ProjetoModel.PRONAC)
             res = res.filter(CaptacaoModel.PRONAC == PRONAC)
 
         if cgccpf is not None:
