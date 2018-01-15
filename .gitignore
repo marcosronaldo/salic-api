@@ -34,3 +34,5 @@ tests.py
 
 *.csv
 .vscode
+.cache
+.idea

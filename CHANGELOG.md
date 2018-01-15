@@ -3,6 +3,10 @@ Todas alterações relevantes ocorridas nesse projeto serão documentadas nesse 
 
 O formato de log é baseado em [Keep a Changelog](http://keepachangelog.com/) e o versionamento segue  a semântica [Semantic Versioning](http://semver.org/).
 
+## [2.0.0-beta] - 2018-01-15
+- Converteu código para Python 3.5+
+
+
 ## [1.1.1-beta] - 2017-03-06
 ### Added
 - Links **first** e **last** em consultas tipo lista
