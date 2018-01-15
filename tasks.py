@@ -8,9 +8,8 @@ if '.' not in sys.path:
 
 @task
 def test(ctx):
-    """
-    Run tests.
-    """
+    "Run tests."
+
     from pytest import main
 
     main(['tests'])
@@ -18,9 +17,8 @@ def test(ctx):
 
 @task
 def cov(ctx):
-    """
-    Run coverage analysis.
-    """
+    "Run coverage analysis."
+
     from pytest import main
 
     main(['tests', '--cov'])
@@ -28,8 +26,23 @@ def cov(ctx):
 
 @task
 def run(ctx):
+    "Run flask application."
+
     env = {
         'FLASK_APP': 'salic_api.app',
         'PYTHONPATH': '.:' + ':'.join(sys.path),
     }
     ctx.run('{} -m flask run'.format(sys.executable), env=env)
+
+
+@task
+def db(ctx, reset=False):
+    """
+    Populate test db.
+    """
+
+    from salic_api.fixtures import populate
+
+    if reset:
+        ctx.run('rm db.sqlite -f')
+    populate()

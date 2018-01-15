@@ -2,10 +2,10 @@ import logging
 import urllib.error
 import urllib.parse
 import urllib.request
+
 from flask import current_app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 
 log = logging.getLogger(__file__)
 
@@ -14,10 +14,15 @@ register_engine = (lambda name: lambda f: ENGINE_MAPPER.setdefault(name, f))
 
 
 class SqlConnector:
-    def __init__(self):
-        driver = current_app.config['SQL_DRIVER']
+    def __init__(self, driver=None):
+        if driver is None:
+            driver = current_app.config['SQL_DRIVER']
+
         try:
-            engine = ENGINE_MAPPER[driver](current_app.config)
+            if driver == 'sqlite':
+                engine = sqlite_engine({})
+            else:
+                engine = ENGINE_MAPPER[driver](current_app.config)
         except KeyError:
             msg = 'Unknown SQL driver: %r' % driver
             log.error(msg)
@@ -36,6 +41,13 @@ class SqlConnector:
             # Close session after query executes
             self.session.close()
             log.info('Database connection closed')
+
+
+def get_session(driver=None):
+    """
+    Return a session for the current SQL connector.
+    """
+    return SqlConnector(driver).session
 
 
 #
@@ -59,7 +71,7 @@ def sqlite_engine(config):
 
 
 @register_engine('memory')
-def sqlite_engine(config):
+def memory_engine(config):
     return create_engine('sqlite://')
 
 

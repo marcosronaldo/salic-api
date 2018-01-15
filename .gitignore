@@ -1,5 +1,9 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.idea/
+.cache/
+.coverage
+db.sqlite3
 *.py[cod]
 *$py.class
 
@@ -34,8 +38,3 @@ tests.py
 
 *.csv
 .vscode
-.cache
-.idea
-.coverage
-.idea/
-db.sqlite3

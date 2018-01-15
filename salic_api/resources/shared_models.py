@@ -42,9 +42,6 @@ class Projeto(Base):
     mecanismo_related = relationship(
         "Mecanismo", foreign_keys=[Mecanismo])
 
-    def __init__(self):
-        pass
-
 
 class PreProjeto(Base):
     __tablename__ = 'PreProjeto'
@@ -69,9 +66,6 @@ class PreProjeto(Base):
     EspecificacaoTecnica = Column(String)
     EstrategiadeExecucao = Column(String)
 
-    def __init__(self):
-        pass
-
 
 class Segmento(Base):
     __tablename__ = 'Segmento'
@@ -92,9 +86,6 @@ class Enquadramento(Base):
     Sequencial = Column(String)
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
 
-    def __init__(self):
-        pass
-
 
 class Mecanismo(Base):
     __tablename__ = 'Mecanismo'
@@ -102,18 +93,12 @@ class Mecanismo(Base):
     Codigo = Column(Integer, primary_key=True)
     Descricao = Column(String)
 
-    def __init__(self):
-        pass
-
 
 class Situacao(Base):
     __tablename__ = 'Situacao'
 
     Codigo = Column(String, primary_key=True)
     Descricao = Column(String)
-
-    def __init__(self):
-        pass
 
 
 class Area(Base):
@@ -141,9 +126,6 @@ class Interessado(Base):
     projeto_related = relationship(
         'Projeto',
         primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf')
-
-    def __init__(self):
-        pass
 
 
 class Captacao(Base):
