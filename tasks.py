@@ -29,7 +29,7 @@ def run(ctx):
     "Run flask application."
 
     env = {
-        'FLASK_APP': 'salic_api.app',
+        'FLASK_APP': 'salic_api.app.default',
         'PYTHONPATH': '.:' + ':'.join(sys.path),
     }
     ctx.run('{} -m flask run'.format(sys.executable), env=env)
