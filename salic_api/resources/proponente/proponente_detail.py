@@ -1,10 +1,10 @@
+from salic_api.app.security import decrypt
 from .models import ProponenteModelObject
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ResourceBase
-from ..security import decrypt
 from ..serialization import listify_queryset
-from ...app import app
+from flask import current_app
 from ...utils.log import Log
 
 
@@ -21,8 +21,8 @@ class ProponenteDetail(ResourceBase):
         super(ProponenteDetail, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'proponentes/',
-            "projetos": app.config['API_ROOT_URL'] + 'projetos/?proponente_id=',
+            "self": current_app.config['API_ROOT_URL'] + 'proponentes/',
+            "projetos": current_app.config['API_ROOT_URL'] + 'projetos/?proponente_id=',
         }
 
         def hal_builder(data, args={}):

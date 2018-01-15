@@ -1,7 +1,7 @@
+from salic_api.app.security import encrypt
 from .models import CaptacaoModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
-from ..security import encrypt
 from ..serialization import listify_queryset
 
 

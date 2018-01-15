@@ -1,14 +1,14 @@
 from datetime import datetime
 
 from .resource_base import ResourceBase
-from ..app import app
+from flask import current_app
 
 
 class TestResource(ResourceBase):
     def __init__(self):
         pass
 
-    @app.cache.cached(timeout=300)  # cache this view for 5 minutes
+    #   @current_app.cache.cached(timeout=300)  # cache this view for 5 minutes
     def get(self):
         timestamp = str(datetime.now())
         result = {

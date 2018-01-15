@@ -2,11 +2,10 @@ import logging
 import urllib.error
 import urllib.parse
 import urllib.request
-
+from flask import current_app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from ..app import app
 
 log = logging.getLogger(__file__)
 
@@ -16,9 +15,9 @@ register_engine = (lambda name: lambda f: ENGINE_MAPPER.setdefault(name, f))
 
 class SqlConnector:
     def __init__(self):
-        driver = app.config['SQL_DRIVER']
+        driver = current_app.config['SQL_DRIVER']
         try:
-            engine = ENGINE_MAPPER[driver](app.config)
+            engine = ENGINE_MAPPER[driver](current_app.config)
         except KeyError:
             msg = 'Unknown SQL driver: %r' % driver
             log.error(msg)
@@ -69,10 +68,10 @@ def pymssql_uri(config):
     quoted = urllib.parse.quote_plus(
         'DRIVER={FreeTDS};Server=%s;Database=%s;UID=%s;PWD=%s;'
         'TDS_Version=8.0;CHARSET=UTF8;Port=1433;'
-        % (app.config['DATABASE_HOST'],
-           app.config['DATABASE_NAME'],
-           app.config['DATABASE_USER'],
-           app.config['DATABASE_PASSWORD']))
+        % (current_app.config['DATABASE_HOST'],
+           current_app.config['DATABASE_NAME'],
+           current_app.config['DATABASE_USER'],
+           current_app.config['DATABASE_PASSWORD']))
     return create_engine(
         'mssql+pyodbc:///?odbc_connect={}'.format(quoted),
         connect_args={'convert_unicode': True})

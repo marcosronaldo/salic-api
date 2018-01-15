@@ -1,11 +1,11 @@
+from flask import current_app
 from flask import request
 
 from .models import Incentivador
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ResourceBase
-from ..security import encrypt, decrypt
 from ..serialization import listify_queryset
-from ...app import app
+from ...app import encrypt, decrypt
 from ...utils.log import Log
 
 
@@ -51,20 +51,19 @@ class IncentivadorList(ResourceBase):
             links = {}
         incentivador_id_enc = encrypt(incentivador_id)
 
-        links['self'] = app.config['API_ROOT_URL'] + \
+        links['self'] = current_app.config['API_ROOT_URL'] + \
                         'incentivadores/%s' % incentivador_id_enc
-        links['doacoes'] = app.config['API_ROOT_URL'] + \
+        links['doacoes'] = current_app.config['API_ROOT_URL'] + \
                            'incentivadores/%s/doacoes/' % incentivador_id_enc
 
         self.doacoes_links.append(links)
-
 
     def __init__(self):
         self.tipos_pessoa = {'1': 'fisica', '2': 'juridica'}
         super(IncentivadorList, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'incentivadores/',
+            "self": current_app.config['API_ROOT_URL'] + 'incentivadores/',
         }
 
         def hal_builder(data, args={}):
@@ -90,12 +89,12 @@ class IncentivadorList(ResourceBase):
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
         else:
-            limit = app.config['LIMIT_PAGING']
+            limit = current_app.config['LIMIT_PAGING']
 
         if request.args.get('offset') is not None:
             offset = int(request.args.get('offset'))
         else:
-            offset = app.config['OFFSET_PAGING']
+            offset = current_app.config['OFFSET_PAGING']
 
         nome = None
         cgccpf = None

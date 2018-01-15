@@ -14,7 +14,7 @@ def to_xml(data):
 
 
 def to_json(data):
-    return json.dumps(data, ensure_ascii=False, encoding='utf-8')
+    return json.dumps(data, ensure_ascii=False)
 
 
 def to_csv(data):

@@ -1,9 +1,9 @@
+from salic_api.app.security import decrypt
 from .models import Incentivador
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ResourceBase
-from ..security import decrypt
 from ..serialization import listify_queryset
-from ...app import app
+from flask import current_app
 from ...utils.log import Log
 
 
@@ -18,7 +18,7 @@ class IncentivadorDetail(ResourceBase):
         super(IncentivadorDetail, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'incentivadores/'
+            "self": current_app.config['API_ROOT_URL'] + 'incentivadores/'
         }
 
         def hal_builder(data, args={}):

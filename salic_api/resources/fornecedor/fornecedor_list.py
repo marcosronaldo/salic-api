@@ -1,7 +1,7 @@
+from salic_api.app.security import encrypt, decrypt
 from .models import FornecedordorModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
-from ..security import encrypt, decrypt
 from ..serialization import listify_queryset
 
 

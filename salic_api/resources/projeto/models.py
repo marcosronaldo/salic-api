@@ -9,7 +9,7 @@ from ..serialization import listify_queryset
 from ..shared_models import (Projeto, Interessado, Mecanismo,
                              Situacao, Enquadramento,
                              PreProjeto, Captacao, CertidoesNegativas,
-                             VerificacaoModel, PlanoDistribuicao,
+                             Verificacao, PlanoDistribuicao,
                              Produto, Area, Segmento
                              )
 from ...utils.timer import Timer
@@ -658,8 +658,8 @@ class CertidoesNegativasModelObject(ModelsBase):
 
 
 class DivulgacaoModelObject(ModelsBase):
-    V1 = aliased(VerificacaoModel)
-    V2 = aliased(VerificacaoModel)
+    V1 = aliased(Verificacao)
+    V2 = aliased(Verificacao)
 
     def __init__(self):
         super(DivulgacaoModelObject, self).__init__()
@@ -735,14 +735,14 @@ class DistribuicaoModelObject(ModelsBase):
                 Area.Descricao.label('area'),
                 Segmento.Descricao.label('segmento'),
                 Produto.Descricao.label('produto'),
-                VerificacaoModel.Descricao.label('posicao_logo'),
+                Verificacao.Descricao.label('posicao_logo'),
                 Projeto.Localizacao,
             )
                 .join(Projeto)
                 .join(Produto)
                 .join(Area, Area.Codigo == PlanoDistribuicao.Area)
                 .join(Segmento, Segmento.Codigo == PlanoDistribuicao.Segmento)
-                .join(VerificacaoModel)
+                .join(Verificacao)
                 .filter(and_(Projeto.IdPRONAC == IdPRONAC,
                              PlanoDistribuicao.stPlanoDistribuicaoProduto == 1))
                 .all()

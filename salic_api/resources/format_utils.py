@@ -1,5 +1,5 @@
-from htmllaundry import strip_markup
-from BeautifulSoup import BeautifulStoneSoup
+# from htmllaundry import strip_markup
+# from BeautifulSoup import BeautifulStoneSoup
 import cgi
 
 
@@ -39,7 +39,8 @@ def validate_cpf(cpf):
     while len(cpf) < 11:
 
         r = sum([(len(cpf) + 1 - i) * v for i, v in [(x, cpf[x])
-                                                     for x in range(len(cpf))]]) % 11
+                                                     for x in
+                                                     range(len(cpf))]]) % 11
 
         if r > 1:
             f = 11 - r
@@ -65,7 +66,6 @@ def remove_blanks(word):
 
 
 def cgccpf_mask(cgccpf):
-
     if validate_cpf(cgccpf):
         cgccpf = '***' + cgccpf[3:9] + '**'
 

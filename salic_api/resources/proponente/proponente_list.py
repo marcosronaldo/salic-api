@@ -1,12 +1,12 @@
 from flask import request
 
+from salic_api.app.security import encrypt, decrypt
 from .models import ProponenteModelObject
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ResourceBase
-from ..security import encrypt, decrypt
 from ..serialization import listify_queryset
-from ...app import app
+from flask import current_app
 from ...utils.log import Log
 
 
@@ -46,9 +46,9 @@ class ProponenteList(ResourceBase):
             proponente_id = encrypt(proponente_id)
 
             links = {}
-            links['projetos'] = app.config['API_ROOT_URL'] + \
+            links['projetos'] = current_app.config['API_ROOT_URL'] + \
                                 'projetos/?proponente_id=%s' % proponente_id
-            links['self'] = app.config['API_ROOT_URL'] + \
+            links['self'] = current_app.config['API_ROOT_URL'] + \
                             'proponentes/%s' % proponente_id
 
             self.proponentes_links.append(links)
@@ -58,7 +58,7 @@ class ProponenteList(ResourceBase):
         super(ProponenteList, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'proponentes/',
+            "self": current_app.config['API_ROOT_URL'] + 'proponentes/',
         }
 
         def hal_builder(data, args={}):
@@ -83,12 +83,12 @@ class ProponenteList(ResourceBase):
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
         else:
-            limit = app.config['LIMIT_PAGING']
+            limit = current_app.config['LIMIT_PAGING']
 
         if request.args.get('offset') is not None:
             offset = int(request.args.get('offset'))
         else:
-            offset = app.config['OFFSET_PAGING']
+            offset = current_app.config['OFFSET_PAGING']
 
         nome = None
         cgccpf = None

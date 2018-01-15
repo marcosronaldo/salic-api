@@ -1,13 +1,12 @@
+from flask import current_app
 from flask import request
 
 from .models import ProjetoModelObject
-from ..caching import make_key
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ResourceBase
 from ..sanitization import sanitize
-from ..security import encrypt, decrypt
 from ..serialization import listify_queryset
-from ...app import app
+from ...app import encrypt, decrypt
 from ...utils.log import Log
 
 
@@ -48,13 +47,15 @@ class ProjetoList(ResourceBase):
 
         for proponente_id in args['proponentes_ids']:
             url_id = encrypt(proponente_id)
-            link = app.config['API_ROOT_URL'] + 'proponentes/%s' % url_id
+            link = current_app.config['API_ROOT_URL'] + \
+                   'proponentes/%s' % url_id
             self.proponents_links.append(link)
 
     def __init__(self):
         super(ProjetoList, self).__init__()
+        print(current_app)
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'projetos/',
+            "self": current_app.config['API_ROOT_URL'] + 'projetos/',
         }
 
         def hal_builder(data, args={}):
@@ -67,13 +68,13 @@ class ProjetoList(ResourceBase):
             for p_index in range(len(data)):
                 projeto = data[p_index]
 
-                self_link = app.config['API_ROOT_URL'] + \
+                self_link = current_app.config['API_ROOT_URL'] + \
                             'projetos/' + projeto['PRONAC']
                 proponente_link = self.proponents_links[p_index]
-                incentivadores_link = app.config['API_ROOT_URL'] + \
+                incentivadores_link = current_app.config['API_ROOT_URL'] + \
                                       'incentivadores/?PRONAC=' + projeto[
                                           'PRONAC']
-                fornecedores_link = app.config['API_ROOT_URL'] + \
+                fornecedores_link = current_app.config['API_ROOT_URL'] + \
                                     'fornecedores/?PRONAC=' + projeto['PRONAC']
 
                 projeto['_links'] = {}
@@ -87,8 +88,8 @@ class ProjetoList(ResourceBase):
 
         self.to_hal = hal_builder
 
-    @app.cache.cached(timeout=app.config['GLOBAL_CACHE_TIMEOUT'],
-                      key_prefix=make_key)
+    # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'],
+    #                         key_prefix=make_key)
     def get(self):
 
         headers = {}
@@ -96,7 +97,7 @@ class ProjetoList(ResourceBase):
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
 
-            if limit > app.config['LIMIT_PAGING']:
+            if limit > current_app.config['LIMIT_PAGING']:
                 results = {
                     'message': 'Max limit paging exceeded',
                     'message_code': 7
@@ -104,12 +105,12 @@ class ProjetoList(ResourceBase):
                 return self.render(results, status_code=405)
 
         else:
-            limit = app.config['LIMIT_PAGING']
+            limit = current_app.config['LIMIT_PAGING']
 
         if request.args.get('offset') is not None:
             offset = int(request.args.get('offset'))
         else:
-            offset = app.config['OFFSET_PAGING']
+            offset = current_app.config['OFFSET_PAGING']
 
         PRONAC = None
         nome = None

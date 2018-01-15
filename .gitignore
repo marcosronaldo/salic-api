@@ -36,3 +36,6 @@ tests.py
 .vscode
 .cache
 .idea
+.coverage
+.idea/
+db.sqlite3

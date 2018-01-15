@@ -1,10 +1,10 @@
 import inspect
 import logging
 
-from ..app import app
+from flask import current_app as app
 
 
-class Log:
+class _Log:
     """
     Log Class provides a unique way to record log messages of this program.
     """
@@ -130,3 +130,6 @@ class Log:
                     else:
                         caller_class = 'NoneType'
         return (caller_class, caller_method)
+
+
+Log = logging.getLogger('salic-api')

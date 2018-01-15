@@ -1,37 +1,38 @@
 from flask import Response
+from flask import current_app as app
 from flask import request
 from flask.ext.cache import Cache
 from flask_restful import Resource
 
-from .rate_limiting import shared_limiter
-from .security import md5hash
 from .serialization import serialize
-from ..app import app
+from ..app import limiter
+from ..app.security import md5hash
 from ..utils.log import Log
 
 
 class ResourceBase(Resource):
-    # Rate limiting setup
-    if app.config['RATE_LIMITING_ACTIVE']:
-        Log.info('Rate limiting active : %s' %
-                 (app.config['GLOBAL_RATE_LIMITS']))
-        decorators = [shared_limiter]
-    else:
-        Log.info('Rate limiting is turned off')
-
-    # Caching setup
-    if app.config['CACHING_ACTIVE']:
-        Log.info('Caching is active')
-    else:
-        app.config['CACHE_TYPE'] = 'null'
-        Log.info('Caching is disabled')
-        app.config['CACHE_NO_NULL_WARNING'] = True
-
-    # register the cache instance and binds it on to your app
-    app.cache = Cache(app)
-    app.cache.clear()
-
     def __init__(self):
+        # Rate limiting setup
+        if app.config['RATE_LIMITING_ACTIVE']:
+            Log.info('Rate limiting active : %s' %
+                     (app.config['GLOBAL_RATE_LIMITS']))
+            decorators = [limiter(app)]
+        else:
+            Log.info('Rate limiting is turned off')
+
+        # Caching setup
+        if app.config['CACHING_ACTIVE']:
+            Log.info('Caching is active')
+        else:
+            app.config['CACHE_TYPE'] = 'null'
+            Log.info('Caching is disabled')
+            app.config['CACHE_NO_NULL_WARNING'] = True
+
+        # register the cache instance and binds it on to your app
+        app.cache = Cache(app)
+        app.cache.clear()
+        app.before_request(on_request_start)
+
         self.to_hal = None
 
     def render(self, data, headers={}, status_code=200, raw=False):
@@ -177,8 +178,7 @@ def format_args(hearder_args):
     return formated
 
 
-@app.before_request
-def request_start():
+def on_request_start():
     content_type = request.headers.get('Accept', '')
     real_ip = request.headers.get('X-Real-Ip', '')
     args = format_args(request.args)

@@ -1,3 +1,4 @@
+from salic_api.app.security import encrypt
 from . import utils
 from .models import (
     ProjetoModelObject, CertidoesNegativasModelObject,
@@ -8,9 +9,8 @@ from .models import (
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ResourceBase
 from ..sanitization import sanitize
-from ..security import encrypt
 from ..serialization import listify_queryset
-from ...app import app
+from flask import current_app
 from ...utils.log import Log
 
 
@@ -20,12 +20,12 @@ class ProjetoDetail(ResourceBase):
         self.links["self"] += args['PRONAC']
 
         url_id = encrypt(args['proponente_id'])
-        proponente_link = app.config['API_ROOT_URL'] + \
+        proponente_link = current_app.config['API_ROOT_URL'] + \
                           'proponentes/%s' % url_id
 
-        incentivadores_link = app.config['API_ROOT_URL'] + \
+        incentivadores_link = current_app.config['API_ROOT_URL'] + \
                               'incentivadores/?PRONAC=' + args['PRONAC']
-        fornecedores_link = app.config['API_ROOT_URL'] + \
+        fornecedores_link = current_app.config['API_ROOT_URL'] + \
                             'fornecedores/?PRONAC=' + args['PRONAC']
 
         self.links["proponente"] = proponente_link
@@ -36,10 +36,10 @@ class ProjetoDetail(ResourceBase):
 
         for captacao in args['captacoes']:
             captacao_links = {}
-            captacao_links['projeto'] = app.config['API_ROOT_URL'] + \
+            captacao_links['projeto'] = current_app.config['API_ROOT_URL'] + \
                                         'projetos/%s' % args['PRONAC']
             url_id = encrypt(captacao['cgccpf'])
-            captacao_links['incentivador'] = app.config['API_ROOT_URL'] + \
+            captacao_links['incentivador'] = current_app.config['API_ROOT_URL'] + \
                                              'incentivadores/%s' % url_id
 
             self.captacoes_links.append(captacao_links)
@@ -52,9 +52,9 @@ class ProjetoDetail(ResourceBase):
             if produto['cgccpf'] == None:
                 produto['cgccpf'] = '00000000000000'
             fornecedor_id = encrypt(produto['cgccpf'])
-            produto_links['projeto'] = app.config['API_ROOT_URL'] + \
+            produto_links['projeto'] = current_app.config['API_ROOT_URL'] + \
                                        'projetos/%s' % args['PRONAC']
-            produto_links['fornecedor'] = app.config['API_ROOT_URL'] + \
+            produto_links['fornecedor'] = current_app.config['API_ROOT_URL'] + \
                                           'fornecedores/%s' % fornecedor_id
 
             self.produtos_links.append(produto_links)
@@ -63,7 +63,7 @@ class ProjetoDetail(ResourceBase):
         super(ProjetoDetail, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'projetos/',
+            "self": current_app.config['API_ROOT_URL'] + 'projetos/',
         }
 
         def hal_builder(data, args={}):
@@ -96,7 +96,7 @@ class ProjetoDetail(ResourceBase):
 
         self.to_hal = hal_builder
 
-    @app.cache.cached(timeout=app.config['GLOBAL_CACHE_TIMEOUT'])
+    #FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
     def get(self, PRONAC):
 
         try:
