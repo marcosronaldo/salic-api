@@ -1,9 +1,11 @@
 from .models import ProponenteModelObject
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase
 from ..security import decrypt
 from ..serialization import listify_queryset
+from ...app import app
+from ...utils.log import Log
 
 
 class ProponenteDetail(ResourceBase):

@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
-class ProjetoModel(Base):
+class Projeto(Base):
     __tablename__ = 'Projetos'
 
     IdPRONAC = Column(Integer, primary_key=True)
@@ -46,7 +46,7 @@ class ProjetoModel(Base):
         pass
 
 
-class PreProjetoModel(Base):
+class PreProjeto(Base):
     __tablename__ = 'PreProjeto'
 
     idPreProjeto = Column(Integer, primary_key=True)
@@ -73,7 +73,7 @@ class PreProjetoModel(Base):
         pass
 
 
-class SegmentoModel(Base):
+class Segmento(Base):
     __tablename__ = 'Segmento'
 
     Codigo = Column(String, primary_key=True)
@@ -83,7 +83,7 @@ class SegmentoModel(Base):
         pass
 
 
-class EnquadramentoModel(Base):
+class Enquadramento(Base):
     __tablename__ = 'Enquadramento'
 
     IdEnquadramento = Column(Integer, primary_key=True)
@@ -96,7 +96,7 @@ class EnquadramentoModel(Base):
         pass
 
 
-class MecanismoModel(Base):
+class Mecanismo(Base):
     __tablename__ = 'Mecanismo'
 
     Codigo = Column(Integer, primary_key=True)
@@ -106,7 +106,7 @@ class MecanismoModel(Base):
         pass
 
 
-class SituacaoModel(Base):
+class Situacao(Base):
     __tablename__ = 'Situacao'
 
     Codigo = Column(String, primary_key=True)
@@ -116,7 +116,7 @@ class SituacaoModel(Base):
         pass
 
 
-class AreaModel(Base):
+class Area(Base):
     __tablename__ = 'Area'
 
     Codigo = Column(String, primary_key=True)
@@ -126,7 +126,7 @@ class AreaModel(Base):
         pass
 
 
-class InteressadoModel(Base):
+class Interessado(Base):
     __tablename__ = 'Interessado'
 
     CgcCpf = Column(String, primary_key=True)
@@ -146,7 +146,7 @@ class InteressadoModel(Base):
         pass
 
 
-class CaptacaoModel(Base):
+class Captacao(Base):
     __tablename__ = 'Captacao'
 
     Idcaptacao = Column(Integer, primary_key=True)
@@ -161,7 +161,7 @@ class CaptacaoModel(Base):
     # projeto_related = relationship('ProjetoModel', primaryjoin='CaptacaoModel.PRONAC==ProjetoModel.PRONAC')
 
 
-class CertidoesNegativasModel(Base):
+class CertidoesNegativas(Base):
     __tablename__ = 'CertidoesNegativas'
 
     idCertidoesNegativas = Column(Integer, primary_key=True)
@@ -196,7 +196,7 @@ class PlanoDivulgacaoModel(Base):
     projeto_related = relationship('ProjetoModel', foreign_keys=[idProjeto])
 
 
-class ProdutoModel(Base):
+class Produto(Base):
     __tablename__ = 'Produto'
 
     Codigo = Column(Integer, primary_key=True)
@@ -207,7 +207,7 @@ class ProdutoModel(Base):
     stEstado = Column(Integer)
 
 
-class PlanoDistribuicaoModel(Base):
+class PlanoDistribuicao(Base):
     __tablename__ = 'PlanoDistribuicaoProduto'
 
     idPlanoDistribuicao = Column(Integer, primary_key=True)

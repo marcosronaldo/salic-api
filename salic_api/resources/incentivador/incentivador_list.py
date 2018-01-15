@@ -1,50 +1,63 @@
-from .models import IncentivadorModelObject
+from flask import request
+
+from .models import Incentivador
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase
 from ..security import encrypt, decrypt
 from ..serialization import listify_queryset
+from ...app import app
+from ...utils.log import Log
+
+
+def limit_url(url, limit, offset, extra=None):
+    return '{url}?limit={limit}&offset={offset}{extra}'.format(
+        url=url,
+        limit=int(limit),
+        offset=int(offset),
+        extra='' if extra is None else extra,
+    )
 
 
 class IncentivadorList(ResourceBase):
     sort_fields = ['total_doado']
 
-    def build_links(self, args={}):
+    def build_links(self, args=None):
+        args = dict(args or ())
         query_args = '&'
-        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+        limit = args['limit']
+        offset = args['offset']
+        last_offset = self.get_last_offset(args['n_records'], limit)
 
         for arg in request.args:
             if arg != 'limit' and arg != 'offset':
                 query_args += arg + '=' + request.args[arg] + '&'
 
-        if args['offset'] - args['limit'] >= 0:
-            self.links["prev"] = self.links["self"] + '?limit=%d&offset=%d' % (
-                args['limit'], args['offset'] - args['limit']) + query_args
+        self_link = self.links["self"]
 
-        if args['offset'] + args['limit'] <= last_offset:
-            self.links["next"] = self.links["self"] + '?limit=%d&offset=%d' % (
-                args['limit'], args['offset'] + args['limit']) + query_args
+        if offset - limit >= 0:
+            self.links["prev"] = limit_url(self_link, offset, limit, query_args)
+        if offset + limit <= last_offset:
+            self.links["next"] = limit_url(self_link, limit, offset + limit,
+                                           query_args)
+        self.links["first"] = '{}?limit={}&offset={}'.format(
+            self_link, int(limit), query_args)
 
-        self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
-                                  args['limit']) + query_args
-        self.links["last"] = self.links["self"] + \
+        self.links["last"] = self_link + \
                              '?limit=%d&offset=%d' % (
-                                 args['limit'], last_offset) + query_args
-        self.links["self"] += '?limit=%d&offset=%d' % (
-            args['limit'], args['offset']) + query_args
-
+                                 limit, last_offset) + query_args
         self.doacoes_links = []
 
         for incentivador_id in args['incentivadores_ids']:
             links = {}
-            incentivador_id_enc = encrypt(incentivador_id)
+        incentivador_id_enc = encrypt(incentivador_id)
 
-            links['self'] = app.config['API_ROOT_URL'] + \
-                            'incentivadores/%s' % incentivador_id_enc
-            links['doacoes'] = app.config['API_ROOT_URL'] + \
-                               'incentivadores/%s/doacoes/' % incentivador_id_enc
+        links['self'] = app.config['API_ROOT_URL'] + \
+                        'incentivadores/%s' % incentivador_id_enc
+        links['doacoes'] = app.config['API_ROOT_URL'] + \
+                           'incentivadores/%s/doacoes/' % incentivador_id_enc
 
-            self.doacoes_links.append(links)
+        self.doacoes_links.append(links)
+
 
     def __init__(self):
         self.tipos_pessoa = {'1': 'fisica', '2': 'juridica'}
@@ -74,7 +87,6 @@ class IncentivadorList(ResourceBase):
         self.to_hal = hal_builder
 
     def get(self):
-
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
         else:
@@ -135,13 +147,13 @@ class IncentivadorList(ResourceBase):
                 return self.render(result, status_code=405)
 
         try:
-            results, n_records = IncentivadorModelObject().all(limit, offset,
-                                                               nome, cgccpf,
-                                                               municipio, UF,
-                                                               tipo_pessoa,
-                                                               PRONAC,
-                                                               sort_field,
-                                                               sort_order)
+            results, n_records = Incentivador().all(limit, offset,
+                                                    nome, cgccpf,
+                                                    municipio, UF,
+                                                    tipo_pessoa,
+                                                    PRONAC,
+                                                    sort_field,
+                                                    sort_order)
 
         except Exception as e:
             Log.error(str(e))

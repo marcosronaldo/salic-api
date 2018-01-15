@@ -6,9 +6,6 @@ from ..serialization import listify_queryset
 
 
 class FornecedordorModelObject(ModelsBase):
-    def __init__(self):
-        super(FornecedordorModelObject, self).__init__()
-
     def all(self, limit, offset, cgccpf=None, PRONAC=None, nome=None):
 
         if cgccpf is not None:
@@ -30,12 +27,11 @@ class FornecedordorModelObject(ModelsBase):
                    ORDER BY cgccpf
                    OFFSET :offset ROWS
                    FETCH NEXT :limit ROWS ONLY;
-
               """)
 
             return self.sql_connector.session.execute(query, {
                 'cgccpf': '%' + cgccpf + '%', 'offset': offset, 'limit': limit
-                }).fetchall()
+            }).fetchall()
 
         elif nome is not None:
             query = text("""
@@ -61,7 +57,7 @@ class FornecedordorModelObject(ModelsBase):
 
             return self.sql_connector.session.execute(query, {
                 'nome': '%' + nome + '%', 'offset': offset, 'limit': limit
-                }).fetchall()
+            }).fetchall()
 
         elif PRONAC is not None:
             query = text("""
@@ -88,7 +84,7 @@ class FornecedordorModelObject(ModelsBase):
 
             return self.sql_connector.session.execute(query, {
                 'PRONAC': PRONAC, 'offset': offset, 'limit': limit
-                }).fetchall()
+            }).fetchall()
 
         else:
 
@@ -117,7 +113,7 @@ class FornecedordorModelObject(ModelsBase):
 
             return self.sql_connector.session.execute(query, {
                 'offset': offset, 'limit': limit
-                }).fetchall()
+            }).fetchall()
 
     def count(self, cgccpf=None, PRONAC=None, nome=None):
 

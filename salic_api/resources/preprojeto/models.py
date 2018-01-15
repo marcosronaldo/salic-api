@@ -1,5 +1,5 @@
 from ..model_base import ModelsBase
-from ..shared_models import PreProjetoModel, MecanismoModel
+from ..shared_models import PreProjeto, Mecanismo
 
 
 class PreProjetoModelObject(ModelsBase):
@@ -14,50 +14,50 @@ class PreProjetoModelObject(ModelsBase):
 
         if extra_fields:
             additional_fields = (
-                PreProjetoModel.Acessibilidade.label('acessibilidade'),
-                PreProjetoModel.Objetivos.label('objetivos'),
-                PreProjetoModel.Justificativa.label('justificativa'),
-                PreProjetoModel.DemocratizacaoDeAcesso.label('democratizacao'),
-                PreProjetoModel.EtapaDeTrabalho.label('etapa'),
-                PreProjetoModel.FichaTecnica.label('ficha_tecnica'),
-                PreProjetoModel.ResumoDoProjeto.label('resumo'),
-                PreProjetoModel.Sinopse.label('sinopse'),
-                PreProjetoModel.ImpactoAmbiental.label('impacto_ambiental'),
-                PreProjetoModel.EspecificacaoTecnica.label(
+                PreProjeto.Acessibilidade.label('acessibilidade'),
+                PreProjeto.Objetivos.label('objetivos'),
+                PreProjeto.Justificativa.label('justificativa'),
+                PreProjeto.DemocratizacaoDeAcesso.label('democratizacao'),
+                PreProjeto.EtapaDeTrabalho.label('etapa'),
+                PreProjeto.FichaTecnica.label('ficha_tecnica'),
+                PreProjeto.ResumoDoProjeto.label('resumo'),
+                PreProjeto.Sinopse.label('sinopse'),
+                PreProjeto.ImpactoAmbiental.label('impacto_ambiental'),
+                PreProjeto.EspecificacaoTecnica.label(
                     'especificacao_tecnica'),
-                PreProjetoModel.EstrategiadeExecucao.label(
+                PreProjeto.EstrategiadeExecucao.label(
                     'estrategia_execucao'),
             )
         else:
             additional_fields = ()
 
         res = self.sql_connector.session.query(
-            PreProjetoModel.NomeProjeto.label('nome'),
-            PreProjetoModel.idPreProjeto.label('id'),
-            PreProjetoModel.DtInicioDeExecucao.label('data_inicio'),
-            PreProjetoModel.DtFinalDeExecucao.label('data_termino'),
-            PreProjetoModel.dtAceite.label('data_aceite'),
-            PreProjetoModel.DtArquivamento.label('data_arquivamento'),
+            PreProjeto.NomeProjeto.label('nome'),
+            PreProjeto.idPreProjeto.label('id'),
+            PreProjeto.DtInicioDeExecucao.label('data_inicio'),
+            PreProjeto.DtFinalDeExecucao.label('data_termino'),
+            PreProjeto.dtAceite.label('data_aceite'),
+            PreProjeto.DtArquivamento.label('data_arquivamento'),
 
-            MecanismoModel.Descricao.label('mecanismo'),
+            Mecanismo.Descricao.label('mecanismo'),
 
             *additional_fields
 
-        ).join(MecanismoModel) \
-            .order_by(PreProjetoModel.idPreProjeto)
+        ).join(Mecanismo) \
+            .order_by(PreProjeto.idPreProjeto)
 
         if nome is not None:
             res = res.filter(
-                PreProjetoModel.NomeProjeto.like('%' + nome + '%'))
+                PreProjeto.NomeProjeto.like('%' + nome + '%'))
 
         if id is not None:
-            res = res.filter(PreProjetoModel.idPreProjeto == id)
+            res = res.filter(PreProjeto.idPreProjeto == id)
 
         if data_inicio is not None:
-            res = res.filter(PreProjetoModel.DtInicioDeExecucao == data_inicio)
+            res = res.filter(PreProjeto.DtInicioDeExecucao == data_inicio)
 
         if data_termino is not None:
-            res = res.filter(PreProjetoModel.DtFinalDeExecucao == data_termino)
+            res = res.filter(PreProjeto.DtFinalDeExecucao == data_termino)
 
         total_records = self.count(res)
 

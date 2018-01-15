@@ -1,9 +1,14 @@
+from flask import request
+
 from .models import ProjetoModelObject
+from ..caching import make_key
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase
 from ..sanitization import sanitize
 from ..security import encrypt, decrypt
 from ..serialization import listify_queryset
+from ...app import app
+from ...utils.log import Log
 
 
 class ProjetoList(ResourceBase):
@@ -32,10 +37,10 @@ class ProjetoList(ResourceBase):
 
         self.links["first"] = self.links["self"] + \
                               '?limit=%d&offset=0' % (
-                              args['limit']) + query_args
+                                  args['limit']) + query_args
         self.links["last"] = self.links["self"] + \
                              '?limit=%d&offset=%d' % (
-                             args['limit'], last_offset) + query_args
+                                 args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
 
@@ -95,7 +100,7 @@ class ProjetoList(ResourceBase):
                 results = {
                     'message': 'Max limit paging exceeded',
                     'message_code': 7
-                    }
+                }
                 return self.render(results, status_code=405)
 
         else:
@@ -196,7 +201,7 @@ class ProjetoList(ResourceBase):
                 result = {
                     'message': 'field error: "%s"' % sort_field,
                     'message_code': 10,
-                    }
+                }
                 return self.render(result, status_code=405)
 
         try:
@@ -224,14 +229,14 @@ class ProjetoList(ResourceBase):
                 'message': 'internal error',
                 'message_code': 13,
                 'more': 'something is broken'
-                }
+            }
             return self.render(result, status_code=503)
 
         if n_records == 0 or len(results) == 0:
             results = {
                 'message': 'No project was found with your criteria',
                 'message_code': 11
-                }
+            }
             return self.render(results, status_code=404)
 
         else:
@@ -278,6 +283,6 @@ class ProjetoList(ResourceBase):
         self.build_links(args={
             'limit': limit, 'offset': offset,
             'proponentes_ids': proponentes_ids, 'n_records': n_records
-            })
+        })
 
         return self.render(data, headers)

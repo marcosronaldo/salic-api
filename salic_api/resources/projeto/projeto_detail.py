@@ -6,10 +6,12 @@ from .models import (
     CaptacaoModelObject
 )
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase
 from ..sanitization import sanitize
 from ..security import encrypt
 from ..serialization import listify_queryset
+from ...app import app
+from ...utils.log import Log
 
 
 class ProjetoDetail(ResourceBase):

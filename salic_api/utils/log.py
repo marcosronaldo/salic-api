@@ -11,13 +11,17 @@ class Log:
 
     logger = None
 
-    ##
-    # Create a new instance of Log class.
-    # @param streamType - String containing the stream type name.
-    # @param logLevel - String containing the name of the level to be used in the log.
-    #
     @classmethod
-    def instantiate(cls, streamType="SCREEN", logLevel="INFO"):
+    def instantiate(cls, stream_type="SCREEN", log_level="INFO"):
+        """
+        Create a new instance of Log class.
+
+        Args:
+            stream_type:
+                String containing the stream type name.
+            log_level:
+                String containing the name of the level to be used in the log.
+        """
         try:
             logging.VERBOSE = 5
             logging.addLevelName(logging.VERBOSE, "VERBOSE")
@@ -29,14 +33,14 @@ class Log:
 
             cls.logger = logging.getLogger()
 
-            if logLevel not in logging._levelNames:
+            if log_level not in logging._levelNames:
                 raise Exception('Invalid file level')
 
-            cls.logger.setLevel(logging._levelNames[logLevel])
+            cls.logger.setLevel(logging._levelNames[log_level])
 
-            streamType = app.config['STREAMTYPE']
+            stream_type = app.config['STREAMTYPE']
 
-            if streamType == "SCREEN":
+            if stream_type == "SCREEN":
                 stream = logging.StreamHandler()
             else:
                 stream = logging.FileHandler(app.config['LOGFILE'])
@@ -57,50 +61,56 @@ class Log:
     @classmethod
     def log(cls, level, message, caller=None):
         if not cls.logger:
-            cls.instantiate(logLevel=app.config['LEVELOFLOG'])
+            cls.instantiate(log_level=app.config['LEVELOFLOG'])
 
         try:
             if level not in logging._levelNames:
                 cls.log("ERROR", 'Invalid file level \'%s\'' % (level))
 
-            logLevel = logging._levelNames[level]
+            log_level = logging._levelNames[level]
             if not caller:
-                callers = Log.getCallers(inspect.stack())
+                callers = Log.get_callers(inspect.stack())
             else:
                 callers = caller
             message = '%s.%s - %s' % (callers[0], callers[1], message)
 
-            cls.logger.log(logLevel, message)
+            cls.logger.log(log_level, message)
         except Exception as e:
             print(('Unable to record the log. Error: %s' % (e)))
 
     @classmethod
     def info(cls, message):
-        cls.log("INFO", message, Log.getCallers(inspect.stack()))
+        cls.log("INFO", message, Log.get_callers(inspect.stack()))
 
     @classmethod
     def error(cls, message):
-        cls.log("ERROR", message, Log.getCallers(inspect.stack()))
+        cls.log("ERROR", message, Log.get_callers(inspect.stack()))
 
     @classmethod
     def warn(cls, message):
-        cls.log("WARN", message, Log.getCallers(inspect.stack()))
+        cls.log("WARN", message, Log.get_callers(inspect.stack()))
 
     @classmethod
     def debug(cls, message):
-        cls.log("DEBUG", message, Log.getCallers(inspect.stack()))
+        cls.log("DEBUG", message, Log.get_callers(inspect.stack()))
 
     @classmethod
     def verbose(cls, message):
-        cls.log("VERBOSE", message, Log.getCallers(inspect.stack()))
+        cls.log("VERBOSE", message, Log.get_callers(inspect.stack()))
 
-    ##
-    # Gets the data about the caller of the log method.
-    # @param stack Array containing the system calling stack.
-    # @return Array containing the caller class name and the caller method, respectively.
-    #
     @staticmethod
-    def getCallers(stack):
+    def get_callers(stack):
+        """
+        Gets the data about the caller of the log method.
+
+        Args:
+            stack:
+                Array containing the system calling stack.
+        Return:
+            Array containing the caller class name and the caller method,
+            respectively.
+        """
+
         caller_class = None
         caller_method = None
         if stack:

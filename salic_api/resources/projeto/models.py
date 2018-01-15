@@ -1,37 +1,29 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy import case, func, and_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import text
+from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
-from sqlalchemy.sql.expression import asc, desc
 
 from ..model_base import ModelsBase
-from ..shared_models import AreaModel, SegmentoModel
-from ..shared_models import (ProjetoModel, InteressadoModel, MecanismoModel,
-                             SituacaoModel, EnquadramentoModel,
-                             PreProjetoModel, CaptacaoModel, CertidoesNegativasModel,
-                             VerificacaoModel, PlanoDivulgacaoModel, PlanoDistribuicaoModel,
-                             ProdutoModel, AreaModel, SegmentoModel
-                             )
-
-
-import sys
-sys.path.append('../../')
-from utils.Timer import Timer
-from utils.Log import Log
-
 from ..serialization import listify_queryset
+from ..shared_models import (Projeto, Interessado, Mecanismo,
+                             Situacao, Enquadramento,
+                             PreProjeto, Captacao, CertidoesNegativas,
+                             VerificacaoModel, PlanoDistribuicao,
+                             Produto, Area, Segmento
+                             )
+from ...utils.timer import Timer
 
 
 class ProjetoModelObject(ModelsBase):
-
     def __init__(self):
         super(ProjetoModelObject, self).__init__()
 
     def attached_documents(self, idPronac):
         query = text("""SAC.dbo.paDocumentos :idPronac""")
-        return self.sql_connector.session.execute(query, {'idPronac': idPronac}).fetchall()
+        return self.sql_connector.session.execute(query, {
+            'idPronac': idPronac
+        }).fetchall()
 
     def attached_brands(self, idPronac):
 
@@ -43,7 +35,9 @@ class ProjetoModelObject(ModelsBase):
                     INNER JOIN BDCORPORATIVO.scCorp.tbDocumentoProjeto AS dp ON dp.idDocumento = d.idDocumento
                     INNER JOIN SAC.dbo.Projetos AS p ON dp.idPronac = p.IdPRONAC WHERE (dp.idTipoDocumento = 1) AND (p.idPronac = :IdPRONAC)
         """)
-        return self.sql_connector.session.execute(query, {'IdPRONAC': idPronac}).fetchall()
+        return self.sql_connector.session.execute(query, {
+            'IdPRONAC': idPronac
+        }).fetchall()
 
     def postpone_request(self, idPronac):
 
@@ -63,9 +57,12 @@ class ProjetoModelObject(ModelsBase):
                         LEFT JOIN TABELAS.dbo.Usuarios AS b ON a.Logon = b.usu_codigo WHERE (idPronac = :IdPRONAC)
         """)
 
-        return self.sql_connector.session.execute(query, {'IdPRONAC': idPronac}).fetchall()
+        return self.sql_connector.session.execute(query, {
+            'IdPRONAC': idPronac
+        }).fetchall()
 
-    def payments_listing(self, limit=None, offset=None, idPronac=None, cgccpf=None):
+    def payments_listing(self, limit=None, offset=None, idPronac=None,
+                         cgccpf=None):
         # Relação de pagamentos
 
         if idPronac != None:
@@ -161,7 +158,9 @@ class ProjetoModelObject(ModelsBase):
                                 """
                              )
 
-            return self.sql_connector.session.execute(query, {'idPronac': idPronac, 'offset': offset, 'limit': limit}).fetchall()
+            return self.sql_connector.session.execute(query, {
+                'idPronac': idPronac, 'offset': offset, 'limit': limit
+            }).fetchall()
 
         else:
 
@@ -261,7 +260,9 @@ class ProjetoModelObject(ModelsBase):
                                     """
                              )
 
-            return self.sql_connector.session.execute(query, {'cgccpf': '%' + cgccpf + '%', 'offset': offset, 'limit': limit}).fetchall()
+            return self.sql_connector.session.execute(query, {
+                'cgccpf': '%' + cgccpf + '%', 'offset': offset, 'limit': limit
+            }).fetchall()
 
     def payments_listing_count(self, idPronac=None, cgccpf=None):
         # Número de pagamentos/produtos
@@ -346,7 +347,9 @@ class ProjetoModelObject(ModelsBase):
                     """
                      )
 
-        return self.sql_connector.session.execute(query, {'IdPRONAC': idPronac}).fetchall()
+        return self.sql_connector.session.execute(query, {
+            'IdPRONAC': idPronac
+        }).fetchall()
 
     def goods_capital_listing(self, idPronac):
         # Relação de bens de capital
@@ -377,61 +380,85 @@ class ProjetoModelObject(ModelsBase):
                  WHERE (c.idPronac = :IdPRONAC)
         """)
 
-        return self.sql_connector.session.execute(query, {'IdPRONAC': idPronac}).fetchall()
+        return self.sql_connector.session.execute(query, {
+            'IdPRONAC': idPronac
+        }).fetchall()
 
     def all(self, limit, offset, PRONAC=None, nome=None, proponente=None,
             cgccpf=None, area=None, segmento=None,
             UF=None, municipio=None, data_inicio=None,
             data_inicio_min=None, data_inicio_max=None,
             data_termino=None, data_termino_min=None,
-            data_termino_max=None, ano_projeto=None, sort_field=None, sort_order=None):
+            data_termino_max=None, ano_projeto=None, sort_field=None,
+            sort_order=None):
 
         text_fields = (
-            PreProjetoModel.Acessibilidade.label('acessibilidade'),
-            PreProjetoModel.Objetivos.label('objetivos'),
-            PreProjetoModel.Justificativa.label('justificativa'),
-            PreProjetoModel.DemocratizacaoDeAcesso.label('democratizacao'),
-            PreProjetoModel.EtapaDeTrabalho.label('etapa'),
-            PreProjetoModel.FichaTecnica.label('ficha_tecnica'),
-            PreProjetoModel.ResumoDoProjeto.label('resumo'),
-            PreProjetoModel.Sinopse.label('sinopse'),
-            PreProjetoModel.ImpactoAmbiental.label('impacto_ambiental'),
-            PreProjetoModel.EspecificacaoTecnica.label(
+            PreProjeto.Acessibilidade.label('acessibilidade'),
+            PreProjeto.Objetivos.label('objetivos'),
+            PreProjeto.Justificativa.label('justificativa'),
+            PreProjeto.DemocratizacaoDeAcesso.label('democratizacao'),
+            PreProjeto.EtapaDeTrabalho.label('etapa'),
+            PreProjeto.FichaTecnica.label('ficha_tecnica'),
+            PreProjeto.ResumoDoProjeto.label('resumo'),
+            PreProjeto.Sinopse.label('sinopse'),
+            PreProjeto.ImpactoAmbiental.label('impacto_ambiental'),
+            PreProjeto.EspecificacaoTecnica.label(
                 'especificacao_tecnica'),
-            PreProjetoModel.EstrategiadeExecucao.label('estrategia_execucao'),
+            PreProjeto.EstrategiadeExecucao.label('estrategia_execucao'),
 
-            ProjetoModel.ProvidenciaTomada.label('providencia'),
+            Projeto.ProvidenciaTomada.label('providencia'),
         )
 
         valor_proposta_case = coalesce(func.sac.dbo.fnValorDaProposta(
-            ProjetoModel.idProjeto), func.sac.dbo.fnValorSolicitado(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial))
+            Projeto.idProjeto),
+            func.sac.dbo.fnValorSolicitado(Projeto.AnoProjeto,
+                                           Projeto.Sequencial))
 
-        valor_aprovado_case = case([(ProjetoModel.Mecanismo == '2' or ProjetoModel.Mecanismo == '6', func.sac.dbo.fnValorAprovadoConvenio(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial)), ],
-                                   else_=func.sac.dbo.fnValorAprovado(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial))
+        valor_aprovado_case = case([(
+            Projeto.Mecanismo == '2' or Projeto.Mecanismo == '6',
+            func.sac.dbo.fnValorAprovadoConvenio(
+                Projeto.AnoProjeto,
+                Projeto.Sequencial)), ],
+            else_=func.sac.dbo.fnValorAprovado(
+                Projeto.AnoProjeto, Projeto.Sequencial))
 
-        valor_projeto_case = case([(ProjetoModel.Mecanismo == '2' or ProjetoModel.Mecanismo == '6', func.sac.dbo.fnValorAprovadoConvenio(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial)), ],
-                                  else_=func.sac.dbo.fnValorAprovado(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial) + func.sac.dbo.fnOutrasFontes(ProjetoModel.IdPRONAC))
+        valor_projeto_case = case([(
+            Projeto.Mecanismo == '2' or Projeto.Mecanismo == '6',
+            func.sac.dbo.fnValorAprovadoConvenio(
+                Projeto.AnoProjeto,
+                Projeto.Sequencial)), ],
+            else_=func.sac.dbo.fnValorAprovado(
+                Projeto.AnoProjeto,
+                Projeto.Sequencial) + func.sac.dbo.fnOutrasFontes(
+                Projeto.IdPRONAC))
 
-        enquadramento_case = case([(EnquadramentoModel.Enquadramento == '1', 'Artigo 26'),
-                                   (EnquadramentoModel.Enquadramento ==
-                                    '2', 'Artigo 18')
-                                   ],
-                                  else_='Nao enquadrado')
+        enquadramento_case = case(
+            [(Enquadramento.Enquadramento == '1', 'Artigo 26'),
+             (Enquadramento.Enquadramento ==
+              '2', 'Artigo 18')
+             ],
+            else_='Nao enquadrado')
 
-        ano_case = case([(ProjetoModel.Mecanismo == '2' or ProjetoModel.Mecanismo == '6', func.sac.dbo.fnValorAprovadoConvenio(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial)), ],
-                        else_=func.sac.dbo.fnValorAprovado(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial))
+        ano_case = case([(Projeto.Mecanismo == '2' or Projeto.Mecanismo == '6',
+                          func.sac.dbo.fnValorAprovadoConvenio(
+                              Projeto.AnoProjeto, Projeto.Sequencial)), ],
+                        else_=func.sac.dbo.fnValorAprovado(Projeto.AnoProjeto,
+                                                           Projeto.Sequencial))
 
-        sort_mapping_fields = {'valor_solicitado': func.sac.dbo.fnValorSolicitado(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial),
-                               'PRONAC': ProjetoModel.PRONAC,
-                               'outras_fontes': func.sac.dbo.fnOutrasFontes(ProjetoModel.IdPRONAC),
-                               'valor_captado': func.sac.dbo.fnCustoProjeto(ProjetoModel.AnoProjeto, ProjetoModel.Sequencial),
-                               'valor_proposta': valor_proposta_case,
-                               'valor_aprovado': valor_aprovado_case,
-                               'valor_projeto':  valor_projeto_case,
-                               'ano_projeto': ProjetoModel.AnoProjeto,
-                               'data_inicio': ProjetoModel.DtInicioExecucao,
-                               'data_termino': ProjetoModel.DtFimExecucao,
-                               }
+        sort_mapping_fields = {
+            'valor_solicitado': func.sac.dbo.fnValorSolicitado(
+                Projeto.AnoProjeto, Projeto.Sequencial),
+            'PRONAC': Projeto.PRONAC,
+            'outras_fontes': func.sac.dbo.fnOutrasFontes(Projeto.IdPRONAC),
+            'valor_captado': func.sac.dbo.fnCustoProjeto(Projeto.AnoProjeto,
+                                                         Projeto.Sequencial),
+            'valor_proposta': valor_proposta_case,
+            'valor_aprovado': valor_aprovado_case,
+            'valor_projeto': valor_projeto_case,
+            'ano_projeto': Projeto.AnoProjeto,
+            'data_inicio': Projeto.DtInicioExecucao,
+            'data_termino': Projeto.DtFimExecucao,
+        }
 
         if sort_field == None:
             sort_field = 'ano_projeto'
@@ -439,30 +466,33 @@ class ProjetoModelObject(ModelsBase):
 
         sort_field = sort_mapping_fields[sort_field]
 
-        with Timer(action='Database query for get_projeto_list method', verbose=True):
+        with Timer(action='Database query for get_projeto_list method',
+                   verbose=True):
             res = self.sql_connector.session.query(
-                ProjetoModel.NomeProjeto.label('nome'),
-                ProjetoModel.PRONAC.label('PRONAC'),
-                ProjetoModel.AnoProjeto.label('ano_projeto'),
-                ProjetoModel.UfProjeto.label('UF'),
-                InteressadoModel.Cidade.label('municipio'),
-                ProjetoModel.DtInicioExecucao.label('data_inicio'),
-                ProjetoModel.DtFimExecucao.label('data_termino'),
-                ProjetoModel.IdPRONAC,
+                Projeto.NomeProjeto.label('nome'),
+                Projeto.PRONAC.label('PRONAC'),
+                Projeto.AnoProjeto.label('ano_projeto'),
+                Projeto.UfProjeto.label('UF'),
+                Interessado.Cidade.label('municipio'),
+                Projeto.DtInicioExecucao.label('data_inicio'),
+                Projeto.DtFimExecucao.label('data_termino'),
+                Projeto.IdPRONAC,
 
-                AreaModel.Descricao.label('area'),
-                SegmentoModel.Descricao.label('segmento'),
-                SituacaoModel.Descricao.label('situacao'),
-                InteressadoModel.Nome.label('proponente'),
-                InteressadoModel.CgcCpf.label('cgccpf'),
-                MecanismoModel.Descricao.label('mecanismo'),
+                Area.Descricao.label('area'),
+                Segmento.Descricao.label('segmento'),
+                Situacao.Descricao.label('situacao'),
+                Interessado.Nome.label('proponente'),
+                Interessado.CgcCpf.label('cgccpf'),
+                Mecanismo.Descricao.label('mecanismo'),
 
                 func.sac.dbo.fnValorSolicitado(
-                    ProjetoModel.AnoProjeto, ProjetoModel.Sequencial).label('valor_solicitado'),
+                    Projeto.AnoProjeto, Projeto.Sequencial).label(
+                    'valor_solicitado'),
                 func.sac.dbo.fnOutrasFontes(
-                    ProjetoModel.IdPRONAC).label('outras_fontes'),
+                    Projeto.IdPRONAC).label('outras_fontes'),
                 func.sac.dbo.fnCustoProjeto(
-                    ProjetoModel.AnoProjeto, ProjetoModel.Sequencial).label('valor_captado'),
+                    Projeto.AnoProjeto, Projeto.Sequencial).label(
+                    'valor_captado'),
                 valor_proposta_case.label('valor_proposta'),
                 valor_aprovado_case.label('valor_aprovado'),
                 valor_projeto_case.label('valor_projeto'),
@@ -471,63 +501,64 @@ class ProjetoModelObject(ModelsBase):
 
                 *text_fields
 
-            ).join(AreaModel)\
-                .join(SegmentoModel)\
-                .join(SituacaoModel)\
-                .join(InteressadoModel)\
-                .join(PreProjetoModel)\
-                .join(MecanismoModel)\
-                .outerjoin(EnquadramentoModel, EnquadramentoModel.IdPRONAC == ProjetoModel.IdPRONAC)
+            ).join(Area) \
+                .join(Segmento) \
+                .join(Situacao) \
+                .join(Interessado) \
+                .join(PreProjeto) \
+                .join(Mecanismo) \
+                .outerjoin(Enquadramento,
+                           Enquadramento.IdPRONAC == Projeto.IdPRONAC)
 
         if PRONAC is not None:
-            res = res.filter(ProjetoModel.PRONAC == PRONAC)
+            res = res.filter(Projeto.PRONAC == PRONAC)
 
         if area is not None:
-            res = res.filter(AreaModel.Codigo == area)
+            res = res.filter(Area.Codigo == area)
 
         if segmento is not None:
-            res = res.filter(SegmentoModel.Codigo == segmento)
+            res = res.filter(Segmento.Codigo == segmento)
 
         if proponente is not None:
-            res = res.filter(InteressadoModel.Nome.like(
+            res = res.filter(Interessado.Nome.like(
                 '%' + proponente + '%'))
 
         if cgccpf is not None:
-            res = res.filter(InteressadoModel.CgcCpf.like('%' + cgccpf + '%'))
+            res = res.filter(Interessado.CgcCpf.like('%' + cgccpf + '%'))
 
         if nome is not None:
-            res = res.filter(ProjetoModel.NomeProjeto.like('%' + nome + '%'))
+            res = res.filter(Projeto.NomeProjeto.like('%' + nome + '%'))
 
         if UF is not None:
-            res = res.filter(InteressadoModel.Uf == UF)
+            res = res.filter(Interessado.Uf == UF)
 
         if municipio is not None:
-            res = res.filter(InteressadoModel.Cidade == municipio)
+            res = res.filter(Interessado.Cidade == municipio)
 
         if data_inicio is not None:
-            res = res.filter(ProjetoModel.DtInicioExecucao >= data_inicio).filter(
-                projetoModel.DtInicioExecucao <= data_inicio + ' 23:59:59')
+            res = res.filter(Projeto.DtInicioExecucao >= data_inicio).filter(
+                Projeto.DtInicioExecucao <= data_inicio + ' 23:59:59')
 
         if data_inicio_min is not None:
-            res = res.filter(ProjetoModel.DtInicioExecucao >= data_inicio_min)
+            res = res.filter(Projeto.DtInicioExecucao >= data_inicio_min)
 
         if data_inicio_max is not None:
-            res = res.filter(ProjetoModel.DtInicioExecucao <=
+            res = res.filter(Projeto.DtInicioExecucao <=
                              data_inicio_max + ' 23:59:59')
 
         if data_termino is not None:
-            res = res.filter(ProjetoModel.DtFimExecucao >= data_termino).filter(
-                ProjetoModel.DtFimExecucao <= data_termino + ' 23:59:59')
+            res = res.filter(Projeto.DtFimExecucao >= data_termino).filter(
+                Projeto.DtFimExecucao <= data_termino + ' 23:59:59')
 
         if data_termino_min is not None:
-            res = res.filter(ProjetoModel.DtFimExecucao >= data_termino_min)
+            res = res.filter(Projeto.DtFimExecucao >= data_termino_min)
 
         if data_termino_max is not None:
-            res = res.filter(ProjetoModel.DtFimExecucao <=
+            res = res.filter(Projeto.DtFimExecucao <=
                              data_termino_max + ' 23:59:59')
 
         if ano_projeto is not None:
-            res = res.filter(ProjetoModel.AnoProjeto == ano_projeto)
+            res = res.filter(Projeto.AnoProjeto == ano_projeto)
 
         # order by descending
         if sort_order == 'desc':
@@ -536,7 +567,7 @@ class ProjetoModelObject(ModelsBase):
         else:
             res = res.order_by(sort_field)
 
-        #res = res.order_by("AnoProjeto")
+        # res = res.order_by("AnoProjeto")
 
         total_records = self.count(res)
 
@@ -552,85 +583,81 @@ class ProjetoModelObject(ModelsBase):
 
 
 class CaptacaoModelObject(ModelsBase):
-
     def all(self, PRONAC):
-
-        res = self.sql_connector.session.query(
-            CaptacaoModel.PRONAC,
-            CaptacaoModel.CaptacaoReal.label('valor'),
-            CaptacaoModel.DtRecibo.label('data_recibo'),
-            ProjetoModel.NomeProjeto.label('nome_projeto'),
-            CaptacaoModel.CgcCpfMecena.label('cgccpf'),
-            InteressadoModel.Nome.label('nome_doador'),
-        ).join(ProjetoModel, CaptacaoModel.PRONAC == ProjetoModel.PRONAC)\
-            .join(InteressadoModel, CaptacaoModel.CgcCpfMecena == InteressadoModel.CgcCpf)\
-
-
+        res = (
+            self.sql_connector.session.query(
+                Captacao.PRONAC,
+                Captacao.CaptacaoReal.label('valor'),
+                Captacao.DtRecibo.label('data_recibo'),
+                Projeto.NomeProjeto.label('nome_projeto'),
+                Captacao.CgcCpfMecena.label('cgccpf'),
+                Interessado.Nome.label('nome_doador'),
+            )
+                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
+                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+        )
         if PRONAC is not None:
-            res = res.filter(CaptacaoModel.PRONAC == PRONAC)
-
+            res = res.filter(Captacao.PRONAC == PRONAC)
         return res.all()
 
 
 class AreaModelObject(ModelsBase):
-
     def __init__(self):
         super(AreaModelObject, self).__init__()
 
     def all(self):
         res = self.sql_connector.session.query(
-            AreaModel.Descricao.label('nome'), AreaModel.Codigo.label('codigo'))
+            Area.Descricao.label('nome'), Area.Codigo.label('codigo'))
         return res.all()
 
 
 class SegmentoModelObject(ModelsBase):
-
     def __init__(self):
         super(SegmentoModelObject, self).__init__()
 
     def all(self):
-        res = self.sql_connector.session.query(SegmentoModel.Descricao.label(
-            'nome'), SegmentoModel.Codigo.label('codigo'))
+        res = self.sql_connector.session.query(Segmento.Descricao.label(
+            'nome'), Segmento.Codigo.label('codigo'))
         return res.all()
 
 
 class CertidoesNegativasModelObject(ModelsBase):
-
     def __init__(self):
         super(CertidoesNegativasModelObject, self).__init__()
 
     def all(self, PRONAC=None, CgcCpf=None):
 
         descricao_case = case([
-            (CertidoesNegativasModel.CodigoCertidao ==
+            (CertidoesNegativas.CodigoCertidao ==
              '49', 'Quitação de Tributos Federais'),
-            (CertidoesNegativasModel.CodigoCertidao == '51', 'FGTS'),
-            (CertidoesNegativasModel.CodigoCertidao == '52', 'INSS'),
-            (CertidoesNegativasModel.CodigoCertidao ==
+            (CertidoesNegativas.CodigoCertidao == '51', 'FGTS'),
+            (CertidoesNegativas.CodigoCertidao == '52', 'INSS'),
+            (CertidoesNegativas.CodigoCertidao ==
              '244', 'CADIN'),
         ])
 
-        situacao_case = case([(CertidoesNegativasModel.cdSituacaoCertidao == 0, 'Pendente')],
-                             else_='Não Pendente'
-                             )
+        situacao_case = case(
+            [(CertidoesNegativas.cdSituacaoCertidao == 0, 'Pendente')],
+            else_='Não Pendente'
+        )
 
-        res = self.sql_connector.session.query(CertidoesNegativasModel.DtEmissao.label('data_emissao'),
-                                               CertidoesNegativasModel.DtValidade.label(
-            'data_validade'),
+        res = self.sql_connector.session.query(
+            CertidoesNegativas.DtEmissao.label('data_emissao'),
+            CertidoesNegativas.DtValidade.label(
+                'data_validade'),
             descricao_case.label(
-            'descricao'),
+                'descricao'),
             situacao_case.label(
-            'situacao'),
+                'situacao'),
         )
 
         if PRONAC is not None:
-            res = res.filter(CertidoesNegativasModel.PRONAC == PRONAC)
+            res = res.filter(CertidoesNegativas.PRONAC == PRONAC)
 
         return res.all()
 
 
 class DivulgacaoModelObject(ModelsBase):
-
     V1 = aliased(VerificacaoModel)
     V2 = aliased(VerificacaoModel)
 
@@ -638,7 +665,6 @@ class DivulgacaoModelObject(ModelsBase):
         super(DivulgacaoModelObject, self).__init__()
 
     def all(self, IdPRONAC):
-
         stmt = text(
             """
                         SELECT v1.Descricao as peca,v2.Descricao as veiculo
@@ -650,16 +676,16 @@ class DivulgacaoModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
+        return self.sql_connector.session.execute(stmt, {
+            'IdPRONAC': IdPRONAC
+        }).fetchall()
 
 
 class DescolamentoModelObject(ModelsBase):
-
     def __init__(self):
         super(DescolamentoModelObject, self).__init__()
 
     def all(self, IdPRONAC):
-
         stmt = text(
             """
                         SELECT
@@ -685,58 +711,52 @@ class DescolamentoModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
+        return self.sql_connector.session.execute(stmt, {
+            'IdPRONAC': IdPRONAC
+        }).fetchall()
 
 
 class DistribuicaoModelObject(ModelsBase):
-
     def __init__(self):
         super(DistribuicaoModelObject, self).__init__()
 
     def all(self, IdPRONAC):
-
-        res = self.sql_connector.session.query(PlanoDistribuicaoModel.idPlanoDistribuicao,
-                                               PlanoDistribuicaoModel.QtdeVendaNormal,
-                                               PlanoDistribuicaoModel.QtdeVendaPromocional,
-                                               PlanoDistribuicaoModel.PrecoUnitarioNormal,
-                                               PlanoDistribuicaoModel.PrecoUnitarioPromocional,
-                                               PlanoDistribuicaoModel.QtdeOutros,
-                                               PlanoDistribuicaoModel.QtdeProponente,
-                                               PlanoDistribuicaoModel.QtdeProduzida,
-                                               PlanoDistribuicaoModel.QtdePatrocinador,
-
-                                               AreaModel.Descricao.label(
-                                                   'area'),
-                                               SegmentoModel.Descricao.label(
-                                                   'segmento'),
-
-                                               ProdutoModel.Descricao.label(
-                                                   'produto'),
-                                               VerificacaoModel.Descricao.label(
-                                                   'posicao_logo'),
-                                               ProjetoModel.Localizacao,
-                                               ).join(ProjetoModel)\
-            .join(ProdutoModel)\
-            .join(AreaModel, AreaModel.Codigo == PlanoDistribuicaoModel.Area)\
-            .join(SegmentoModel, SegmentoModel.Codigo == PlanoDistribuicaoModel.Segmento)\
-            .join(VerificacaoModel)\
-
-        res = res.filter(and_(ProjetoModel.IdPRONAC == IdPRONAC,
-                              PlanoDistribuicaoModel.stPlanoDistribuicaoProduto == 1))
-
-        return res.all()
+        return (
+            self.sql_connector.session.query(
+                PlanoDistribuicao.idPlanoDistribuicao,
+                PlanoDistribuicao.QtdeVendaNormal,
+                PlanoDistribuicao.QtdeVendaPromocional,
+                PlanoDistribuicao.PrecoUnitarioNormal,
+                PlanoDistribuicao.PrecoUnitarioPromocional,
+                PlanoDistribuicao.QtdeOutros,
+                PlanoDistribuicao.QtdeProponente,
+                PlanoDistribuicao.QtdeProduzida,
+                PlanoDistribuicao.QtdePatrocinador,
+                Area.Descricao.label('area'),
+                Segmento.Descricao.label('segmento'),
+                Produto.Descricao.label('produto'),
+                VerificacaoModel.Descricao.label('posicao_logo'),
+                Projeto.Localizacao,
+            )
+                .join(Projeto)
+                .join(Produto)
+                .join(Area, Area.Codigo == PlanoDistribuicao.Area)
+                .join(Segmento, Segmento.Codigo == PlanoDistribuicao.Segmento)
+                .join(VerificacaoModel)
+                .filter(and_(Projeto.IdPRONAC == IdPRONAC,
+                             PlanoDistribuicao.stPlanoDistribuicaoProduto == 1))
+                .all()
+        )
 
 
 class ReadequacaoModelObject(ModelsBase):
-
     def __init__(self):
         super(ReadequacaoModelObject, self).__init__()
 
     def all(self, IdPRONAC):
-
         stmt = text(
             """
-                    SELECT
+            SELECT
                 a.idReadequacao as id_readequacao,
                 a.dtSolicitacao as data_solicitacao,
                 CAST(a.dsSolicitacao AS TEXT) AS descricao_solicitacao,
@@ -760,16 +780,16 @@ class ReadequacaoModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
+        return self.sql_connector.session.execute(stmt, {
+            'IdPRONAC': IdPRONAC
+        }).fetchall()
 
 
 class AdequacoesPedidoModelObject(ModelsBase):
-
     def __init__(self):
         super(AdequacoesPedidoModelObject, self).__init__()
 
     def all(self, IdPRONAC):
-
         stmt = text(
             """
                     SELECT
@@ -797,16 +817,16 @@ class AdequacoesPedidoModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
+        return self.sql_connector.session.execute(stmt, {
+            'IdPRONAC': IdPRONAC
+        }).fetchall()
 
 
 class AdequacoesParecerModelObject(ModelsBase):
-
     def __init__(self):
         super(AdequacoesParecerModelObject, self).__init__()
 
     def all(self, IdPRONAC):
-
         stmt = text(
             """
                     SELECT
@@ -835,4 +855,6 @@ class AdequacoesParecerModelObject(ModelsBase):
                     """
         )
 
-        return self.sql_connector.session.execute(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
+        return self.sql_connector.session.execute(stmt, {
+            'IdPRONAC': IdPRONAC
+        }).fetchall()

@@ -2,7 +2,7 @@ from sqlalchemy import case, func
 from sqlalchemy.sql.expression import desc
 
 from ..model_base import ModelsBase
-from ..shared_models import InteressadoModel, ProjetoModel
+from ..shared_models import Interessado, Projeto
 
 
 class ProponenteModelObject(ModelsBase):
@@ -16,10 +16,10 @@ class ProponenteModelObject(ModelsBase):
         end_row = offset + limit
 
         sort_mapping_fields = {
-            'cgccpf': InteressadoModel.CgcCpf,
+            'cgccpf': Interessado.CgcCpf,
             'total_captado': func.sum(
-                func.sac.dbo.fnCustoProjeto(ProjetoModel.AnoProjeto,
-                                            ProjetoModel.Sequencial))
+                func.sac.dbo.fnCustoProjeto(Projeto.AnoProjeto,
+                                            Projeto.Sequencial))
             }
 
         if sort_field == None:
@@ -28,42 +28,42 @@ class ProponenteModelObject(ModelsBase):
         sort_field = sort_mapping_fields[sort_field]
 
         tipo_pessoa_case = case(
-            [(InteressadoModel.tipoPessoa == '1', 'fisica'), ],
+            [(Interessado.tipoPessoa == '1', 'fisica'), ],
             else_='juridica')
 
         res = self.sql_connector.session.query(
-            func.sum(func.sac.dbo.fnCustoProjeto(ProjetoModel.AnoProjeto,
-                                                 ProjetoModel.Sequencial)).label(
+            func.sum(func.sac.dbo.fnCustoProjeto(Projeto.AnoProjeto,
+                                                 Projeto.Sequencial)).label(
                 'total_captado'),
-            InteressadoModel.Nome.label('nome'),
-            InteressadoModel.Cidade.label('municipio'),
-            InteressadoModel.Uf.label('UF'),
-            InteressadoModel.Responsavel.label('responsavel'),
-            InteressadoModel.CgcCpf.label('cgccpf'),
+            Interessado.Nome.label('nome'),
+            Interessado.Cidade.label('municipio'),
+            Interessado.Uf.label('UF'),
+            Interessado.Responsavel.label('responsavel'),
+            Interessado.CgcCpf.label('cgccpf'),
             tipo_pessoa_case.label('tipo_pessoa'),
-        ).join(InteressadoModel)
+        ).join(Interessado)
 
-        res = res.group_by(InteressadoModel.Nome,
-                           InteressadoModel.Cidade,
-                           InteressadoModel.Uf,
-                           InteressadoModel.Responsavel,
-                           InteressadoModel.CgcCpf,
+        res = res.group_by(Interessado.Nome,
+                           Interessado.Cidade,
+                           Interessado.Uf,
+                           Interessado.Responsavel,
+                           Interessado.CgcCpf,
                            tipo_pessoa_case
                            )
 
-        res = res.filter(ProjetoModel.idProjeto.isnot(None))
+        res = res.filter(Projeto.idProjeto.isnot(None))
 
         if cgccpf is not None:
-            res = res.filter(InteressadoModel.CgcCpf.like('%' + cgccpf + '%'))
+            res = res.filter(Interessado.CgcCpf.like('%' + cgccpf + '%'))
 
         if nome is not None:
-            res = res.filter(InteressadoModel.Nome.like('%' + nome + '%'))
+            res = res.filter(Interessado.Nome.like('%' + nome + '%'))
 
         if UF is not None:
-            res = res.filter(InteressadoModel.Uf == UF)
+            res = res.filter(Interessado.Uf == UF)
 
         if municipio is not None:
-            res = res.filter(InteressadoModel.Cidade == municipio)
+            res = res.filter(Interessado.Cidade == municipio)
 
         if tipo_pessoa is not None:
             if tipo_pessoa == 'fisica':
@@ -71,7 +71,7 @@ class ProponenteModelObject(ModelsBase):
             else:
                 tipo_pessoa = '2'
 
-            res = res.filter(InteressadoModel.tipoPessoa == tipo_pessoa)
+            res = res.filter(Interessado.tipoPessoa == tipo_pessoa)
 
         # order by descending
         if sort_order == 'desc':

@@ -32,11 +32,9 @@ class ResourceBase(Resource):
     app.cache.clear()
 
     def __init__(self):
-
         self.to_hal = None
 
     def render(self, data, headers={}, status_code=200, raw=False):
-
         if not self.resolve_content():
             data = {
                 'message': 'invalid format',
@@ -181,12 +179,10 @@ def format_args(hearder_args):
 
 @app.before_request
 def request_start():
-    content_type = request.headers.get('Accept') or ''
-    real_ip = request.headers.get('X-Real-Ip') or ''
-
-    Log.info(request.path + ' ' + format_args(request.args)
-             + ' ' + real_ip
-             + ' ' + content_type)
+    content_type = request.headers.get('Accept', '')
+    real_ip = request.headers.get('X-Real-Ip', '')
+    args = format_args(request.args)
+    Log.info(' '.join([request.path, args, real_ip, content_type]))
 
     # Test content_type
 

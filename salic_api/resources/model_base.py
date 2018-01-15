@@ -1,11 +1,11 @@
 from sqlalchemy import func
 
-from ..database.mssql_connector import MSSql_connector as SQL_connector
+from ..database.connector import SqlConnector
 
 
-class ModelsBase(object):
+class ModelsBase:
     def __init__(self):
-        self.sql_connector = SQL_connector()
+        self.sql_connector = SqlConnector()
 
     def count(self, q):
         count_q = q.statement.with_only_columns([func.count()]).order_by(None)

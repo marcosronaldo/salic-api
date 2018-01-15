@@ -5,13 +5,12 @@ from Crypto.Cipher import AES
 
 from ..app import app
 
-key = app.config['URL_KEY']
-key = b''.join(key)
+API_KEY_BYTES = app.config['URL_KEY'].encode('ascii')
 
 
 def encrypt(text):
     iv = Random.new().read(AES.block_size)
-    cipher = AES.new(key, AES.MODE_CFB, iv)
+    cipher = AES.new(API_KEY_BYTES, AES.MODE_CFB, iv)
     msg = iv + cipher.encrypt(b''.join(text))
     return msg.encode('hex')
 
@@ -20,7 +19,7 @@ def decrypt(cypher_text):
     try:
         enc_msg = cypher_text.decode('hex')
         iv = enc_msg[:AES.block_size]
-        cipher = AES.new(key, AES.MODE_CFB, iv)
+        cipher = AES.new(API_KEY_BYTES, AES.MODE_CFB, iv)
         dec_msg = cipher.decrypt(enc_msg)
     except Exception:
         return 'invalid'
