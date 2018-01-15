@@ -1,5 +1,7 @@
+from salic_api.app import app
+from salic_api.utils.log import Log
 from .models import PreProjetoModelObject
-from ..resource_base import *
+from ..resource_base import ResourceBase, request
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 
@@ -23,11 +25,9 @@ class PreProjetoList(ResourceBase):
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d' % (
                 args['limit'], args['offset'] + args['limit']) + query_args
 
-        self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0' % (
                                   args['limit']) + query_args
-        self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d' % (
                                  args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
@@ -49,8 +49,9 @@ class PreProjetoList(ResourceBase):
             for p_index in range(len(data)):
                 proposta = data[p_index]
 
-                self_link = app.config['API_ROOT_URL'] + \
-                            'propostas/' + str(proposta['id'])
+                self_link = \
+                    app.config['API_ROOT_URL'] + \
+                    'propostas/' + str(proposta['id'])
 
                 proposta['_links'] = {}
                 proposta['_links']['self'] = self_link

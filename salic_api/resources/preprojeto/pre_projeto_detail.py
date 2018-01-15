@@ -1,5 +1,6 @@
+from salic_api.utils.log import Log
 from .models import PreProjetoModelObject
-from ..resource_base import *
+from ..resource_base import ResourceBase
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 

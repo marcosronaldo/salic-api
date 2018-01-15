@@ -1,8 +1,10 @@
-from salic_api.app.security import decrypt
-from salic_api.app.security import encrypt
+from salic_api.app import app
+from salic_api.utils.log import Log
 from .models import DoacaoModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase, request
+from ..security import decrypt
+from ..security import encrypt
 from ..serialization import listify_queryset
 
 
@@ -26,11 +28,9 @@ class Doacao(ResourceBase):
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d' % (
                 args['limit'], args['offset'] + args['limit']) + query_args
 
-        self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0' % (
                                   args['limit']) + query_args
-        self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d' % (
                                  args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
@@ -39,11 +39,13 @@ class Doacao(ResourceBase):
 
         for doacao in args['doacoes']:
             doacao_links = {}
-            doacao_links['projeto'] = app.config['API_ROOT_URL'] + \
-                                      'projetos/%s' % doacao['PRONAC']
+            doacao_links['projeto'] = \
+                app.config['API_ROOT_URL'] + \
+                'projetos/%s' % doacao['PRONAC']
             incentivador_id = encrypt(doacao['cgccpf'])
-            doacao_links['incentivador'] = app.config['API_ROOT_URL'] + \
-                                           'incentivadores/%s' % incentivador_id
+            doacao_links['incentivador'] = \
+                app.config['API_ROOT_URL'] + \
+                'incentivadores/%s' % incentivador_id
 
             self.doacoes_links.append(doacao_links)
 

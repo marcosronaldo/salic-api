@@ -1,7 +1,8 @@
-from salic_api.app.security import encrypt, decrypt
+from salic_api.app import app
 from .models import FornecedordorModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase, request
+from ..security import encrypt, decrypt
 from ..serialization import listify_queryset
 
 
@@ -24,11 +25,9 @@ class FornecedorList(ResourceBase):
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d' % (
                 args['limit'], args['offset'] + args['limit']) + query_args
 
-        self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0' % (
                                   args['limit']) + query_args
-        self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d' % (
                                  args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
@@ -39,10 +38,12 @@ class FornecedorList(ResourceBase):
             links = {}
             fornecedor_id_enc = encrypt(fornecedor_id)
 
-            links['self'] = app.config['API_ROOT_URL'] + \
-                            'fornecedores/%s' % fornecedor_id_enc
-            links['produtos'] = app.config['API_ROOT_URL'] + \
-                                'fornecedores/%s/produtos/' % fornecedor_id_enc
+            links['self'] = \
+                app.config['API_ROOT_URL'] + \
+                'fornecedores/%s' % fornecedor_id_enc
+            links['produtos'] = \
+                app.config['API_ROOT_URL'] + \
+                'fornecedores/%s/produtos/' % fornecedor_id_enc
 
             self.fornecedores_links.append(links)
 

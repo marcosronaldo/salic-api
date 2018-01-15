@@ -1,9 +1,10 @@
 from flask import current_app
-from flask import request
-
+from salic_api.resources.caching import make_key
+from salic_api.utils.log import Log
 from .models import ProjetoModelObject
+from ..app import app
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import ResourceBase
+from ..resource_base import ResourceBase, request
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...app import encrypt, decrypt
@@ -34,12 +35,13 @@ class ProjetoList(ResourceBase):
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d' % (
                 args['limit'], args['offset'] + args['limit']) + query_args
 
-        self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
-                                  args['limit']) + query_args
-        self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
-                                 args['limit'], last_offset) + query_args
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0' % (
+            args['limit']) + query_args
+
+        self.links["last"] = \
+            self.links["self"] + '?limit=%d&offset=%d' % (
+                args['limit'], last_offset) + query_args
+
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
 
@@ -59,7 +61,6 @@ class ProjetoList(ResourceBase):
         }
 
         def hal_builder(data, args={}):
-
             total = args['total']
             count = len(data)
 
@@ -68,14 +69,16 @@ class ProjetoList(ResourceBase):
             for p_index in range(len(data)):
                 projeto = data[p_index]
 
-                self_link = current_app.config['API_ROOT_URL'] + \
-                            'projetos/' + projeto['PRONAC']
+                self_link = \
+                    app.config['API_ROOT_URL'] \
+                    + 'projetos/' + projeto['PRONAC']
                 proponente_link = self.proponents_links[p_index]
-                incentivadores_link = current_app.config['API_ROOT_URL'] + \
-                                      'incentivadores/?PRONAC=' + projeto[
-                                          'PRONAC']
-                fornecedores_link = current_app.config['API_ROOT_URL'] + \
-                                    'fornecedores/?PRONAC=' + projeto['PRONAC']
+                incentivadores_link = \
+                    app.config['API_ROOT_URL'] + 'incentivadores/?PRONAC=' \
+                    + projeto['PRONAC']
+                fornecedores_link = \
+                    app.config['API_ROOT_URL'] \
+                    + 'fornecedores/?PRONAC=' + projeto['PRONAC']
 
                 projeto['_links'] = {}
                 projeto['_links']['self'] = self_link
@@ -207,7 +210,9 @@ class ProjetoList(ResourceBase):
 
         try:
             Log.debug('Starting database call')
-            results, n_records = ProjetoModelObject().all(limit, offset, PRONAC,
+            results, n_records = ProjetoModelObject().all(limit,
+                                                          offset,
+                                                          PRONAC,
                                                           nome,
                                                           proponente, cgccpf,
                                                           area, segmento,
@@ -246,7 +251,6 @@ class ProjetoList(ResourceBase):
         data = listify_queryset(results)
 
         for projeto in data:
-
             "Removing IdPRONAC"
             del projeto['IdPRONAC']
 

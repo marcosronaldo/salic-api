@@ -1,5 +1,6 @@
 from .models import SegmentoModelObject
-from ..resource_base import *
+from ..app import app
+from ..resource_base import ResourceBase
 from ..serialization import listify_queryset
 
 
@@ -8,7 +9,6 @@ class Segmento(ResourceBase):
         super(Segmento, self).__init__()
 
         def hal_builder(data, args={}):
-
             hal_data = {
                 '_links': {
                     'self': app.config['API_ROOT_URL'] + 'projetos/segmentos/'
@@ -16,7 +16,6 @@ class Segmento(ResourceBase):
             }
 
             for segmento in data:
-
                 link = app.config['API_ROOT_URL'] + \
                        'projetos/?segmento=%s' % segmento['codigo']
                 segmento['_links'] = {'self': link}

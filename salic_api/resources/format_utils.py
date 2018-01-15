@@ -1,11 +1,12 @@
-# from htmllaundry import strip_markup
-# from BeautifulSoup import BeautifulStoneSoup
 import cgi
+
+from BeautifulSoup import BeautifulStoneSoup
+from htmllaundry import strip_markup
 
 
 def validate_cpf(cpf):
-    """ 
-    Method to validate a brazilian CPF number 
+    """
+    Method to validate a brazilian CPF number
     Based on Pedro Werneck source avaiable at
     www.PythonBrasil.com.br
 
@@ -39,8 +40,7 @@ def validate_cpf(cpf):
     while len(cpf) < 11:
 
         r = sum([(len(cpf) + 1 - i) * v for i, v in [(x, cpf[x])
-                                                     for x in
-                                                     range(len(cpf))]]) % 11
+                                                     for x in range(len(cpf))]]) % 11
 
         if r > 1:
             f = 11 - r
@@ -92,4 +92,4 @@ def HTMLEntitiesToUnicode(word):
 def unicodeToHTMLEntities(word):
     """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
     word = cgi.escape(word).encode('ascii', 'xmlcharrefreplace')
-    return text
+    return word

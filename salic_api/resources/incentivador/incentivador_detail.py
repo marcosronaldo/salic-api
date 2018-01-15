@@ -1,10 +1,10 @@
-from salic_api.app.security import decrypt
-from .models import Incentivador
+from salic_api.app import app
+from salic_api.utils.log import Log
+from .models import IncentivadorModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ResourceBase
+from ..security import decrypt
 from ..serialization import listify_queryset
-from flask import current_app
-from ...utils.log import Log
 
 
 class IncentivadorDetail(ResourceBase):
@@ -18,7 +18,7 @@ class IncentivadorDetail(ResourceBase):
         super(IncentivadorDetail, self).__init__()
 
         self.links = {
-            "self": current_app.config['API_ROOT_URL'] + 'incentivadores/'
+            "self": app.config['API_ROOT_URL'] + 'incentivadores/'
         }
 
         def hal_builder(data, args={}):
@@ -34,7 +34,7 @@ class IncentivadorDetail(ResourceBase):
         cgccpf = decrypt(incentivador_id)
 
         try:
-            results, n_records = Incentivador().all(
+            results, n_records = IncentivadorModelObject().all(
                 limit=1, offset=0, cgccpf=cgccpf)
 
         except Exception as e:

@@ -1,5 +1,4 @@
 from jsonschema import Draft3Validator
-from wtforms import ValidationError
 
 schema = {
     'type': 'object',
@@ -20,8 +19,8 @@ def validate_input(input, schema):
 def testPRONAC(form, field):
     try:
         int(field.data)
-    except:
-        raise ValidationError('PRONAC must be integer')
+    except ValueError:
+        raise ValueError('PRONAC must be integer')
 
 
 class InputValidation():

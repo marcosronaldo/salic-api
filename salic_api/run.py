@@ -4,9 +4,9 @@ import tornado
 from tornado.wsgi import WSGIContainer
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
-from .urls import *
 import argparse
 import logging
+from .app import app
 from .utils.Log import Log
 
 

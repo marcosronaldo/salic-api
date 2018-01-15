@@ -1,5 +1,7 @@
+from salic_api.app import app
+from salic_api.utils.log import Log
 from .models import AreaModelObject
-from ..resource_base import *
+from ..resource_base import ResourceBase
 from ..serialization import listify_queryset
 
 
@@ -8,7 +10,6 @@ class Area(ResourceBase):
         super(Area, self).__init__()
 
         def hal_builder(data, args={}):
-
             hal_data = {
                 '_links': {
                     'self': app.config['API_ROOT_URL'] + 'projetos/areas/'
@@ -16,7 +17,6 @@ class Area(ResourceBase):
             }
 
             for area in data:
-
                 link = app.config['API_ROOT_URL'] + \
                        'projetos/?area=%s' % area['codigo']
                 area['_links'] = {'self': link}
@@ -36,7 +36,7 @@ class Area(ResourceBase):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                }
+            }
 
             return self.render(result, status_code=503)
 

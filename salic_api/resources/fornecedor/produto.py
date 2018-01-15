@@ -1,7 +1,8 @@
-from salic_api.app.security import decrypt
+from salic_api.app import app
 from .models import ProductModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase, request
+from ..security import decrypt
 from ..serialization import listify_queryset
 
 
@@ -26,12 +27,10 @@ class Produto(ResourceBase):
             self.links["next"] = self.links["self"] + '?limit=%d&offset=%d' % (
                 args['limit'], args['offset'] + args['limit']) + query_args
 
-        self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
-                                  args['limit']) + query_args
-        self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
-                                 args['limit'], last_offset) + query_args
+        self.links["first"] = self.links["self"] + '?limit=%d&offset=0' % (
+                                    args['limit']) + query_args
+        self.links["last"] = self.links["self"] + '?limit=%d&offset=%d' % (
+                                    args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
 
@@ -39,10 +38,9 @@ class Produto(ResourceBase):
 
         for produto in args['produtos']:
             produto_links = {}
-            produto_links['projeto'] = app.config['API_ROOT_URL'] + \
-                                       'projetos/%s' % produto['PRONAC']
-            produto_links['fornecedor'] = app.config['API_ROOT_URL'] + \
-                                          'fornecedores/%s' % fornecedor_id
+            produto_links['projeto'] = \
+                app.config['API_ROOT_URL'] + 'projetos/%s' % produto['PRONAC']
+            produto_links['fornecedor'] = 'fornecedores/%s' % fornecedor_id
 
             self.produtos_links.append(produto_links)
 

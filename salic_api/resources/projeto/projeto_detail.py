@@ -275,7 +275,6 @@ class ProjetoDetail(ResourceBase):
         distribuicoes_satitized = []
 
         for distribuicao in distribuicoes:
-
             distribuicao_satitized = {}
 
             distribuicao_satitized['area'] = distribuicao['area']

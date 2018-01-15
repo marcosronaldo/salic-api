@@ -1,7 +1,8 @@
-from salic_api.app.security import decrypt
+from salic_api.app import app
 from .models import FornecedordorModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ResourceBase
+from ..security import decrypt
 from ..serialization import listify_queryset
 
 
