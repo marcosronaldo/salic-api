@@ -7,6 +7,14 @@ if '.' not in sys.path:
 
 
 @task
+def install(ctx):
+    """
+    Install dependencies.
+    """
+    ctx.run(sys.executable + ' -m pip install -e .[dev]')
+
+
+@task
 def test(ctx):
     "Run tests."
 
@@ -32,10 +40,12 @@ def run(ctx):
         'FLASK_APP': 'salic_api.app.default',
         'PYTHONPATH': '.:' + ':'.join(sys.path),
     }
-    ctx.run('{} -m flask run'.format(sys.executable), env=env)
+    ctx.run(sys.executable + ' -m flask run', env=env)
 
 
-@task
+@task(
+    help={'reset': 'delete sqlite database'}
+)
 def db(ctx, reset=False):
     """
     Populate test db.
@@ -44,5 +54,6 @@ def db(ctx, reset=False):
     from salic_api.fixtures import populate
 
     if reset:
-        ctx.run('rm db.sqlite -f')
+        ctx.run('rm db.sqlite3 -f')
     populate()
+    print('Db created successfully!')

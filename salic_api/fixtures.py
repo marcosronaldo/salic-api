@@ -37,7 +37,7 @@ def populate():
         Situacao='1',
         Area='1',
         CgcCpf='123.456.789-00',
-        idProjeto='1',
+        idProjeto=1,
         Mecanismo='1',
     )
     session.add(projeto)
