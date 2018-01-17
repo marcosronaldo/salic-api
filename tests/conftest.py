@@ -1,16 +1,18 @@
 import os
 
 import pytest
-
 from flask import current_app
+
+from salic_api.app import create_app_
 
 DIRNAME = os.path.dirname(__file__)
 
 
 @pytest.fixture
 def app():
-    return current_app()
-
+    app = create_app_()
+    app.testing = True
+    return app
 
 @pytest.fixture
 def example():

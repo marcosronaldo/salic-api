@@ -44,16 +44,16 @@ def run(ctx):
 
 
 @task(
-    help={'reset': 'delete sqlite database'}
+    help={'force': 'delete sqlite database'}
 )
-def db(ctx, reset=False):
+def db(ctx, force=False):
     """
     Populate test db.
     """
 
     from salic_api.fixtures import populate
 
-    if reset:
+    if force:
         ctx.run('rm db.sqlite3 -f')
     populate()
     print('Db created successfully!')

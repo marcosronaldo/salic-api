@@ -1,7 +1,7 @@
 from datetime import date
 
 from .database.connector import get_session
-from .resources.shared_models import Projeto
+from .resources.shared_models import Area, Projeto
 
 
 def populate():
@@ -40,12 +40,19 @@ def populate():
         idProjeto=1,
         Mecanismo='1',
     )
+
+    areas = [
+        Area(Codigo='1', Descricao='Artes Cênicas'),
+        Area(Codigo='2', Descricao='Audiovisual'),
+        Area(Codigo='3', Descricao='Música'),
+    ]
+
     session.add(projeto)
+    for area in areas:
+        session.add(area)
+
     session.commit()
 
-    print(session)
-    print(session.bind)
-    print(projeto)
 
 # class PreProjeto(Base):
 #     __tablename__ = 'PreProjeto'

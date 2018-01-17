@@ -107,9 +107,6 @@ class Area(Base):
     Codigo = Column(String, primary_key=True)
     Descricao = Column(String)
 
-    def __init__(self):
-        pass
-
 
 class Interessado(Base):
     __tablename__ = 'Interessado'

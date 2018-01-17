@@ -1,7 +1,7 @@
 from flask import Response
 from flask import current_app as app
 from flask import request
-from flask.ext.cache import Cache
+from flask_cache import Cache
 from flask_restful import Resource
 
 from .serialization import serialize
@@ -156,11 +156,11 @@ class ResourceBase(Resource):
                 return False
 
         else:
-            if request.headers['Accept'] == 'application/xml':
+            if request.headers.get('Accept') == 'application/xml':
                 self.content_type = 'xml'
                 return True
 
-            elif request.headers['Accept'] == 'text/csv':
+            elif request.headers.get('Accept') == 'text/csv':
                 self.content_type = 'csv'
                 return True
 

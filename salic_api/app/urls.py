@@ -1,5 +1,5 @@
 from flask import redirect
-from flask.ext.cors import CORS
+from flask_cors import CORS
 from flask_restful import Api
 
 from ..resources.api_doc.SwaggerDef import SwaggerDef
@@ -26,7 +26,7 @@ def make_urls(app=None):
         from flask import current_app as app
 
     api = Api(app)
-    cors = CORS(app)
+    #cors = CORS(app)
     app.config['CORS_HEADERS'] = 'Content-Type'
 
     base_version = app.config['BASE_VERSION']
@@ -44,7 +44,8 @@ def make_urls(app=None):
     api.add_resource(
         Captacao, '/%s/projetos/<string:PRONAC>/captacoes/' % (base_version))
 
-    api.add_resource(Area, '/%s/projetos/areas/' % (base_version))
+    url = '/%s/projetos/areas' % base_version
+    api.add_resource(Area, url, url + '/')
     api.add_resource(Segmento, '/%s/projetos/segmentos/' % (base_version))
 
     api.add_resource(PreProjetoList, '/%s/propostas/' % (base_version))
