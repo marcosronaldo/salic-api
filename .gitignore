@@ -22,15 +22,12 @@ parts/
 sdist/
 var/
 *.egg-info/
-.installed.cfg
 *.egg
 
 # Logging
 *.log
 
 # Configuration
-deployment.cfg
-development.cfg
 fab_config.py
 general_config_deploy.py
 
@@ -38,3 +35,4 @@ tests.py
 
 *.csv
 .vscode
+.idea

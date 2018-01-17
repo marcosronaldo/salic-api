@@ -5,6 +5,7 @@ O formato de log é baseado em [Keep a Changelog](http://keepachangelog.com/) e 
 
 ## [2.0.0-beta] - 2018-01-15
 - Converteu código para Python 3.5+
+- Acrescentou um script de instalação
 
 
 ## [1.1.1-beta] - 2017-03-06
