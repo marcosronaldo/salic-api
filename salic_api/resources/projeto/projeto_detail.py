@@ -1,20 +1,25 @@
-from salic_api.app.security import encrypt
+from flask import current_app
+from flask import request
+
 from . import utils
 from .models import (
     ProjetoModelObject, CertidoesNegativasModelObject,
     DivulgacaoModelObject, DescolamentoModelObject,
     DistribuicaoModelObject, ReadequacaoModelObject,
-    CaptacaoModelObject
+    CaptacaoQuery
 )
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import ResourceBase
+from ..resource_base import SalicResource
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
-from flask import current_app
+from ...app.security import encrypt
 from ...utils.log import Log
 
 
-class ProjetoDetail(ResourceBase):
+class ProjetoDetail(SalicResource):
+    resource_path = 'projeto'
+    query_class = ProjetoModelObject
+
     def build_links(self, args={}):
 
         self.links["self"] += args['PRONAC']
@@ -39,7 +44,8 @@ class ProjetoDetail(ResourceBase):
             captacao_links['projeto'] = current_app.config['API_ROOT_URL'] + \
                                         'projetos/%s' % args['PRONAC']
             url_id = encrypt(captacao['cgccpf'])
-            captacao_links['incentivador'] = current_app.config['API_ROOT_URL'] + \
+            captacao_links['incentivador'] = current_app.config[
+                                                 'API_ROOT_URL'] + \
                                              'incentivadores/%s' % url_id
 
             self.captacoes_links.append(captacao_links)
@@ -96,7 +102,7 @@ class ProjetoDetail(ResourceBase):
 
         self.to_hal = hal_builder
 
-    #FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
+    # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
     def get(self, PRONAC):
 
         try:
@@ -119,12 +125,13 @@ class ProjetoDetail(ResourceBase):
                                                          PRONAC=PRONAC)
             Log.debug('Database call was successful')
         except Exception as e:
+            if current_app.testing:
+                raise
             Log.error('Database error trying to fetch \"Project data\"')
             Log.error(str(e))
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
@@ -413,7 +420,7 @@ class ProjetoDetail(ResourceBase):
         projeto['relacao_bens_captal'] = relacao_bens_captal
 
         try:
-            captacoes = CaptacaoModelObject().all(PRONAC=PRONAC)
+            captacoes = CaptacaoQuery().all(PRONAC=PRONAC)
         except Exception as e:
             Log.error('Database error trying to fetch \"captacoes data\"')
             Log.error(str(e))

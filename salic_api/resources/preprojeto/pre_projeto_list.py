@@ -4,7 +4,7 @@ from ..sanitization import sanitize
 from ..serialization import listify_queryset
 
 
-class PreProjetoList(ResourceBase):
+class PreProjetoList(SalicResource):
     def build_links(self, args={}):
 
         query_args = '&'
@@ -36,7 +36,7 @@ class PreProjetoList(ResourceBase):
         super(PreProjetoList, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'propostas/',
+            "self": current_app.config['API_ROOT_URL'] + 'propostas/',
         }
 
         def hal_builder(data, args={}):
@@ -49,7 +49,7 @@ class PreProjetoList(ResourceBase):
             for p_index in range(len(data)):
                 proposta = data[p_index]
 
-                self_link = app.config['API_ROOT_URL'] + \
+                self_link = current_app.config['API_ROOT_URL'] + \
                             'propostas/' + str(proposta['id'])
 
                 proposta['_links'] = {}
@@ -68,7 +68,7 @@ class PreProjetoList(ResourceBase):
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
 
-            if limit > app.config['LIMIT_PAGING']:
+            if limit > current_app.config['LIMIT_PAGING']:
                 results = {
                     'message': 'Max limit paging exceeded',
                     'message_code': 7
@@ -76,12 +76,12 @@ class PreProjetoList(ResourceBase):
                 return self.render(results, status_code=405)
 
         else:
-            limit = app.config['LIMIT_PAGING']
+            limit = current_app.config['LIMIT_PAGING']
 
         if request.args.get('offset') is not None:
             offset = int(request.args.get('offset'))
         else:
-            offset = app.config['OFFSET_PAGING']
+            offset = current_app.config['OFFSET_PAGING']
 
         nome = None
         id = None

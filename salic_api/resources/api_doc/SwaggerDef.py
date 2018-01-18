@@ -1,10 +1,10 @@
 from flask import current_app as app
 
-from ..resource_base import ResourceBase
+from ..resource_base import SalicResource
 from ...utils.log import Log
 
 
-class SwaggerDef(ResourceBase):
+class SwaggerDef(SalicResource):
     def get(self):
         try:
             swagger_file = open(app.config['SWAGGER_DEF_PATH'])

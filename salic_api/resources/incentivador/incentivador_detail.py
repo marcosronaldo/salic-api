@@ -1,13 +1,13 @@
 from salic_api.app.security import decrypt
 from .models import Incentivador
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import ResourceBase
+from ..resource_base import SalicResource
 from ..serialization import listify_queryset
 from flask import current_app
 from ...utils.log import Log
 
 
-class IncentivadorDetail(ResourceBase):
+class IncentivadorDetail(SalicResource):
     def build_links(self, args={}):
         incentivador_id = args['incentivador_id']
         self.links['self'] += incentivador_id

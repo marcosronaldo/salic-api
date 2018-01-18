@@ -1,8 +1,8 @@
-from ..model_base import ModelsBase
+from ..model_base import QueryBase
 from ..shared_models import PreProjeto, Mecanismo
 
 
-class PreProjetoModelObject(ModelsBase):
+class PreProjetoModelObject(QueryBase):
     def __init__(self):
         super(PreProjetoModelObject, self).__init__()
 

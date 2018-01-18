@@ -5,7 +5,7 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class Produto(ResourceBase):
+class Produto(SalicResource):
     def build_links(self, args={}):
         query_args = '&'
         fornecedor_id = args['fornecedor_id']
@@ -39,9 +39,9 @@ class Produto(ResourceBase):
 
         for produto in args['produtos']:
             produto_links = {}
-            produto_links['projeto'] = app.config['API_ROOT_URL'] + \
+            produto_links['projeto'] = current_app.config['API_ROOT_URL'] + \
                                        'projetos/%s' % produto['PRONAC']
-            produto_links['fornecedor'] = app.config['API_ROOT_URL'] + \
+            produto_links['fornecedor'] = current_app.config['API_ROOT_URL'] + \
                                           'fornecedores/%s' % fornecedor_id
 
             self.produtos_links.append(produto_links)
@@ -50,7 +50,7 @@ class Produto(ResourceBase):
         super(Produto, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'fornecedores/',
+            "self": current_app.config['API_ROOT_URL'] + 'fornecedores/',
         }
 
         def hal_builder(data, args={}):
@@ -79,7 +79,7 @@ class Produto(ResourceBase):
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
 
-            if limit > app.config['LIMIT_PAGING']:
+            if limit > current_app.config['LIMIT_PAGING']:
                 results = {
                     'message': 'Max limit paging exceeded',
                     'message_code': 7
@@ -87,12 +87,12 @@ class Produto(ResourceBase):
                 return self.render(results, status_code=405)
 
         else:
-            limit = app.config['LIMIT_PAGING']
+            limit = current_app.config['LIMIT_PAGING']
 
         if request.args.get('offset') is not None:
             offset = int(request.args.get('offset'))
         else:
-            offset = app.config['OFFSET_PAGING']
+            offset = current_app.config['OFFSET_PAGING']
 
         try:
             results = ProductModelObject().all(limit, offset, cgccpf)
@@ -123,7 +123,7 @@ class Produto(ResourceBase):
         for produto in data:
             produto["cgccpf"] = remove_blanks(produto['cgccpf'])
 
-        data = self.get_unique(cgccpf, data)
+        data = self.get_unique_cgccpf(cgccpf, data)
 
         self.build_links(args={
             'fornecedor_id': fornecedor_id, 'produtos': data,

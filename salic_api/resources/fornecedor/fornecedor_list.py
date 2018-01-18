@@ -5,7 +5,7 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class FornecedorList(ResourceBase):
+class FornecedorList(SalicResource):
     def build_links(self, args={}):
 
         query_args = '&'
@@ -39,9 +39,9 @@ class FornecedorList(ResourceBase):
             links = {}
             fornecedor_id_enc = encrypt(fornecedor_id)
 
-            links['self'] = app.config['API_ROOT_URL'] + \
+            links['self'] = current_app.config['API_ROOT_URL'] + \
                             'fornecedores/%s' % fornecedor_id_enc
-            links['produtos'] = app.config['API_ROOT_URL'] + \
+            links['produtos'] = current_app.config['API_ROOT_URL'] + \
                                 'fornecedores/%s/produtos/' % fornecedor_id_enc
 
             self.fornecedores_links.append(links)
@@ -50,7 +50,7 @@ class FornecedorList(ResourceBase):
         super(FornecedorList, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'fornecedores/',
+            "self": current_app.config['API_ROOT_URL'] + 'fornecedores/',
         }
 
         def hal_builder(data, args={}):
@@ -76,7 +76,7 @@ class FornecedorList(ResourceBase):
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
 
-            if limit > app.config['LIMIT_PAGING']:
+            if limit > current_app.config['LIMIT_PAGING']:
                 results = {
                     'message': 'Max limit paging exceeded',
                     'message_code': 7
@@ -84,12 +84,12 @@ class FornecedorList(ResourceBase):
                 return self.render(results, status_code=405)
 
         else:
-            limit = app.config['LIMIT_PAGING']
+            limit = current_app.config['LIMIT_PAGING']
 
         if request.args.get('offset') is not None:
             offset = int(request.args.get('offset'))
         else:
-            offset = app.config['OFFSET_PAGING']
+            offset = current_app.config['OFFSET_PAGING']
 
         nome = None
         cgccpf = None
@@ -142,7 +142,7 @@ class FornecedorList(ResourceBase):
             fornecedores_ids.append(fornecedor['cgccpf'])
 
         if cgccpf is not None:
-            data = self.get_unique(cgccpf, data)
+            data = self.get_unique_cgccpf(cgccpf, data)
 
         self.build_links(args={
             'limit': limit, 'offset': offset,

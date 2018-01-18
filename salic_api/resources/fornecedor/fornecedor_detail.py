@@ -5,7 +5,7 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class FornecedorDetail(ResourceBase):
+class FornecedorDetail(SalicResource):
     def build_links(self, args={}):
         fornecedor_id = args['fornecedor_id']
         self.links['self'] += fornecedor_id
@@ -15,7 +15,7 @@ class FornecedorDetail(ResourceBase):
         super(FornecedorDetail, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'fornecedores/',
+            "self": current_app.config['API_ROOT_URL'] + 'fornecedores/',
         }
 
         def hal_builder(data, args={}):

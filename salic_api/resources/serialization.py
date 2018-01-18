@@ -9,6 +9,45 @@ log = logging.getLogger('dicttoxml')
 log.setLevel(logging.ERROR)
 
 
+def listify_queryset(queryset):
+    """
+    Returns a fully serializable list of dictionaries
+    """
+    return list(map(convert_object, queryset))
+
+
+def serialize(data, format):
+    """
+    Return a string of serialized data for the given output format.
+    """
+    if format == 'xml':
+        return to_xml(data)
+    elif format == 'json':
+        return to_json(data)
+    elif format == 'csv':
+        return to_csv(data)
+    else:
+        raise ValueError('invalid format: %s' % format)
+
+
+def convert_atom(x):
+    """
+    Convert atomic Python data type to JSON compatible value.
+    """
+    if isinstance(x, decimal.Decimal):
+        return float(x)
+    elif isinstance(x, datetime.date):
+        return str(x)
+    return x
+
+
+def convert_object(x):
+    """
+    Convert an instance of a queryset to a JSON compatible value.
+    """
+    return dict(zip(x.keys(), map(convert_atom, x)))
+
+
 def to_xml(data):
     return dicttoxml.dicttoxml(data)
 
@@ -72,52 +111,3 @@ def to_csv(data):
         csv_data += "\n"
 
     return csv_data
-
-
-def list_serializable(l):
-    l_serializable = []
-
-    for e in l:
-        if isinstance(e, decimal.Decimal):
-            l_serializable.append(float(e))
-        elif isinstance(e, datetime.date):
-            l_serializable.append(str(e))
-        else:
-            l_serializable.append(e)
-
-    return l_serializable
-
-
-def listsTodict(keys, values):
-    values_list = []
-
-    for value in values:
-        values_list.append(value)
-
-    return dict(list(zip(keys, list_serializable(values_list))))
-
-
-def listify_queryset(queryset):
-    # Returns a fully serializable list of dictionaries
-
-    result = []
-
-    for d in queryset:
-        result.append(listsTodict(list(d.keys()), d))
-
-    return result
-
-
-def serialize(data, out_format):
-    if out_format == 'xml':
-        return to_xml(data)
-
-    elif out_format == 'json':
-        return to_json(data)
-
-    elif out_format == 'csv':
-        return to_csv(data)
-
-
-def to_hal(resource, resource_links):
-    resource["_links"] = resource_links

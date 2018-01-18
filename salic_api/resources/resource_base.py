@@ -1,194 +1,268 @@
+import logging
+
 from flask import Response
-from flask import current_app as app
+from flask import current_app
 from flask import request
 from flask_cache import Cache
 from flask_restful import Resource
 
-from .serialization import serialize
-from ..app import limiter
+from .serialization import serialize, listify_queryset
 from ..app.security import md5hash
-from ..utils.log import Log
+
+log = logging.getLogger('salic-api')
 
 
-class ResourceBase(Resource):
+class SalicResource(Resource):
+    """
+    Base class for all Salic-API resources.
+
+    Salic API uses HAL (Hypertext application language) to model JSON responses.
+    From a practical point of view, this means that most end points have a
+    _links and a _embedded properties that collects all links the end point
+    refers to and all lists of children objects embedded in the JSON response.
+    """
+
+    # Basics
+    resource_path = None
+    query_class = None
+
+    # Formats
+    valid_formats = {'json', 'xml', 'csv'}
+    json_mime = 'application/hal+json; charset=utf-8'
+    csv_mime = 'text/csv; charset=utf-8'
+    xml_mime = 'application/xml; charset=utf-8'
+
+    # Mime map
+    accept_headers = {
+        'application/xml': 'xml',
+        'text/csv': 'csv',
+        'application/hal+json': 'json',
+        'application/json': 'json',
+    }
+
+    # Headers
+    access_control_headers = (
+        "Content-Length, Content-Type, Date, Server, "
+        "X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, "
+        "Retry-After, "
+        "X-Total-Count, "
+        "Content-Disposition"
+    )
+
     def __init__(self):
         # Rate limiting setup
-        if app.config['RATE_LIMITING_ACTIVE']:
-            Log.info('Rate limiting active : %s' %
-                     (app.config['GLOBAL_RATE_LIMITS']))
-            decorators = [limiter(app)]
+        if current_app.config['RATE_LIMITING_ACTIVE']:
+            rate_limit = current_app.config['GLOBAL_RATE_LIMITS']
+            log.info('Rate limiting active: %s' % rate_limit)
         else:
-            Log.info('Rate limiting is turned off')
+            log.info('Rate limiting is off')
 
         # Caching setup
-        if app.config['CACHING_ACTIVE']:
-            Log.info('Caching is active')
+        if current_app.config['CACHING_ACTIVE']:
+            log.info('Caching is active')
         else:
-            app.config['CACHE_TYPE'] = 'null'
-            Log.info('Caching is disabled')
-            app.config['CACHE_NO_NULL_WARNING'] = True
+            current_app.config['CACHE_TYPE'] = 'null'
+            log.info('Caching is off')
+            current_app.config['CACHE_NO_NULL_WARNING'] = True
 
-        # register the cache instance and binds it on to your app
-        app.cache = Cache(app)
-        app.cache.clear()
-        app.before_request(on_request_start)
+        # Register the cache instance and binds it on to your app
+        current_app.cache = Cache(current_app)
+        current_app.cache.clear()
+        current_app.before_request(on_request_start)
 
-        self.to_hal = None
+        self.to_hal = self.build_hal
 
-    def render(self, data, headers={}, status_code=200, raw=False):
-        if not self.resolve_content():
+    def build_hal(self, data, args):
+        """
+        Insert HAL info on output data.
+
+        HAL info usually comprises of a _links and a _embedded fields
+        """
+        links = self.get_hal_links(data, args)
+        embedded = self.get_hal_embedded(data, args)
+
+        if isinstance(data, dict):
+            result = data
+        else:
+            result = {}
+
+        if links:
+            result['_links'] = links
+        if embedded:
+            result['_embedded'] = embedded
+        return result
+
+    def get_hal_links(self, data, args):
+        """
+        Return the link dictionary that is stored on '_links' field of a
+        JSON+HAL response.
+        """
+        path = self.resource_path
+
+        if path is None:
+            return None
+        else:
+            return {'self': self.get_url('/%s/' % path)}
+
+    def get_url(self, path):
+        """
+        Return a normalized URL for a path relative to the current resource.
+
+        If path begins with a backslash, treat it as a absolute path relative
+        to the API_ROOT_URL.
+        """
+        if path.startswith('/'):
+            return current_app.config['API_ROOT_URL'] + path[1:]
+        else:
+            base = self.resource_path + '/' or ''
+            return current_app.config['API_ROOT_URL'] + base + path
+
+    def get_hal_embedded(self, data, args):
+        """
+        Return a dictionary of embedded resources stored at the '_embedded'
+        field of a JSON+HAL response.
+        """
+        return None
+
+    def get_unique_cgccpf(self, cgccpf, elements):
+        """
+        Given a cgc/cpf/cnpj, makes sure it return only elements with exact match
+        Used to correct the use of SQL LIKE statement
+        """
+        return [e for e in elements if e['cgcpf'] == cgccpf]
+
+    def get_last_offset(self, n_records, limit):
+        if n_records % limit == 0:
+            return (n_records / limit - 1) * limit
+        else:
+            return n_records - (n_records % limit)
+
+    def all(self, **kwargs):
+        """
+        Return a query with all requested objects
+        """
+        if self.query_class is None:
+            raise RuntimeError(
+                'improperly configured (%s): please define the query_class for '
+                'the current resource or implement the .all() method.' %
+                type(self).__name__
+            )
+        return self.query_class().all(**kwargs)
+
+    def get(self, **kwargs):
+        """
+        Default response to a GET request.
+        """
+
+        try:
+            result = self.all(**kwargs)
+        except RuntimeError:
+            raise
+        except Exception:
+            if current_app.testing:
+                raise
+            log.error('not found: %s' % type(self).__name__)
+            result = {
+                'message': 'internal error',
+                'message_code': 13,
+            }
+            return self.render(result, status_code=503)
+
+        result = listify_queryset(result)
+        return self.render(result)
+
+    def render(self, data, headers=None, status_code=200, raw=False):
+        """
+        Render response for given data.
+
+        Args:
+            data:
+                Raw data structure
+            headers (dict):
+                A mapping with extra headers for inclusion in the response.
+            status_code (int):
+                HTTP Response status code
+            raw (bool):
+                If True, do not serialize data to the desired format. Useful
+                for testing.
+        """
+
+        headers = {} if headers is None else headers
+        content_type = self.resolve_content()
+
+        if content_type is None:
             data = {
                 'message': 'invalid format',
-                'code': 55
+                'code': 55,
             }
             status_code = 405
 
-        if self.content_type == 'xml':
-            if raw:
-                data = data
-            else:
+        if content_type == 'xml':
+            if not raw:
                 data = serialize(data, 'xml')
-            response = Response(
-                data, content_type='application/xml; charset=utf-8')
+            response = Response(data, content_type=self.xml_mime)
 
-        elif self.content_type == 'csv':
-            if raw:
-                data = data
-            else:
+        elif content_type == 'csv':
+            if not raw:
                 data = serialize(data, 'csv')
-
             resource_path = request.path.split("/")
 
             if resource_path[len(resource_path) - 1] != "":
                 resource_type = resource_path[len(resource_path) - 1]
-
             else:
                 resource_type = resource_path[len(resource_path) - 2]
 
             args_hash = md5hash(format_args(request.args))
+            fmt = (resource_type, args_hash)
+            filename = "attachment; filename=salicapi-%s-%s.csv" % fmt
+            headers["Content-Disposition"] = filename
+            response = Response(data, content_type=self.csv_mime)
 
-            headers[
-                "Content-Disposition"] = "attachment; filename=salicapi-%s-%s.csv" % (
-                resource_type, args_hash)
-
-            response = Response(data, content_type='text/csv; charset=utf-8')
-
-        # JSON or invalid Content-Type
         else:
-            if raw:
-                data = data
-            else:
-                if self.to_hal is not None and status_code == 200:
+            if not raw:
+                if status_code == 200:
+                    args = {}
                     if 'X-Total-Count' in headers:
-                        args = {'total': headers['X-Total-Count']}
-                    else:
-                        args = {}
-
+                        args['total'] = headers['X-Total-Count']
                     data = self.to_hal(data, args=args)
-
                 data = serialize(data, 'json')
+            response = Response(data, content_type=self.json_mime)
 
-            response = Response(
-                data, content_type='application/hal+json; charset=utf-8')
-
-        access_control_headers = "Content-Length, Content-Type, "
-        access_control_headers += "Date, Server, "
-        access_control_headers += "X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After, "
-        access_control_headers += "X-Total-Count, "
-        access_control_headers += "Content-Disposition"
-
-        headers['Access-Control-Expose-Headers'] = access_control_headers
-
+        headers['Access-Control-Expose-Headers'] = self.access_control_headers
         response.headers.extend(headers)
         response.status_code = status_code
-        real_ip = request.headers.get('X-Real-Ip')
-
-        if real_ip == None:
-            real_ip = ''
-
-        Log.info(request.path + ' ' + real_ip + ' ' + str(status_code) +
-                 ' ' + str(response.headers.get('Content-Length')))
-
+        real_ip = request.headers.get('X-Real-Ip') or ''
+        log.info(' '.join(map(str, [request.path, real_ip, status_code,
+                                    response.headers.get('Content-Length')])))
         return response
 
-        # Given a cgc/cpf/cnpj, makes sure it return only elements with exact match
-
-    # Used to correct the use of SQL LIKE statement
-    def get_unique(self, cgccpf, elements):
-
-        exact_matches = []
-
-        for e in elements:
-
-            if e['cgccpf'] == cgccpf:
-                exact_matches.append(e)
-
-        return exact_matches
-
-    def get_last_offset(self, n_records, limit):
-
-        if n_records % limit == 0:
-            return (n_records / limit - 1) * limit
-
-        else:
-            return n_records - (n_records % limit)
-
     def resolve_content(self):
-        # Content Type resolution
-        if request.args.get('format') is not None:
-
-            format = request.args.get('format')
-
-            if format == 'json':
-                self.content_type = 'json'
-                return True
-
-            elif format == 'xml':
-                self.content_type = 'xml'
-                return True
-
-            elif format == 'csv':
-                self.content_type = 'csv'
-                return True
-
+        """
+        Content Type resolution.
+        """
+        try:
+            format = request.args['format']
+            return format if format in self.valid_formats else None
+        except KeyError:
+            accept = request.headers.get('Accept', 'application/hal+json')
+            if ('application/hal+json' in accept or
+                    'application/json' in accept or
+                    '*/*' in accept):
+                return 'json'
+            elif 'text/csv' in accept:
+                return 'csv'
+            elif 'application/xml' in accept:
+                return 'xml'
             else:
-                self.content_type = 'json'
-                return False
-
-        else:
-            if request.headers.get('Accept') == 'application/xml':
-                self.content_type = 'xml'
-                return True
-
-            elif request.headers.get('Accept') == 'text/csv':
-                self.content_type = 'csv'
-                return True
-
-            else:
-                self.content_type = 'json'
-                return True
+                return None
 
 
-def format_args(hearder_args):
-    formated = ''
-
-    for key in hearder_args:
-        formated = formated + str(key) + '=' + hearder_args[key] + '&'
-
-    return formated
+def format_args(args: dict):
+    return '&'.join('%s=%s' % item for item in args.items())
 
 
 def on_request_start():
     content_type = request.headers.get('Accept', '')
     real_ip = request.headers.get('X-Real-Ip', '')
     args = format_args(request.args)
-    Log.info(' '.join([request.path, args, real_ip, content_type]))
-
-    # Test content_type
-
-    # if content_type and content_type not in  AVAILABLE_CONTENT_TYPES:
-    #     results = {'message' : 'Content-Type not supported',
-    #                 'message_code' : 8
-    #             }
-    #     return {'error' : 'content-type'}
-    #     return self.render(results, status_code = 405)
+    log.info(' '.join([request.path, args, real_ip, content_type]))

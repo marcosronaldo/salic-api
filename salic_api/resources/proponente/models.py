@@ -1,11 +1,11 @@
 from sqlalchemy import case, func
 from sqlalchemy.sql.expression import desc
 
-from ..model_base import ModelsBase
+from ..model_base import QueryBase
 from ..shared_models import Interessado, Projeto
 
 
-class ProponenteModelObject(ModelsBase):
+class ProponenteModelObject(QueryBase):
     def __init__(self):
         super(ProponenteModelObject, self).__init__()
 

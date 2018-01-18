@@ -26,49 +26,36 @@ def make_urls(app=None):
         from flask import current_app as app
 
     api = Api(app)
-    #cors = CORS(app)
-    app.config['CORS_HEADERS'] = 'Content-Type'
-
-    base_version = app.config['BASE_VERSION']
-
     api.add_resource(TestResource, '/test', '/test/')
 
-    api.add_resource(ProjetoDetail, '/%s/projetos/<string:PRONAC>/' %
-                     (base_version))
-    api.add_resource(ProjetoList, '/%s/projetos/' % (base_version))
+    CORS(app)
+    app.config['CORS_HEADERS'] = 'Content-Type'
 
-    api.add_resource(ProponenteList, '/%s/proponentes/' % (base_version))
-    api.add_resource(ProponenteDetail,
-                     '/%s/proponentes/<string:proponente_id>/' % (base_version))
+    # Register resources to urls
+    base_version = app.config['BASE_VERSION']
 
-    api.add_resource(
-        Captacao, '/%s/projetos/<string:PRONAC>/captacoes/' % (base_version))
+    def register(resource, url):
+        url = url.strip('/')
+        api.add_resource(resource,
+                         '/%s/%s' % (base_version, url),
+                         '/%s/%s/' % (base_version, url))
 
-    url = '/%s/projetos/areas' % base_version
-    api.add_resource(Area, url, url + '/')
-    api.add_resource(Segmento, '/%s/projetos/segmentos/' % (base_version))
-
-    api.add_resource(PreProjetoList, '/%s/propostas/' % (base_version))
-    api.add_resource(PreProjetoDetail, '/%s/propostas/<string:id>/' %
-                     (base_version))
-
-    api.add_resource(IncentivadorList, '/%s/incentivadores/' % (base_version))
-    api.add_resource(IncentivadorDetail,
-                     '/%s/incentivadores/<string:incentivador_id>/' % (
-                         base_version))
-    api.add_resource(
-        Doacao,
-        '/%s/incentivadores/<string:incentivador_id>/doacoes/' % (base_version))
-
-    api.add_resource(FornecedorList, '/%s/fornecedores/' % (base_version))
-    api.add_resource(FornecedorDetail,
-                     '/%s/fornecedores/<string:fornecedor_id>/' % (
-                         base_version))
-    api.add_resource(
-        Produto,
-        '/%s/fornecedores/<string:fornecedor_id>/produtos/' % (base_version))
-
-    api.add_resource(SwaggerDef, '/%s/swagger-def/' % (base_version))
+    register(ProjetoDetail, 'projetos/<string:PRONAC>/')
+    register(ProjetoList, 'projetos/')
+    register(ProponenteList, 'proponentes/')
+    register(ProponenteDetail, 'proponentes/<string:proponente_id>/')
+    register(Captacao, 'projetos/<string:PRONAC>/captacoes/')
+    register(Area, 'projetos/areas')
+    register(Segmento, 'projetos/segmentos/')
+    register(PreProjetoList, 'propostas/')
+    register(PreProjetoDetail, 'propostas/<string:id>/')
+    register(IncentivadorList, 'incentivadores/')
+    register(IncentivadorDetail, 'incentivadores/<string:incentivador_id>/')
+    register(Doacao, 'incentivadores/<string:incentivador_id>/doacoes/')
+    register(FornecedorList, 'fornecedores/')
+    register(FornecedorDetail, 'fornecedores/<string:fornecedor_id>/')
+    register(Produto, 'fornecedores/<string:fornecedor_id>/produtos/')
+    register(SwaggerDef, 'swagger-def/')
 
     @app.route('/')
     def documentation():

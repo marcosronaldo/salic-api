@@ -4,13 +4,13 @@ from salic_api.app.security import encrypt, decrypt
 from .models import ProponenteModelObject
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import ResourceBase
+from ..resource_base import SalicResource
 from ..serialization import listify_queryset
 from flask import current_app
 from ...utils.log import Log
 
 
-class ProponenteList(ResourceBase):
+class ProponenteList(SalicResource):
     sort_fields = ['total_captado']
 
     def build_links(self, args={}):
@@ -164,7 +164,7 @@ class ProponenteList(ResourceBase):
             proponentes_ids.append(proponente["cgccpf"])
 
         if cgccpf is not None:
-            data = self.get_unique(cgccpf, data)
+            data = self.get_unique_cgccpf(cgccpf, data)
             proponentes_ids = [cgccpf]
 
         self.build_links(args={

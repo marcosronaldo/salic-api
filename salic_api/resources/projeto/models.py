@@ -4,21 +4,17 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
 
-from ..model_base import ModelsBase
+from ..model_base import QueryBase
 from ..serialization import listify_queryset
-from ..shared_models import (Projeto, Interessado, Mecanismo,
-                             Situacao, Enquadramento,
-                             PreProjeto, Captacao, CertidoesNegativas,
-                             Verificacao, PlanoDistribuicao,
-                             Produto, Area, Segmento
-                             )
+from ..shared_models import (
+    Projeto, Interessado, Mecanismo, Situacao, Enquadramento, PreProjeto,
+    Captacao, CertidoesNegativas, Verificacao, PlanoDistribuicao, Produto, Area,
+    Segmento
+)
 from ...utils.timer import Timer
 
 
-class ProjetoModelObject(ModelsBase):
-    def __init__(self):
-        super(ProjetoModelObject, self).__init__()
-
+class ProjetoModelObject(QueryBase):
     def attached_documents(self, idPronac):
         query = text("""SAC.dbo.paDocumentos :idPronac""")
         return self.sql_connector.session.execute(query, {
@@ -582,46 +578,42 @@ class ProjetoModelObject(ModelsBase):
         return res.all(), total_records
 
 
-class CaptacaoModelObject(ModelsBase):
+class CaptacaoQuery(QueryBase):
     def all(self, PRONAC):
-        res = (
-            self.sql_connector.session.query(
-                Captacao.PRONAC,
-                Captacao.CaptacaoReal.label('valor'),
-                Captacao.DtRecibo.label('data_recibo'),
-                Projeto.NomeProjeto.label('nome_projeto'),
-                Captacao.CgcCpfMecena.label('cgccpf'),
-                Interessado.Nome.label('nome_doador'),
-            )
-                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
-                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+        res = self.sql_connector.session.query(
+            Captacao.PRONAC,
+            Captacao.CaptacaoReal.label('valor'),
+            Captacao.DtRecibo.label('data_recibo'),
+            Projeto.NomeProjeto.label('nome_projeto'),
+            Captacao.CgcCpfMecena.label('cgccpf'),
+            Interessado.Nome.label('nome_doador'),
         )
+        res = res \
+            .join(Projeto, Captacao.PRONAC == Projeto.PRONAC) \
+            .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+
         if PRONAC is not None:
             res = res.filter(Captacao.PRONAC == PRONAC)
         return res.all()
 
 
-class AreaModelObject(ModelsBase):
-    def __init__(self):
-        super(AreaModelObject, self).__init__()
-
+class AreaQuery(QueryBase):
     def all(self):
-        res = self.sql_connector.session.query(
-            Area.Descricao.label('nome'), Area.Codigo.label('codigo'))
-        return res.all()
+        return self.sql_connector.session.query(
+            Area.Descricao.label('nome'),
+            Area.Codigo.label('codigo'),
+        ).all()
 
 
-class SegmentoModelObject(ModelsBase):
-    def __init__(self):
-        super(SegmentoModelObject, self).__init__()
-
+class SegmentoQuery(QueryBase):
     def all(self):
-        res = self.sql_connector.session.query(Segmento.Descricao.label(
-            'nome'), Segmento.Codigo.label('codigo'))
-        return res.all()
+        return self.sql_connector.session.query(
+            Segmento.Descricao.label('nome'),
+            Segmento.Codigo.label('codigo'),
+        ).all()
 
 
-class CertidoesNegativasModelObject(ModelsBase):
+class CertidoesNegativasModelObject(QueryBase):
     def __init__(self):
         super(CertidoesNegativasModelObject, self).__init__()
 
@@ -643,12 +635,9 @@ class CertidoesNegativasModelObject(ModelsBase):
 
         res = self.sql_connector.session.query(
             CertidoesNegativas.DtEmissao.label('data_emissao'),
-            CertidoesNegativas.DtValidade.label(
-                'data_validade'),
-            descricao_case.label(
-                'descricao'),
-            situacao_case.label(
-                'situacao'),
+            CertidoesNegativas.DtValidade.label('data_validade'),
+            descricao_case.label('descricao'),
+            situacao_case.label('situacao'),
         )
 
         if PRONAC is not None:
@@ -657,7 +646,7 @@ class CertidoesNegativasModelObject(ModelsBase):
         return res.all()
 
 
-class DivulgacaoModelObject(ModelsBase):
+class DivulgacaoModelObject(QueryBase):
     V1 = aliased(Verificacao)
     V2 = aliased(Verificacao)
 
@@ -681,7 +670,7 @@ class DivulgacaoModelObject(ModelsBase):
         }).fetchall()
 
 
-class DescolamentoModelObject(ModelsBase):
+class DescolamentoModelObject(QueryBase):
     def __init__(self):
         super(DescolamentoModelObject, self).__init__()
 
@@ -716,7 +705,7 @@ class DescolamentoModelObject(ModelsBase):
         }).fetchall()
 
 
-class DistribuicaoModelObject(ModelsBase):
+class DistribuicaoModelObject(QueryBase):
     def __init__(self):
         super(DistribuicaoModelObject, self).__init__()
 
@@ -749,7 +738,7 @@ class DistribuicaoModelObject(ModelsBase):
         )
 
 
-class ReadequacaoModelObject(ModelsBase):
+class ReadequacaoModelObject(QueryBase):
     def __init__(self):
         super(ReadequacaoModelObject, self).__init__()
 
@@ -785,7 +774,7 @@ class ReadequacaoModelObject(ModelsBase):
         }).fetchall()
 
 
-class AdequacoesPedidoModelObject(ModelsBase):
+class AdequacoesPedidoModelObject(QueryBase):
     def __init__(self):
         super(AdequacoesPedidoModelObject, self).__init__()
 
@@ -822,7 +811,7 @@ class AdequacoesPedidoModelObject(ModelsBase):
         }).fetchall()
 
 
-class AdequacoesParecerModelObject(ModelsBase):
+class AdequacoesParecerModelObject(QueryBase):
     def __init__(self):
         super(AdequacoesParecerModelObject, self).__init__()
 

@@ -4,7 +4,7 @@ from ..sanitization import sanitize
 from ..serialization import listify_queryset
 
 
-class PreProjetoDetail(ResourceBase):
+class PreProjetoDetail(SalicResource):
     def __init__(self):
         super(PreProjetoDetail, self).__init__()
 

@@ -73,10 +73,6 @@ class Segmento(Base):
     Codigo = Column(String, primary_key=True)
     Descricao = Column(String)
 
-    def __init__(self):
-        pass
-
-
 class Enquadramento(Base):
     __tablename__ = 'Enquadramento'
 
@@ -118,11 +114,9 @@ class Interessado(Base):
     Cidade = Column(String)
     tipoPessoa = Column(String)
     captacao_related = relationship(
-        'Captacao',
-        primaryjoin='Interessado.CgcCpf==Captacao.CgcCpfMecena')
+        'Captacao', primaryjoin='Interessado.CgcCpf==Captacao.CgcCpfMecena')
     projeto_related = relationship(
-        'Projeto',
-        primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf')
+        'Projeto', primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf')
 
 
 class Captacao(Base):
@@ -135,8 +129,8 @@ class Captacao(Base):
     CaptacaoReal = Column(String)
     DtRecibo = Column(Date)
     CgcCpfMecena = Column(String, ForeignKey('Interessado.CgcCpf'))
-    interessado_related = relationship('Interessado',
-                                       foreign_keys=[CgcCpfMecena])
+    interessado_related = relationship(
+        'Interessado', foreign_keys=[CgcCpfMecena])
     # projeto_related = relationship('Projeto', primaryjoin='Captacao.PRONAC==Projeto.PRONAC')
 
 

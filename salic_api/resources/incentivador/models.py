@@ -1,12 +1,12 @@
 from sqlalchemy import case, func
 from sqlalchemy.sql.expression import desc
 
-from ..model_base import ModelsBase
+from ..model_base import QueryBase
 from ..shared_models import Interessado, Projeto, Captacao
 from ...utils.strings import pc_quote
 
 
-class Incentivador(ModelsBase):
+class Incentivador(QueryBase):
     def all(self, limit, offset, nome=None, cgccpf=None, municipio=None,
             UF=None, tipo_pessoa=None, PRONAC=None, sort_field=None,
             sort_order=None):
@@ -84,7 +84,7 @@ class Incentivador(ModelsBase):
         return res.all(), total_records
 
 
-class DoacaoModelObject(ModelsBase):
+class DoacaoModelObject(QueryBase):
     def __init__(self):
         super(DoacaoModelObject, self).__init__()
 

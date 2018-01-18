@@ -1,4 +1,4 @@
-from flask.ext.limiter import HEADERS
+from flask_limiter import HEADERS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 

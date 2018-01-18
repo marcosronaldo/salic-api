@@ -6,7 +6,7 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class Doacao(ResourceBase):
+class Doacao(SalicResource):
     def build_links(self, args={}):
 
         query_args = '&'
@@ -39,10 +39,10 @@ class Doacao(ResourceBase):
 
         for doacao in args['doacoes']:
             doacao_links = {}
-            doacao_links['projeto'] = app.config['API_ROOT_URL'] + \
+            doacao_links['projeto'] = current_app.config['API_ROOT_URL'] + \
                                       'projetos/%s' % doacao['PRONAC']
             incentivador_id = encrypt(doacao['cgccpf'])
-            doacao_links['incentivador'] = app.config['API_ROOT_URL'] + \
+            doacao_links['incentivador'] = current_app.config['API_ROOT_URL'] + \
                                            'incentivadores/%s' % incentivador_id
 
             self.doacoes_links.append(doacao_links)
@@ -51,7 +51,7 @@ class Doacao(ResourceBase):
         super(Doacao, self).__init__()
 
         self.links = {
-            "self": app.config['API_ROOT_URL'] + 'incentivadores/',
+            "self": current_app.config['API_ROOT_URL'] + 'incentivadores/',
         }
 
         def hal_builder(data, args={}):
@@ -82,12 +82,12 @@ class Doacao(ResourceBase):
         if request.args.get('limit') is not None:
             limit = int(request.args.get('limit'))
         else:
-            limit = app.config['LIMIT_PAGING']
+            limit = current_app.config['LIMIT_PAGING']
 
         if request.args.get('offset') is not None:
             offset = int(request.args.get('offset'))
         else:
-            offset = app.config['OFFSET_PAGING']
+            offset = current_app.config['OFFSET_PAGING']
 
         try:
             results, n_records = DoacaoModelObject().all(limit, offset, cgccpf)
@@ -115,7 +115,7 @@ class Doacao(ResourceBase):
         for doacao in data:
             doacao["cgccpf"] = remove_blanks(doacao['cgccpf'])
 
-        data = self.get_unique(cgccpf, data)
+        data = self.get_unique_cgccpf(cgccpf, data)
 
         self.build_links(args={
             'incentivador_id': incentivador_id, 'doacoes': data,

@@ -4,6 +4,9 @@ from .database.connector import get_session
 from .resources.shared_models import Area, Projeto
 
 
+#
+# Populate a test db
+#
 def populate():
     """
     Populate database with some examples.
@@ -16,7 +19,25 @@ def populate():
     session.commit()
 
     # Create entities
-    projeto = Projeto(
+    session.add(projeto_ex())
+    for area in areas_ex():
+        session.add(area)
+    session.commit()
+
+
+#
+# Example objects
+#
+def areas_ex():
+    return [
+        Area(Codigo='1', Descricao='Artes Cênicas'),
+        Area(Codigo='2', Descricao='Audiovisual'),
+        Area(Codigo='3', Descricao='Música'),
+    ]
+
+
+def projeto_ex():
+    return Projeto(
         IdPRONAC=123,
         AnoProjeto='2000',
         Sequencial='abc',
@@ -40,19 +61,6 @@ def populate():
         idProjeto=1,
         Mecanismo='1',
     )
-
-    areas = [
-        Area(Codigo='1', Descricao='Artes Cênicas'),
-        Area(Codigo='2', Descricao='Audiovisual'),
-        Area(Codigo='3', Descricao='Música'),
-    ]
-
-    session.add(projeto)
-    for area in areas:
-        session.add(area)
-
-    session.commit()
-
 
 # class PreProjeto(Base):
 #     __tablename__ = 'PreProjeto'
