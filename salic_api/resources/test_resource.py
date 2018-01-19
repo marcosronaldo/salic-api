@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from .resource_base import SalicResource
+from .resource_base import ListResource
 from flask import current_app
 
 
-class TestResource(SalicResource):
+class TestResource(ListResource):
     def __init__(self):
         pass
 

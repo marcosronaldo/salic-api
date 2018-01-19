@@ -1,33 +1,26 @@
+import logging
 import time
+from contextlib import contextmanager
 
-from .log import Log
-
-
-class Timer(object):
-    def __init__(self, action=None, verbose=False):
-        self.verbose = verbose
-        self.action = action or "default"
-
-    def __enter__(self):
-        self.start = time.time()
-        if self.verbose:
-            Log.debug('Starting action \"%s\"' % (self.action))
-        return self
-
-    def __exit__(self, *args):
-        self.end = time.time()
-        self.secs = self.end - self.start
-        self.msecs = self.secs * 1000  # millisecs
-        if self.verbose:
-            Log.debug('elapsed time for action \"%s\": %f ms' %
-                      (self.action, self.msecs))
+log = logging.getLogger('salic-api')
 
 
-if __name__ == "__main__":
+@contextmanager
+def timer(action, verbose=True):
+    """
+    Log results for the time required to execute the given action.
 
-    with Timer(action='sleeping', verbose=True):
-        print()
-        'Waiting...'
-        time.sleep(2)
+    Used as a context manager:
+    >>> with timer('foo'):
+    ...     print('hello world!')
+    """
 
-        # print "=> elapsed: %s s" % t.secs
+    start = time.time()
+    if verbose:
+        log.debug('Start action: %r' % action)
+    try:
+        yield
+    finally:
+        msecs = (time.time() - start) * 1000
+        if verbose:
+            log.debug('Action completed in %f ms' % msecs)

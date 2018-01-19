@@ -12,7 +12,7 @@ class TestCoreUrls:
         for url in self.valid_core_urls:
             assert client.get(url).status_code == 200, url
 
-    def test_number_of_areas(self, client):
+    def test_projetos_areas(self, client):
         data = client.get('/v1/projetos/areas').get_data(as_text=True)
         assert json.loads(data) == {
             '_embedded': {
@@ -35,4 +35,10 @@ class TestCoreUrls:
                 ],
             },
             '_links': {'self': 'v1/projetos/areas/'},
+        }
+
+    def test_projetos_detail(self, client):
+        data = client.get('/v1/projetos/123').get_data(as_text=True)
+        assert json.loads(data) == {
+
         }

@@ -6,12 +6,12 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class Doacao(SalicResource):
+class Doacao(ListResource):
     def build_links(self, args={}):
 
         query_args = '&'
         incentivador_id = args['incentivador_id']
-        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+        last_offset = self.last_offset(args['n_records'], args['limit'])
         self.links['self'] += incentivador_id + '/doacoes/'
 
         for arg in request.args:
@@ -115,7 +115,7 @@ class Doacao(SalicResource):
         for doacao in data:
             doacao["cgccpf"] = remove_blanks(doacao['cgccpf'])
 
-        data = self.get_unique_cgccpf(cgccpf, data)
+        data = self.unique_cgccpf(cgccpf, data)
 
         self.build_links(args={
             'incentivador_id': incentivador_id, 'doacoes': data,

@@ -4,20 +4,20 @@ from salic_api.app.security import encrypt, decrypt
 from .models import ProponenteModelObject
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import SalicResource
+from ..resource_base import ListResource
 from ..serialization import listify_queryset
 from flask import current_app
 from ...utils.log import Log
 
 
-class ProponenteList(SalicResource):
+class ProponenteList(ListResource):
     sort_fields = ['total_captado']
 
     def build_links(self, args={}):
 
         query_args = '&'
 
-        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+        last_offset = self.last_offset(args['n_records'], args['limit'])
 
         for arg in request.args:
             if arg != 'limit' and arg != 'offset':
@@ -164,7 +164,7 @@ class ProponenteList(SalicResource):
             proponentes_ids.append(proponente["cgccpf"])
 
         if cgccpf is not None:
-            data = self.get_unique_cgccpf(cgccpf, data)
+            data = self.unique_cgccpf(cgccpf, data)
             proponentes_ids = [cgccpf]
 
         self.build_links(args={

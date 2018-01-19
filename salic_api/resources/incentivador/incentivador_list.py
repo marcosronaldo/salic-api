@@ -3,7 +3,7 @@ from flask import request
 
 from .models import Incentivador
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import SalicResource
+from ..resource_base import ListResource
 from ..serialization import listify_queryset
 from ...app import encrypt, decrypt
 from ...utils.log import Log
@@ -18,7 +18,7 @@ def limit_url(url, limit, offset, extra=None):
     )
 
 
-class IncentivadorList(SalicResource):
+class IncentivadorList(ListResource):
     sort_fields = ['total_doado']
 
     def build_links(self, args=None):
@@ -26,7 +26,7 @@ class IncentivadorList(SalicResource):
         query_args = '&'
         limit = args['limit']
         offset = args['offset']
-        last_offset = self.get_last_offset(args['n_records'], limit)
+        last_offset = self.last_offset(args['n_records'], limit)
 
         for arg in request.args:
             if arg != 'limit' and arg != 'offset':
@@ -183,7 +183,7 @@ class IncentivadorList(SalicResource):
             incentivadores_ids.append(incentivador['cgccpf'])
 
         if cgccpf is not None:
-            data = self.get_unique_cgccpf(cgccpf, data)
+            data = self.unique_cgccpf(cgccpf, data)
             incentivadores_ids = [cgccpf]
 
         self.build_links(args={

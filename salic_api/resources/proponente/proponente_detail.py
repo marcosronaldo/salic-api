@@ -2,13 +2,13 @@ from salic_api.app.security import decrypt
 from .models import ProponenteModelObject
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import SalicResource
+from ..resource_base import ListResource
 from ..serialization import listify_queryset
 from flask import current_app
 from ...utils.log import Log
 
 
-class ProponenteDetail(SalicResource):
+class ProponenteDetail(ListResource):
     sort_fields = ['total_captado']
 
     def build_links(self, args={}):

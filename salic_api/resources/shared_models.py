@@ -33,14 +33,11 @@ class Projeto(Base):
     Area = Column(String, ForeignKey("Area.Codigo"))
     Area_related = relationship("Area", foreign_keys=[Area])
     CgcCpf = Column(String, ForeignKey("Interessado.CgcCpf"))
-    Interessado_related = relationship("Interessado",
-                                       foreign_keys=[CgcCpf])
+    Interessado_related = relationship("Interessado", foreign_keys=[CgcCpf])
     idProjeto = Column(Integer, ForeignKey("PreProjeto.idPreProjeto"))
-    preprojeto_related = relationship("PreProjeto",
-                                      foreign_keys=[idProjeto])
+    preprojeto_related = relationship("PreProjeto", foreign_keys=[idProjeto])
     Mecanismo = Column(String, ForeignKey("Mecanismo.Codigo"))
-    mecanismo_related = relationship(
-        "Mecanismo", foreign_keys=[Mecanismo])
+    mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
 
 
 class PreProjeto(Base):
@@ -72,6 +69,7 @@ class Segmento(Base):
 
     Codigo = Column(String, primary_key=True)
     Descricao = Column(String)
+
 
 class Enquadramento(Base):
     __tablename__ = 'Enquadramento'
@@ -194,7 +192,7 @@ class PlanoDistribuicao(Base):
     Area = Column(String, ForeignKey('Area.Codigo'))
     area_related = relationship('Area', foreign_keys=[Area])
     idPosicaoDaLogo = Column(Integer, ForeignKey('Verificacao.idVerificacao'))
-    vetificacao_related = relationship('Verificacao',
+    verificacao_related = relationship('Verificacao',
                                        foreign_keys=[idPosicaoDaLogo])
     PrecoUnitarioNormal = Column(String)
     PrecoUnitarioPromocional = Column(String)
@@ -207,3 +205,20 @@ class PlanoDistribuicao(Base):
     QtdeUnitarioNormal = Column(Integer)
     QtdeUnitarioPromocional = Column(Integer)
     stPlanoDistribuicaoProduto = Column(Integer)
+
+
+#
+# This data is stored as SQL procedures. We create a new table when working
+# with local Sqlite data
+#
+class Custos(Base):
+    __tablename__ = 'Custos'
+
+    idCustos = Column(Integer, primary_key=True)
+    idProjeto = Column(Integer, ForeignKey("Projetos.idProjeto"))
+    valor_proposta = Column(Integer)
+    valor_solicitado = Column(Integer)
+    valor_aprovado = Column(Integer)
+    valor_aprovado_convenio = Column(Integer)
+    custo_projeto = Column(Integer)
+    outras_fontes = Column(Integer)

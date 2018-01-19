@@ -5,12 +5,12 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class FornecedorList(SalicResource):
+class FornecedorList(ListResource):
     def build_links(self, args={}):
 
         query_args = '&'
 
-        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+        last_offset = self.last_offset(args['n_records'], args['limit'])
 
         for arg in request.args:
             if arg != 'limit' and arg != 'offset':
@@ -142,7 +142,7 @@ class FornecedorList(SalicResource):
             fornecedores_ids.append(fornecedor['cgccpf'])
 
         if cgccpf is not None:
-            data = self.get_unique_cgccpf(cgccpf, data)
+            data = self.unique_cgccpf(cgccpf, data)
 
         self.build_links(args={
             'limit': limit, 'offset': offset,

@@ -5,12 +5,12 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class Produto(SalicResource):
+class Produto(ListResource):
     def build_links(self, args={}):
         query_args = '&'
         fornecedor_id = args['fornecedor_id']
 
-        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+        last_offset = self.last_offset(args['n_records'], args['limit'])
 
         self.links['self'] += fornecedor_id + '/produtos/'
 
@@ -123,7 +123,7 @@ class Produto(SalicResource):
         for produto in data:
             produto["cgccpf"] = remove_blanks(produto['cgccpf'])
 
-        data = self.get_unique_cgccpf(cgccpf, data)
+        data = self.unique_cgccpf(cgccpf, data)
 
         self.build_links(args={
             'fornecedor_id': fornecedor_id, 'produtos': data,

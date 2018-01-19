@@ -5,7 +5,7 @@ from ..resource_base import *
 from ..serialization import listify_queryset
 
 
-class FornecedorDetail(SalicResource):
+class FornecedorDetail(ListResource):
     def build_links(self, args={}):
         fornecedor_id = args['fornecedor_id']
         self.links['self'] += fornecedor_id

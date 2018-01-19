@@ -4,12 +4,12 @@ from ..sanitization import sanitize
 from ..serialization import listify_queryset
 
 
-class PreProjetoList(SalicResource):
+class PreProjetoList(ListResource):
     def build_links(self, args={}):
 
         query_args = '&'
 
-        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+        last_offset = self.last_offset(args['n_records'], args['limit'])
 
         for arg in request.args:
             if arg != 'limit' and arg != 'offset':

@@ -1,6 +1,6 @@
 from flask import current_app
-from flask import request
 
+from salic_api.resources.resource_base import InvalidResult
 from . import utils
 from .models import (
     ProjetoModelObject, CertidoesNegativasModelObject,
@@ -9,14 +9,14 @@ from .models import (
     CaptacaoQuery
 )
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import SalicResource
+from ..resource_base import ListResource
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...app.security import encrypt
 from ...utils.log import Log
 
 
-class ProjetoDetail(SalicResource):
+class ProjetoDetail(ListResource):
     resource_path = 'projeto'
     query_class = ProjetoModelObject
 
@@ -66,89 +66,72 @@ class ProjetoDetail(SalicResource):
             self.produtos_links.append(produto_links)
 
     def __init__(self):
-        super(ProjetoDetail, self).__init__()
+        super().__init__()
+        self.links = {'self': self.url('projetos/')}
 
-        self.links = {
-            "self": current_app.config['API_ROOT_URL'] + 'projetos/',
+    def hal_builder(self, data, args=None):
+        hal_data = data
+        hal_data['_links'] = dict(self.links)
+        hal_data['_embedded'] = {
+            'captacoes': [], 'relacao_bens_captal': [],
+            'marcas_anexadas': [], 'deslocamento': [],
+            'divulgacao': [], 'relatorio_fisco': [],
+            'certidoes_negativas': [], 'relacao_pagamentos': [],
+            'readequacoes': [], 'documentos_anexados': [],
+            'distribuicao': [], 'prorrogacao': []
         }
 
-        def hal_builder(data, args={}):
+        for index in range(len(data['captacoes'])):
+            data['captacoes'][index]['_links'] = self.captacoes_links[index]
 
-            hal_data = data
+        for index in range(len(data['relacao_pagamentos'])):
+            data['relacao_pagamentos'][index]['_links'] = \
+                self.produtos_links[index]
 
-            hal_data['_links'] = self.links
+        for emb_field in hal_data['_embedded']:
+            hal_data['_embedded'][emb_field] = data[emb_field]
+            del data[emb_field]
 
-            hal_data['_embedded'] = {
-                'captacoes': [], 'relacao_bens_captal': [],
-                'marcas_anexadas': [], 'deslocamento': [],
-                'divulgacao': [], 'relatorio_fisco': [],
-                'certidoes_negativas': [], 'relacao_pagamentos': [],
-                'readequacoes': [], 'documentos_anexados': [],
-                'distribuicao': [], 'prorrogacao': []
-            }
+        return hal_data
 
-            for index in range(len(data['captacoes'])):
-                data['captacoes'][index]['_links'] = self.captacoes_links[index]
-
-            for index in range(len(data['relacao_pagamentos'])):
-                data['relacao_pagamentos'][index]['_links'] = \
-                    self.produtos_links[index]
-
-            for emb_field in hal_data['_embedded']:
-                hal_data['_embedded'][emb_field] = data[emb_field]
-                del data[emb_field]
-
-            return hal_data
-
-        self.to_hal = hal_builder
-
-    # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
-    def get(self, PRONAC):
-
+    def check_pronac(self, PRONAC):
         try:
             int(PRONAC)
-        except:
+        except ValueError:
             result = {
                 'message': 'PRONAC must be an integer',
                 'message_code': 10
             }
-            return self.render(result, status_code=405)
+            raise InvalidResult(result, status_code=405)
 
-        extra_fields = False
-
-        if request.args.get('extra_fields') == 'true':
-            extra_fields = True
-
-        try:
-            Log.debug('Starting database call')
-            result, n_records = ProjetoModelObject().all(limit=1, offset=0,
-                                                         PRONAC=PRONAC)
-            Log.debug('Database call was successful')
-        except Exception as e:
-            if current_app.testing:
-                raise
-            Log.error('Database error trying to fetch \"Project data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
+    def fetch_result(self, PRONAC):
+        result, n_records = ProjetoModelObject() \
+            .all(limit=1, offset=0, PRONAC=PRONAC)
         if n_records == 0:
-            result = {
-                'message': 'No project with PRONAC %s' % (PRONAC),
+            raise InvalidResult({
+                'message': 'No project with PRONAC %s' % PRONAC,
                 'message_code': 11
-            }
-            return self.render(result, status_code=404)
+            }, 404)
+        return result
 
+    def fetch_related(self, result, PRONAC):
+        pass
+
+    # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
+    def get(self, PRONAC):
+        try:
+            return self._get_worker(PRONAC)
+        except InvalidResult as ex:
+            return ex.render(self)
+
+    def _get_worker(self, PRONAC):
+        self.check_pronac(PRONAC)
+        result = self.fetch_result(PRONAC)
         projeto = listify_queryset(result)[0]
-
         Log.debug('IdPRONAC = %s' % str(projeto['IdPRONAC']))
 
         try:
-            certidoes_negativas = CertidoesNegativasModelObject().all(
-                projeto['PRONAC'])
+            certidoes_negativas = CertidoesNegativasModelObject().all(projeto['PRONAC'])
         except Exception as e:
             Log.error(
                 'Database error trying to fetch \"certidoes_negativas data\"')
@@ -156,15 +139,13 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
         projeto['certidoes_negativas'] = listify_queryset(certidoes_negativas)
-
         try:
-            documentos_anexados = ProjetoModelObject(
-            ).attached_documents(projeto['IdPRONAC'])
+            documentos_anexados = ProjetoModelObject() \
+                .attached_documents(projeto['IdPRONAC'])
         except Exception as e:
             Log.error(
                 'Database error trying to fetch \"documentos_anexados data\"')
@@ -172,31 +153,12 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
         documentos_anexados = listify_queryset(documentos_anexados)
-
-        sanitized_documentos = []
-
-        for documento in documentos_anexados:
-            link = utils.build_file_link(documento)
-
-            if link == '':
-                continue
-
-            sanitized_doc = {}
-
-            sanitized_doc['link'] = link
-
-            sanitized_doc['classificacao'] = documento['Descricao']
-            sanitized_doc['data'] = documento['Data']
-            sanitized_doc['nome'] = documento['NoArquivo']
-
-            sanitized_documentos.append(sanitized_doc)
-
-        projeto['documentos_anexados'] = sanitized_documentos
+        projeto['documentos_anexados'] = self.cleaned_documentos(
+            documentos_anexados)
 
         try:
             marcas_anexadas = ProjetoModelObject(
@@ -240,30 +202,11 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
         deslocamentos = listify_queryset(deslocamentos)
-
-        deslocamentos_satitized = []
-
-        for deslocamento in deslocamentos:
-            deslocamento_satitized = {}
-
-            deslocamento_satitized['pais_origem'] = deslocamento['PaisOrigem']
-            deslocamento_satitized['pais_destino'] = deslocamento['PaisDestino']
-            deslocamento_satitized['uf_origem'] = deslocamento['UFOrigem']
-            deslocamento_satitized['uf_destino'] = deslocamento['UFDestino']
-            deslocamento_satitized['municipio_origem'] = deslocamento[
-                'MunicipioOrigem']
-            deslocamento_satitized['municipio_destino'] = deslocamento[
-                'MunicipioDestino']
-            deslocamento_satitized['quantidade'] = deslocamento['Qtde']
-
-            deslocamentos_satitized.append(deslocamento_satitized)
-
-        projeto['deslocamento'] = deslocamentos_satitized
+        projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
 
         try:
             distribuicoes = DistribuicaoModelObject().all(projeto['IdPRONAC'])
@@ -273,61 +216,11 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
         distribuicoes = listify_queryset(distribuicoes)
-
-        distribuicoes_satitized = []
-
-        for distribuicao in distribuicoes:
-
-            distribuicao_satitized = {}
-
-            distribuicao_satitized['area'] = distribuicao['area']
-            distribuicao_satitized['segmento'] = distribuicao['segmento']
-            distribuicao_satitized['produto'] = distribuicao['produto']
-            distribuicao_satitized['posicao_logo'] = distribuicao[
-                'posicao_logo']
-            distribuicao_satitized['qtd_outros'] = distribuicao['QtdeOutros']
-            distribuicao_satitized['qtd_proponente'] = distribuicao[
-                'QtdeProponente']
-            distribuicao_satitized['qtd_produzida'] = distribuicao[
-                'QtdeProduzida']
-            distribuicao_satitized['qtd_patrocinador'] = distribuicao[
-                'QtdePatrocinador']
-            distribuicao_satitized['qtd_venda_normal'] = distribuicao[
-                'QtdeVendaNormal']
-            distribuicao_satitized['qtd_venda_promocional'] = distribuicao[
-                'QtdeVendaPromocional']
-            distribuicao_satitized['preco_unitario_normal'] = distribuicao[
-                'PrecoUnitarioNormal']
-            distribuicao_satitized['preco_unitario_promocional'] = distribuicao[
-                'PrecoUnitarioPromocional']
-
-            distribuicao_satitized['localizacao'] = distribuicao['Localizacao']
-
-            distribuicao_satitized['receita_normal'] = distribuicao_satitized[
-                                                           'qtd_venda_normal'] * \
-                                                       distribuicao_satitized[
-                                                           'preco_unitario_normal']
-            distribuicao_satitized['receita_pro'] = distribuicao_satitized[
-                                                        'qtd_venda_promocional'] * \
-                                                    distribuicao_satitized[
-                                                        'preco_unitario_normal']
-            distribuicao_satitized['receita_prevista'] = distribuicao_satitized[
-                                                             'qtd_venda_normal'] * \
-                                                         distribuicao_satitized[
-                                                             'preco_unitario_normal'] + \
-                                                         distribuicao_satitized[
-                                                             'qtd_venda_promocional'] * \
-                                                         distribuicao_satitized[
-                                                             'preco_unitario_promocional']
-
-            distribuicoes_satitized.append(distribuicao_satitized)
-
-        projeto['distribuicao'] = distribuicoes_satitized
+        projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
 
         try:
             readequacoes = ReadequacaoModelObject().all(projeto['IdPRONAC'])
@@ -337,21 +230,11 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
         readequacoes = listify_queryset(readequacoes)
-
-        for readequacao in readequacoes:
-            readequacao['descricao_justificativa'] = sanitize(
-                readequacao['descricao_justificativa'], truncated=False)
-            readequacao['descricao_avaliacao'] = sanitize(
-                readequacao['descricao_avaliacao'], truncated=False)
-            readequacao['descricao_solicitacao'] = sanitize(
-                readequacao['descricao_solicitacao'], truncated=False)
-
-        projeto['readequacoes'] = readequacoes
+        projeto['readequacoes'] = self.cleaned_readequacoes(readequacoes)
 
         try:
             prorrogacao = ProjetoModelObject().postpone_request(
@@ -362,7 +245,6 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
@@ -379,7 +261,6 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
@@ -395,7 +276,6 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
@@ -412,7 +292,6 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
@@ -427,40 +306,23 @@ class ProjetoDetail(SalicResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 
         captacoes = listify_queryset(captacoes)
         projeto['captacoes'] = captacoes
 
-        "Getting rid of blanks"
-        projeto["cgccpf"] = remove_blanks(str(projeto["cgccpf"]))
+        # Sanitizing text values
+        sanitize_fields = (
+            'acessibilidade', 'objetivos', 'justificativa', 'etapa',
+            'ficha_tecnica', 'impacto_ambiental', 'especificacao_tecnica',
+            'estrategia_execucao', 'providencia', 'democratizacao', 'sinopse',
+            'resumo',
+        )
+        for field in sanitize_fields:
+            projeto[field] = sanitize(projeto[field], truncated=False)
 
-        "Sanitizing text values"
-        projeto['acessibilidade'] = sanitize(
-            projeto['acessibilidade'], truncated=False)
-        projeto['objetivos'] = sanitize(projeto['objetivos'], truncated=False)
-        projeto['justificativa'] = sanitize(
-            projeto['justificativa'], truncated=False)
-        projeto['etapa'] = sanitize(projeto['etapa'], truncated=False)
-        projeto['ficha_tecnica'] = sanitize(
-            projeto['ficha_tecnica'], truncated=False)
-        projeto['impacto_ambiental'] = sanitize(
-            projeto['impacto_ambiental'], truncated=False)
-        projeto['especificacao_tecnica'] = sanitize(
-            projeto['especificacao_tecnica'], truncated=False)
-        projeto['estrategia_execucao'] = sanitize(
-            projeto['estrategia_execucao'], truncated=False)
-        projeto['providencia'] = sanitize(
-            projeto['providencia'], truncated=False)
-        projeto['democratizacao'] = sanitize(
-            projeto["democratizacao"], truncated=False)
-
-        projeto['sinopse'] = sanitize(projeto["sinopse"], truncated=False)
-        projeto['resumo'] = sanitize(projeto["resumo"], truncated=False)
-
-        "Removing IdPRONAC"
+        # Removing IdPRONAC
         del projeto['IdPRONAC']
 
         self.build_links(args={
@@ -468,12 +330,87 @@ class ProjetoDetail(SalicResource):
             'captacoes': projeto['captacoes'], 'produtos': relacao_pagamentos
         })
 
+        self.clean_cgcpf(projeto)
+        return self.render(projeto)
+
+    def cleaned_documentos(self, documentos_anexados):
+        cleaned = []
+        for documento in documentos_anexados:
+            link = utils.build_file_link(documento)
+            if link == '':
+                continue
+            sanitized_doc = {}
+            sanitized_doc['link'] = link
+            sanitized_doc['classificacao'] = documento['Descricao']
+            sanitized_doc['data'] = documento['Data']
+            sanitized_doc['nome'] = documento['NoArquivo']
+            cleaned.append(sanitized_doc)
+
+        return cleaned
+
+    def cleaned_deslocamentos(self, deslocamentos):
+        clean = []
+        for deslocamento in deslocamentos:
+            clean_elem = {}
+            clean_elem['pais_origem'] = deslocamento['PaisOrigem']
+            clean_elem['pais_destino'] = deslocamento['PaisDestino']
+            clean_elem['uf_origem'] = deslocamento['UFOrigem']
+            clean_elem['uf_destino'] = deslocamento['UFDestino']
+            clean_elem['municipio_origem'] = deslocamento['MunicipioOrigem']
+            clean_elem['municipio_destino'] = deslocamento['MunicipioDestino']
+            clean_elem['quantidade'] = deslocamento['Qtde']
+            clean.append(clean_elem)
+        return clean
+
+    def cleaned_readequacoes(self, readequacoes):
+        for readequacao in readequacoes:
+            readequacao['descricao_justificativa'] = sanitize(
+                readequacao['descricao_justificativa'], truncated=False)
+            readequacao['descricao_avaliacao'] = sanitize(
+                readequacao['descricao_avaliacao'], truncated=False)
+            readequacao['descricao_solicitacao'] = sanitize(
+                readequacao['descricao_solicitacao'], truncated=False)
+        return readequacoes
+
+    def cleaned_distribuicoes(self, distribuicoes):
+        distribuicoes_satitized = []
+        key_map = {
+            'area': 'area',
+            'segmento': 'segmento',
+            'produto': 'produto',
+            'posicao_logo': 'posicao_logo',
+            'qtd_outros': 'QtdeOutros',
+            'qtd_proponente': 'QtdeProponente',
+            'qtd_produzida': 'QtdeProduzida',
+            'qtd_patrocinador': 'QtdePatrocinador',
+            'qtd_venda_normal': 'QtdeVendaNormal',
+            'qtd_venda_promocional': 'QtdeVendaPromocional',
+            'preco_unitario_normal': 'PrecoUnitarioNormal',
+            'preco_unitario_promocional': 'PrecoUnitarioPromocional',
+            'localizacao': 'Localizacao',
+        }
+
+        for distribuicao in distribuicoes:
+            clean = {
+                k: distribuicao[key_map[v]] for k, v in key_map.items()
+            }
+            qtd_venda = clean['qtd_venda_normal']
+            qtd_promo = clean['qtd_venda_promocional']
+            preco = clean['preco_unitario_normal']
+            preco_promo = clean['preco_unitario_promocional']
+
+            clean['receita_normal'] = qtd_venda * preco
+            clean['receita_pro'] = qtd_promo * preco
+            clean['receita_prevista'] = qtd_venda * preco + \
+                                        qtd_promo * preco_promo
+            distribuicoes_satitized.append(clean)
+        return distribuicoes_satitized
+
+    def clean_cgcpf(self, projeto):
+        projeto["cgccpf"] = remove_blanks(str(projeto["cgccpf"]))
         projeto['cgccpf'] = cgccpf_mask(projeto['cgccpf'])
 
         for captacao in projeto['captacoes']:
             captacao['cgccpf'] = cgccpf_mask(captacao['cgccpf'])
-
         for produto in projeto['relacao_pagamentos']:
             produto['cgccpf'] = cgccpf_mask(produto['cgccpf'])
-
-        return self.render(projeto)

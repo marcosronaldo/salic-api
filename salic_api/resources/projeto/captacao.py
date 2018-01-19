@@ -4,14 +4,14 @@ from flask import current_app
 
 from .models import CaptacaoQuery
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import SalicResource
+from ..resource_base import ListResource
 from ..serialization import listify_queryset
 from ...app.security import encrypt
 
 log = logging.getLogger('salic-api')
 
 
-class Captacao(SalicResource):
+class Captacao(ListResource):
     def build_links(self, args={}):
 
         self.projetos_links = []

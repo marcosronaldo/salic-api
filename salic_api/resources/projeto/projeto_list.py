@@ -3,14 +3,14 @@ from flask import request
 
 from .models import ProjetoModelObject
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import SalicResource
+from ..resource_base import ListResource
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...app import encrypt, decrypt
 from ...utils.log import Log
 
 
-class ProjetoList(SalicResource):
+class ProjetoList(ListResource):
     sort_fields = ['ano_projeto', 'PRONAC', 'data_inicio',
                    'data_termino', 'valor_solicitado', 'outras_fontes',
                    'valor_captado', 'valor_proposta', 'valor_aprovado',
@@ -20,7 +20,7 @@ class ProjetoList(SalicResource):
 
         query_args = '&'
 
-        last_offset = self.get_last_offset(args['n_records'], args['limit'])
+        last_offset = self.last_offset(args['n_records'], args['limit'])
 
         for arg in request.args:
             if arg != 'limit' and arg != 'offset':
@@ -272,7 +272,7 @@ class ProjetoList(SalicResource):
             projeto['justificativa'] = sanitize(projeto['justificativa'])
 
         if cgccpf is not None:
-            data = self.get_unique_cgccpf(cgccpf, data)
+            data = self.unique_cgccpf(cgccpf, data)
 
         proponentes_ids = []
 
