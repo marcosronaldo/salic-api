@@ -169,8 +169,9 @@ class SalicResource(Resource):
 
         try:
             result = self.fetch_result(**kwargs)
-            result = self.prepare_result(result)
+            result = self.prepare_result(result, **kwargs)
             self.fetch_related(result, **kwargs)
+            self.finalize_result(result, **kwargs)
             return self.render(result)
 
         # Expected errors
@@ -199,12 +200,21 @@ class SalicResource(Resource):
             )
         return self.query_class().all(**kwargs)
 
-    def prepare_result(self, result):
+    def prepare_result(self, result, **kwargs):
         """
         Prepare result obtained from .fetch_result() to be ready for JSON
         serialization.
         """
         return listify_queryset(result)
+
+    def finalize_result(self, result, **kwargs):
+        """
+        Final preparations on the result object before sending it to the
+        render function.
+
+        This function is called after fetch_related(). The default
+        implementation is empty, but it can be overriden on subclasses.
+        """
 
     def fetch_related(self, result, **kwargs):
         """

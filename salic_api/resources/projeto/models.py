@@ -13,7 +13,7 @@ from ..shared_models import (
 from ...utils.timer import timer
 
 
-class ProjetoModelObject(QueryBase):
+class ProjetoQuery(QueryBase):
     #
     # SQL procedures
     #

@@ -1,7 +1,7 @@
 from sqlalchemy.sql import text
 
 from ..model_base import QueryBase
-from ..projeto.models import ProjetoModelObject
+from ..projeto.models import ProjetoQuery
 from ..serialization import listify_queryset
 
 
@@ -212,11 +212,11 @@ class ProductModelObject(QueryBase):
         super(ProductModelObject, self).__init__()
 
     def all(self, limit, offset, cgccpf):
-        return ProjetoModelObject().payments_listing(limit, offset,
-                                                     cgccpf=cgccpf)
+        return ProjetoQuery().payments_listing(limit, offset,
+                                               cgccpf=cgccpf)
 
     def count(self, cgccpf):
-        return ProjetoModelObject().payments_listing_count(cgccpf=cgccpf)
+        return ProjetoQuery().payments_listing_count(cgccpf=cgccpf)
 
         # n_records = listify_queryset(result)
 

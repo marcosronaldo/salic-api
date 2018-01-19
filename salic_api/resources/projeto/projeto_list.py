@@ -1,7 +1,7 @@
 from flask import current_app
 from flask import request
 
-from .models import ProjetoModelObject
+from .models import ProjetoQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
 from ..sanitization import sanitize
@@ -207,20 +207,20 @@ class ProjetoList(ListResource):
 
         try:
             Log.debug('Starting database call')
-            results, n_records = ProjetoModelObject().all(limit, offset, PRONAC,
-                                                          nome,
-                                                          proponente, cgccpf,
-                                                          area, segmento,
-                                                          UF, municipio,
-                                                          data_inicio,
-                                                          data_inicio_min,
-                                                          data_inicio_max,
-                                                          data_termino,
-                                                          data_termino_min,
-                                                          data_termino_max,
-                                                          ano_projeto,
-                                                          sort_field,
-                                                          sort_order)
+            results, n_records = ProjetoQuery().all(limit, offset, PRONAC,
+                                                    nome,
+                                                    proponente, cgccpf,
+                                                    area, segmento,
+                                                    UF, municipio,
+                                                    data_inicio,
+                                                    data_inicio_min,
+                                                    data_inicio_max,
+                                                    data_termino,
+                                                    data_termino_min,
+                                                    data_termino_max,
+                                                    ano_projeto,
+                                                    sort_field,
+                                                    sort_order)
 
             Log.debug('Database call was successful')
 

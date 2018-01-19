@@ -1,9 +1,7 @@
-from flask import current_app
-
 from salic_api.resources.resource_base import InvalidResult
 from . import utils
 from .models import (
-    ProjetoModelObject, CertidoesNegativasModelObject,
+    ProjetoQuery, CertidoesNegativasModelObject,
     DivulgacaoModelObject, DescolamentoModelObject,
     DistribuicaoModelObject, ReadequacaoModelObject,
     CaptacaoQuery
@@ -13,61 +11,70 @@ from ..resource_base import ListResource
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...app.security import encrypt
-from ...utils.log import Log
+
+DISTRIBUICOES_KEY_MAP = {
+    'area': 'area',
+    'segmento': 'segmento',
+    'produto': 'produto',
+    'posicao_logo': 'posicao_logo',
+    'QtdeOutros': 'qtd_outros',
+    'QtdeProponente': 'qtd_proponente',
+    'QtdeProduzida': 'qtd_produzida',
+    'QtdePatrocinador': 'qtd_patrocinador',
+    'QtdeVendaNormal': 'qtd_venda_normal',
+    'QtdeVendaPromocional': 'qtd_venda_promocional',
+    'PrecoUnitarioNormal': 'preco_unitario_normal',
+    'PrecoUnitarioPromocional': 'preco_unitario_promocional',
+    'Localizacao': 'localizacao',
+}
+
+DESLOCAMENTOS_KEY_MAP = {
+    'PaisOrigem': 'pais_origem',
+    'PaisDestino': 'pais_destino',
+    'UFOrigem': 'uf_origem',
+    'UFDestino': 'uf_destino',
+    'MunicipioOrigem': 'municipio_origem',
+    'MunicipioDestino': 'municipio_destino',
+    'Qtde': 'quantidade',
+}
+
+DOCUMENTOS_KEY_MAP = {
+    'Descricao': 'classificacao',
+    'Data': 'data',
+    'NoArquivo': 'nome',
+}
 
 
 class ProjetoDetail(ListResource):
     resource_path = 'projeto'
-    query_class = ProjetoModelObject
+    query_class = ProjetoQuery
 
     def build_links(self, args={}):
+        pronac = args['pronac']
 
-        self.links["self"] += args['PRONAC']
-
+        self.links = links = {}
         url_id = encrypt(args['proponente_id'])
-        proponente_link = current_app.config['API_ROOT_URL'] + \
-                          'proponentes/%s' % url_id
 
-        incentivadores_link = current_app.config['API_ROOT_URL'] + \
-                              'incentivadores/?PRONAC=' + args['PRONAC']
-        fornecedores_link = current_app.config['API_ROOT_URL'] + \
-                            'fornecedores/?PRONAC=' + args['PRONAC']
-
-        self.links["proponente"] = proponente_link
-        self.links["incentivadores"] = incentivadores_link
-        self.links["fornecedores"] = fornecedores_link
+        links['self'] = self.url('/projetos/' + pronac)
+        links['proponente'] = self.url('/proponentes/%s' % url_id)
+        links['incentivadores'] = self.url('/incentivadores/?pronac=' + pronac)
+        links['fornecedores'] = self.url('/fornecedores/?pronac=' + pronac)
 
         self.captacoes_links = []
-
         for captacao in args['captacoes']:
-            captacao_links = {}
-            captacao_links['projeto'] = current_app.config['API_ROOT_URL'] + \
-                                        'projetos/%s' % args['PRONAC']
-            url_id = encrypt(captacao['cgccpf'])
-            captacao_links['incentivador'] = current_app.config[
-                                                 'API_ROOT_URL'] + \
-                                             'incentivadores/%s' % url_id
-
-            self.captacoes_links.append(captacao_links)
+            url = '/incentivadores/%s' % encrypt(captacao['cgccpf'])
+            self.captacoes_links.append({
+                'projeto': self.url('/projetos/%s' % pronac),
+                'incentivador': self.url(url),
+            })
 
         self.produtos_links = []
-
         for produto in args['produtos']:
-            produto_links = {}
-            # TODO - Alterar a API para tratar de agentes sem cgccpf, agentes extrangeiros
-            if produto['cgccpf'] == None:
-                produto['cgccpf'] = '00000000000000'
-            fornecedor_id = encrypt(produto['cgccpf'])
-            produto_links['projeto'] = current_app.config['API_ROOT_URL'] + \
-                                       'projetos/%s' % args['PRONAC']
-            produto_links['fornecedor'] = current_app.config['API_ROOT_URL'] + \
-                                          'fornecedores/%s' % fornecedor_id
-
-            self.produtos_links.append(produto_links)
-
-    def __init__(self):
-        super().__init__()
-        self.links = {'self': self.url('projetos/')}
+            cgccpf_id = encrypt(produto['cgccpf'])
+            self.produtos_links.append({
+                'projeto': self.url('projetos/%s' % pronac),
+                'fornecedor': self.url('/fornecedores/%s' % cgccpf_id),
+            })
 
     def hal_builder(self, data, args=None):
         hal_data = data
@@ -94,6 +101,15 @@ class ProjetoDetail(ListResource):
 
         return hal_data
 
+    def fetch_result(self, PRONAC):
+        result, n_records = ProjetoQuery().all(limit=1, offset=0, PRONAC=PRONAC)
+        if n_records == 0:
+            raise InvalidResult({
+                'message': 'No project with PRONAC %s' % PRONAC,
+                'message_code': 11
+            }, 404)
+        return result
+
     def check_pronac(self, PRONAC):
         try:
             int(PRONAC)
@@ -104,214 +120,7 @@ class ProjetoDetail(ListResource):
             }
             raise InvalidResult(result, status_code=405)
 
-    def fetch_result(self, PRONAC):
-        result, n_records = ProjetoModelObject() \
-            .all(limit=1, offset=0, PRONAC=PRONAC)
-        if n_records == 0:
-            raise InvalidResult({
-                'message': 'No project with PRONAC %s' % PRONAC,
-                'message_code': 11
-            }, 404)
-        return result
-
-    def fetch_related(self, result, PRONAC):
-        pass
-
-    # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
-    def get(self, PRONAC):
-        try:
-            return self._get_worker(PRONAC)
-        except InvalidResult as ex:
-            return ex.render(self)
-
-    def _get_worker(self, PRONAC):
-        self.check_pronac(PRONAC)
-        result = self.fetch_result(PRONAC)
-        projeto = listify_queryset(result)[0]
-        Log.debug('IdPRONAC = %s' % str(projeto['IdPRONAC']))
-
-        try:
-            certidoes_negativas = CertidoesNegativasModelObject().all(projeto['PRONAC'])
-        except Exception as e:
-            Log.error(
-                'Database error trying to fetch \"certidoes_negativas data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        projeto['certidoes_negativas'] = listify_queryset(certidoes_negativas)
-        try:
-            documentos_anexados = ProjetoModelObject() \
-                .attached_documents(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error(
-                'Database error trying to fetch \"documentos_anexados data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        documentos_anexados = listify_queryset(documentos_anexados)
-        projeto['documentos_anexados'] = self.cleaned_documentos(
-            documentos_anexados)
-
-        try:
-            marcas_anexadas = ProjetoModelObject(
-            ).attached_brands(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"marcas_anexadas data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-                'more': 'something is broken'
-            }
-            return self.render(result, status_code=503)
-
-        marcas_anexadas = listify_queryset(marcas_anexadas)
-
-        for marca in marcas_anexadas:
-            marca['link'] = utils.build_brand_link(marca)
-
-        projeto['marcas_anexadas'] = marcas_anexadas
-
-        try:
-            divulgacao = DivulgacaoModelObject().all(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"divulgacao data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-                'more': 'something is broken'
-            }
-            return self.render(result, status_code=503)
-
-        projeto['divulgacao'] = listify_queryset(divulgacao)
-
-        try:
-            deslocamentos = DescolamentoModelObject().all(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"deslocamentos data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        deslocamentos = listify_queryset(deslocamentos)
-        projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
-
-        try:
-            distribuicoes = DistribuicaoModelObject().all(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"distribuicoes data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        distribuicoes = listify_queryset(distribuicoes)
-        projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
-
-        try:
-            readequacoes = ReadequacaoModelObject().all(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"readequacoes data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        readequacoes = listify_queryset(readequacoes)
-        projeto['readequacoes'] = self.cleaned_readequacoes(readequacoes)
-
-        try:
-            prorrogacao = ProjetoModelObject().postpone_request(
-                projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"prorrogacao data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        prorrogacao = listify_queryset(prorrogacao)
-        projeto['prorrogacao'] = prorrogacao
-
-        try:
-            relacao_pagamentos = ProjetoModelObject().payments_listing(
-                idPronac=projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error(
-                'Database error trying to fetch \"relacao pagamentos data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        relacao_pagamentos = listify_queryset(relacao_pagamentos)
-        projeto['relacao_pagamentos'] = relacao_pagamentos
-
-        try:
-            relatorio_fisco = ProjetoModelObject(
-            ).taxing_report(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error('Database error trying to fetch \"relatorio fisco data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        relatorio_fisco = listify_queryset(relatorio_fisco)
-        projeto['relatorio_fisco'] = relatorio_fisco
-
-        try:
-            relacao_bens_captal = ProjetoModelObject(
-            ).goods_capital_listing(projeto['IdPRONAC'])
-        except Exception as e:
-            Log.error(
-                'Database error trying to fetch \"relacao bens captal pagamentos data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        relacao_bens_captal = listify_queryset(relacao_bens_captal)
-        projeto['relacao_bens_captal'] = relacao_bens_captal
-
-        try:
-            captacoes = CaptacaoQuery().all(PRONAC=PRONAC)
-        except Exception as e:
-            Log.error('Database error trying to fetch \"captacoes data\"')
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
-
-        captacoes = listify_queryset(captacoes)
-        projeto['captacoes'] = captacoes
-
+    def finalize_result(self, result, PRONAC):
         # Sanitizing text values
         sanitize_fields = (
             'acessibilidade', 'objetivos', 'justificativa', 'etapa',
@@ -320,97 +129,137 @@ class ProjetoDetail(ListResource):
             'resumo',
         )
         for field in sanitize_fields:
-            projeto[field] = sanitize(projeto[field], truncated=False)
-
-        # Removing IdPRONAC
-        del projeto['IdPRONAC']
+            result[field] = sanitize(result[field], truncated=False)
 
         self.build_links(args={
-            'PRONAC': projeto['PRONAC'], 'proponente_id': projeto['cgccpf'],
-            'captacoes': projeto['captacoes'], 'produtos': relacao_pagamentos
+            'PRONAC': PRONAC,
+            'proponente_id': result['cgccpf'],
+            'captacoes': result['captacoes'],
+            'produtos': result['relacao_pagamentos'],
         })
 
-        self.clean_cgcpf(projeto)
-        return self.render(projeto)
+        self.clean_cgcpf(result)
 
-    def cleaned_documentos(self, documentos_anexados):
-        cleaned = []
-        for documento in documentos_anexados:
-            link = utils.build_file_link(documento)
-            if link == '':
-                continue
-            sanitized_doc = {}
-            sanitized_doc['link'] = link
-            sanitized_doc['classificacao'] = documento['Descricao']
-            sanitized_doc['data'] = documento['Data']
-            sanitized_doc['nome'] = documento['NoArquivo']
-            cleaned.append(sanitized_doc)
+    def fetch_related(self, projeto, PRONAC):
+        id_PRONAC = projeto.pop('IdPRONAC')
 
-        return cleaned
+        # Certidões
+        certidoes_negativas = CertidoesNegativasModelObject().all(PRONAC)
+        projeto['certidoes_negativas'] = listify_queryset(certidoes_negativas)
+
+        # Documentos anexados
+        documentos = ProjetoQuery().attached_documents(id_PRONAC)
+        projeto['documentos_anexados'] = self.cleaned_documentos(documentos)
+
+        # Marcas anexadas
+        marcas = ProjetoQuery().attached_brands(id_PRONAC)
+        projeto['marcas_anexadas'] = marcas = listify_queryset(marcas)
+        for marca in marcas:
+            marca['link'] = utils.build_brand_link(marca)
+
+        # Divulgação
+        divulgacao = DivulgacaoModelObject().all(id_PRONAC)
+        projeto['divulgacao'] = listify_queryset(divulgacao)
+
+        # Deslocamentos
+        deslocamentos = DescolamentoModelObject().all(id_PRONAC)
+        projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
+
+        # Distribuições
+        distribuicoes = DistribuicaoModelObject().all(id_PRONAC)
+        projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
+
+        # Readequações
+        readequacoes = ReadequacaoModelObject().all(id_PRONAC)
+        projeto['readequacoes'] = self.cleaned_readequacoes(readequacoes)
+
+        # Prorrogação
+        prorrogacao = ProjetoQuery().postpone_request(id_PRONAC)
+        projeto['prorrogacao'] = listify_queryset(prorrogacao)
+
+        # Relação de pagamentos
+        pagamentos = ProjetoQuery().payments_listing(idPronac=id_PRONAC)
+        projeto['relacao_pagamentos'] = listify_queryset(pagamentos)
+
+        # Relatório fisco
+        relatorio_fisco = ProjetoQuery().taxing_report(id_PRONAC)
+        projeto['relatorio_fisco'] = listify_queryset(relatorio_fisco)
+
+        # Relação de bens de capital
+        capital_goods = ProjetoQuery().goods_capital_listing(id_PRONAC)
+        projeto['relacao_bens_captal'] = listify_queryset(capital_goods)
+
+        # Captações
+        captacoes = CaptacaoQuery().all(PRONAC=PRONAC)
+        projeto['captacoes'] = listify_queryset(captacoes)
+
+    # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
+    def get(self, PRONAC):
+        return super().get(PRONAC=PRONAC)
 
     def cleaned_deslocamentos(self, deslocamentos):
-        clean = []
-        for deslocamento in deslocamentos:
-            clean_elem = {}
-            clean_elem['pais_origem'] = deslocamento['PaisOrigem']
-            clean_elem['pais_destino'] = deslocamento['PaisDestino']
-            clean_elem['uf_origem'] = deslocamento['UFOrigem']
-            clean_elem['uf_destino'] = deslocamento['UFDestino']
-            clean_elem['municipio_origem'] = deslocamento['MunicipioOrigem']
-            clean_elem['municipio_destino'] = deslocamento['MunicipioDestino']
-            clean_elem['quantidade'] = deslocamento['Qtde']
-            clean.append(clean_elem)
-        return clean
+        deslocamentos = listify_queryset(deslocamentos)
+        return list(map(map_keys(DESLOCAMENTOS_KEY_MAP), deslocamentos))
+
+    def cleaned_documentos(self, documentos):
+        result = []
+        for doc in listify_queryset(documentos):
+            link = utils.build_file_link(doc)
+            if link == '':
+                continue
+            clean = {'link': link}
+            clean.update(map_keys(DOCUMENTOS_KEY_MAP, doc))
+            result.append(clean)
+        return result
 
     def cleaned_readequacoes(self, readequacoes):
-        for readequacao in readequacoes:
-            readequacao['descricao_justificativa'] = sanitize(
-                readequacao['descricao_justificativa'], truncated=False)
-            readequacao['descricao_avaliacao'] = sanitize(
-                readequacao['descricao_avaliacao'], truncated=False)
-            readequacao['descricao_solicitacao'] = sanitize(
-                readequacao['descricao_solicitacao'], truncated=False)
+        readequacoes = listify_queryset(readequacoes)
+        fields = (
+            'descricao_justificativa',
+            'descricao_avaliacao',
+            'descricao_solicitacao',
+        )
+        for item in readequacoes:
+            for field in fields:
+                item[field] = sanitize(item[field], truncated=False)
         return readequacoes
 
     def cleaned_distribuicoes(self, distribuicoes):
-        distribuicoes_satitized = []
-        key_map = {
-            'area': 'area',
-            'segmento': 'segmento',
-            'produto': 'produto',
-            'posicao_logo': 'posicao_logo',
-            'qtd_outros': 'QtdeOutros',
-            'qtd_proponente': 'QtdeProponente',
-            'qtd_produzida': 'QtdeProduzida',
-            'qtd_patrocinador': 'QtdePatrocinador',
-            'qtd_venda_normal': 'QtdeVendaNormal',
-            'qtd_venda_promocional': 'QtdeVendaPromocional',
-            'preco_unitario_normal': 'PrecoUnitarioNormal',
-            'preco_unitario_promocional': 'PrecoUnitarioPromocional',
-            'localizacao': 'Localizacao',
-        }
+        def clean(data):
+            res = map_keys(DISTRIBUICOES_KEY_MAP, data)
+            n_venda = res['qtd_venda_normal']
+            n_promo = res['qtd_venda_promocional']
+            preco = res['preco_unitario_normal']
+            preco_promo = res['preco_unitario_promocional']
+            res['receita_normal'] = n_venda * preco
+            res['receita_promocional'] = n_promo * preco
+            res['receita_prevista'] = n_venda * preco + n_promo * preco_promo
+            return res
 
-        for distribuicao in distribuicoes:
-            clean = {
-                k: distribuicao[key_map[v]] for k, v in key_map.items()
-            }
-            qtd_venda = clean['qtd_venda_normal']
-            qtd_promo = clean['qtd_venda_promocional']
-            preco = clean['preco_unitario_normal']
-            preco_promo = clean['preco_unitario_promocional']
+        distribuicoes = listify_queryset(distribuicoes)
+        return list(map(clean, distribuicoes))
 
-            clean['receita_normal'] = qtd_venda * preco
-            clean['receita_pro'] = qtd_promo * preco
-            clean['receita_prevista'] = qtd_venda * preco + \
-                                        qtd_promo * preco_promo
-            distribuicoes_satitized.append(clean)
-        return distribuicoes_satitized
+    def clean_cgcpf(self, result):
+        result['cgccpf'] = result['cgccpf'] or '00000000000000'
+        result["cgccpf"] = remove_blanks(str(result["cgccpf"]))
+        result['cgccpf'] = cgccpf_mask(result['cgccpf'])
 
-    def clean_cgcpf(self, projeto):
-        projeto["cgccpf"] = remove_blanks(str(projeto["cgccpf"]))
-        projeto['cgccpf'] = cgccpf_mask(projeto['cgccpf'])
-
-        for captacao in projeto['captacoes']:
+        for captacao in result['captacoes']:
             captacao['cgccpf'] = cgccpf_mask(captacao['cgccpf'])
-        for produto in projeto['relacao_pagamentos']:
+
+        for produto in result['relacao_pagamentos']:
             produto['cgccpf'] = cgccpf_mask(produto['cgccpf'])
+
+
+def map_keys(key_map, data=None):
+    """
+    Create a new dictionary using all keys from the given key_map mapping.
+
+    >>> map_keys({1: 'one', 2: 'two'}, {1: 1, 2: 4, 3: 9})
+    {'one': 1, 'two': 2}
+
+    This function is curried and can be called with a single argument.
+    """
+    if data is None:
+        return lambda data: map_keys(key_map, data)
+    return {new: data[orig] for orig, new in key_map.items()}
