@@ -1,7 +1,10 @@
 from datetime import date
 
 from .database.connector import get_session
-from .resources.shared_models import Area, Projeto
+from .resources.shared_models import Area, Projeto, PreProjeto, \
+    PlanoDistribuicao, Produto, PlanoDivulgacao, Verificacao, Segmento, \
+    Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
+    CertidoesNegativas
 
 
 #
@@ -19,16 +22,17 @@ def populate():
     session.commit()
 
     # Create entities
-    session.add(projeto_ex())
-    for area in areas_ex():
-        session.add(area)
+
+    for factory in FACTORIES:
+        for obj in factory():
+            session.add(obj)
     session.commit()
 
 
 #
 # Example objects
 #
-def areas_ex():
+def areas_example():
     return [
         Area(Codigo='1', Descricao='Artes Cênicas'),
         Area(Codigo='2', Descricao='Audiovisual'),
@@ -36,12 +40,13 @@ def areas_ex():
     ]
 
 
-def projeto_ex():
-    return Projeto(
-        IdPRONAC=123,
+# PRONAC = column_property(AnoProjeto + Sequencial)
+def projeto_exexample():
+    return [Projeto(
+        IdPRONAC=20001234,
         AnoProjeto='2000',
-        Sequencial='abc',
-        NomeProjeto='Test project',
+        Sequencial='1234',
+        NomeProjeto='Test',
         Localizacao='Brazil',
         DtInicioExecucao=date(2000, 1, 1),
         DtFimExecucao=date(2000, 2, 1),
@@ -60,193 +65,139 @@ def projeto_ex():
         CgcCpf='123.456.789-00',
         idProjeto=1,
         Mecanismo='1',
-    )
+    )]
 
-# class PreProjeto(Base):
-#     __tablename__ = 'PreProjeto'
+
+def pre_projeto_example():
+    return [PreProjeto(
+        idPreProjeto=1,
+        NomeProjeto='Test',
+        DtInicioDeExecucao=date(2000, 1, 1),
+        DtFinalDeExecucao=date(2000, 2, 1),
+        dtAceite=date(2000, 1, 1),
+        DtArquivamento=date(2000, 3, 1),
+        Mecanismo='mecenato',
+        Objetivos='cutural',
+        Justificativa='Justificativa',
+        Acessibilidade='Acessibilidade',
+        DemocratizacaoDeAcesso='DemocratizacaoDeAcesso',
+        EtapaDeTrabalho='EtapaDeTrabalho ',
+        FichaTecnica='FichaTecnica ',
+        ResumoDoProjeto='ResumoDoProjeto ',
+        Sinopse='Sinopse ',
+        ImpactoAmbiental='ImpactoAmbiental ',
+        EspecificacaoTecnica='EspecificacaoTecnica ',
+        EstrategiadeExecucao='EstrategiadeExecucao ',
+    )]
+
+
+def segmento_example():
+    return [Segmento(Codigo='1', Descricao='Descricao')]
+
+
+def enquadramento_example():
+    return [Enquadramento(
+        Enquadramento=1,
+        AnoProjeto='2000',
+        Sequencial='1234',
+        IdPRONAC=20001234,
+    )]
+
+
+def mecanismo_example():
+    return [Mecanismo(Descricao='Descricao')]
+
+
+def situacao_example():
+    return [Situacao(Codigo='1', Descricao='Descricao')]
+
+
+def interessado_example():
+    return [Interessado(
+        CgcCpf='123.456.789-00',
+        Nome='Nome',
+        Responsavel='Responsavel',
+        Uf='Uf',
+        Cidade='Cidade',
+        tipoPessoa='tipoPessoa',
+    )]
+
+
+def captacao_example():
+    return [Captacao(
+        AnoProjeto='2000',
+        Sequencial='1234',
+        CaptacaoReal='CaptacaoReal',
+        DtRecibo=date(2000, 1, 1),
+        CgcCpfMecena='123.456.789-00',
+    )]
+
+
+def certidoes_negativas_example():
+    return [CertidoesNegativas(
+        AnoProjeto='2000',
+        Sequencial='1234',
+        DtEmissao=date(2000, 1, 1),
+        DtValidade=date(2000, 3, 1),
+        CodigoCertidao=1,
+        cdSituacaoCertidao=1,
+        CgcCpf='123.456.789-00',
+    )]
+
+
+def verificacao_example():
+    return [Verificacao(idTipo=1, Descricao='Descricao', stEstado=1)]
+
+
+def plano_divulgacao_example():
+    return [PlanoDivulgacao(
+        idPeca=1,
+        idVeiculo=1,
+        stPlanoDivulgacao=1,
+        idProjeto=1,
+    )]
+
+
+def produto_example():
+    return [Produto(
+        Descricao='Descricao',
+        Area='Area',
+        Sintese='Sintese',
+        Idorgao=1,
+        stEstado=1,
+    )]
+
+
+def plano_distribuicao_example():
+    return [PlanoDistribuicao(
+        idPlanoDistribuicao=1,
+        idProjeto=1,
+        idProduto=1,
+        stPrincipal=1,
+        Segmento='1',
+        Area='1',
+        idPosicaoDaLogo=1,
+        PrecoUnitarioNormal='R$100',
+        PrecoUnitarioPromocional='R$10',
+        QtdeProduzida=0,
+        QtdeProponente=0,
+        QtdePatrocinador=0,
+        QtdeOutros=0,
+        QtdeVendaNormal=0,
+        QtdeVendaPromocional=0,
+        QtdeUnitarioNormal=0,
+        QtdeUnitarioPromocional=0,
+        stPlanoDistribuicaoProduto=0,
+    )]
+
+
 #
-#     idPreProjeto = Column(Integer, primary_key=True)
-#     NomeProjeto = Column(String)
-#     DtInicioDeExecucao = Column(Date)
-#     DtFinalDeExecucao = Column(Date)
-#     dtAceite = Column(Date)
-#     DtArquivamento = Column(Date)
-#     Mecanismo = Column(String, ForeignKey("Mecanismo.Codigo"))
-#     mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
-#     Objetivos = Column(String)
-#     Justificativa = Column(String)
-#     Acessibilidade = Column(String)
-#     DemocratizacaoDeAcesso = Column(String)
-#     EtapaDeTrabalho = Column(String)
-#     FichaTecnica = Column(String)
-#     ResumoDoProjeto = Column(String)
-#     Sinopse = Column(String)
-#     ImpactoAmbiental = Column(String)
-#     EspecificacaoTecnica = Column(String)
-#     EstrategiadeExecucao = Column(String)
+# Registe all factories
 #
-#     def __init__(self):
-#         pass
-#
-#
-# class Segmento(Base):
-#     __tablename__ = 'Segmento'
-#
-#     Codigo = Column(String, primary_key=True)
-#     Descricao = Column(String)
-#
-#     def __init__(self):
-#         pass
-#
-#
-# class Enquadramento(Base):
-#     __tablename__ = 'Enquadramento'
-#
-#     IdEnquadramento = Column(Integer, primary_key=True)
-#     Enquadramento = Column(Integer)
-#     AnoProjeto = Column(String)
-#     Sequencial = Column(String)
-#     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
-#
-#     def __init__(self):
-#         pass
-#
-#
-# class Mecanismo(Base):
-#     __tablename__ = 'Mecanismo'
-#
-#     Codigo = Column(Integer, primary_key=True)
-#     Descricao = Column(String)
-#
-#     def __init__(self):
-#         pass
-#
-#
-# class Situacao(Base):
-#     __tablename__ = 'Situacao'
-#
-#     Codigo = Column(String, primary_key=True)
-#     Descricao = Column(String)
-#
-#     def __init__(self):
-#         pass
-#
-#
-# class Area(Base):
-#     __tablename__ = 'Area'
-#
-#     Codigo = Column(String, primary_key=True)
-#     Descricao = Column(String)
-#
-#     def __init__(self):
-#         pass
-#
-#
-# class Interessado(Base):
-#     __tablename__ = 'Interessado'
-#
-#     CgcCpf = Column(String, primary_key=True)
-#     Nome = Column(String)
-#     Responsavel = Column(String)
-#     Uf = Column(String)
-#     Cidade = Column(String)
-#     tipoPessoa = Column(String)
-#     captacao_related = relationship(
-#         'Captacao',
-#         primaryjoin='Interessado.CgcCpf==Captacao.CgcCpfMecena')
-#     projeto_related = relationship(
-#         'Projeto',
-#         primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf')
-#
-#     def __init__(self):
-#         pass
-#
-#
-# class Captacao(Base):
-#     __tablename__ = 'Captacao'
-#
-#     Idcaptacao = Column(Integer, primary_key=True)
-#     AnoProjeto = Column(String)
-#     Sequencial = Column(String)
-#     PRONAC = column_property(AnoProjeto + Sequencial)
-#     CaptacaoReal = Column(String)
-#     DtRecibo = Column(Date)
-#     CgcCpfMecena = Column(String, ForeignKey('Interessado.CgcCpf'))
-#     interessado_related = relationship('Interessado',
-#                                        foreign_keys=[CgcCpfMecena])
-#     # projeto_related = relationship('Projeto', primaryjoin='Captacao.PRONAC==Projeto.PRONAC')
-#
-#
-# class CertidoesNegativas(Base):
-#     __tablename__ = 'CertidoesNegativas'
-#
-#     idCertidoesNegativas = Column(Integer, primary_key=True)
-#     AnoProjeto = Column(String)
-#     Sequencial = Column(String)
-#     PRONAC = column_property(AnoProjeto + Sequencial)
-#     DtEmissao = Column(Date)
-#     DtValidade = Column(Date)
-#     CodigoCertidao = Column(Integer)
-#     cdSituacaoCertidao = Column(Integer)
-#     CgcCpf = Column(String)
-#
-#
-# class Verificacao(Base):
-#     __tablename__ = 'Verificacao'
-#
-#     idVerificacao = Column(Integer, primary_key=True)
-#     idTipo = Column(Integer)
-#     Descricao = Column(String)
-#     stEstado = Column(Integer)
-#
-#
-# class PlanoDivulgacao(Base):
-#     __tablename__ = 'PlanoDeDivulgacao'
-#
-#     idPlanoDivulgacao = Column(Integer, primary_key=True)
-#     idPeca = Column(Integer)
-#     idVeiculo = Column(Integer)
-#     stPlanoDivulgacao = Column(Integer)
-#
-#     idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
-#     projeto_related = relationship('Projeto', foreign_keys=[idProjeto])
-#
-#
-# class Produto(Base):
-#     __tablename__ = 'Produto'
-#
-#     Codigo = Column(Integer, primary_key=True)
-#     Descricao = Column(String)
-#     Area = Column(String)
-#     Sintese = Column(String)
-#     Idorgao = Column(Integer)
-#     stEstado = Column(Integer)
-#
-#
-# class PlanoDistribuicao(Base):
-#     __tablename__ = 'PlanoDistribuicaoProduto'
-#
-#     idPlanoDistribuicao = Column(Integer, primary_key=True)
-#     idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
-#     projeto_related = relationship('Projeto', foreign_keys=[idProjeto])
-#     idProduto = Column(Integer, ForeignKey('Produto.Codigo'))
-#     produto_related = relationship('Produto', foreign_keys=[idProduto])
-#     stPrincipal = Column(Integer)
-#     Segmento = Column(String, ForeignKey('Segmento.Codigo'))
-#     segmento_related = relationship('Segmento', foreign_keys=[Segmento])
-#     Area = Column(String, ForeignKey('Area.Codigo'))
-#     area_related = relationship('Area', foreign_keys=[Area])
-#     idPosicaoDaLogo = Column(Integer, ForeignKey('Verificacao.idVerificacao'))
-#     vetificacao_related = relationship('Verificacao',
-#                                        foreign_keys=[idPosicaoDaLogo])
-#     PrecoUnitarioNormal = Column(String)
-#     PrecoUnitarioPromocional = Column(String)
-#     QtdeProduzida = Column(Integer)
-#     QtdeProponente = Column(Integer)
-#     QtdePatrocinador = Column(Integer)
-#     QtdeOutros = Column(Integer)
-#     QtdeVendaNormal = Column(Integer)
-#     QtdeVendaPromocional = Column(Integer)
-#     QtdeUnitarioNormal = Column(Integer)
-#     QtdeUnitarioPromocional = Column(Integer)
-#     stPlanoDistribuicaoProduto = Column(Integer)
+FACTORIES = [
+    areas_example, projeto_exexample, pre_projeto_example, segmento_example,
+    enquadramento_example, mecanismo_example, situacao_example,
+    interessado_example, captacao_example, certidoes_negativas_example,
+    verificacao_example, plano_divulgacao_example, produto_example,
+    plano_distribuicao_example,
+]
