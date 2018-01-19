@@ -1,5 +1,5 @@
 from salic_api.app.security import encrypt, decrypt
-from .models import FornecedordorModelObject
+from .models import FornecedordorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
 from ..serialization import listify_queryset
@@ -108,9 +108,9 @@ class FornecedorList(ListResource):
             PRONAC = request.args.get('PRONAC')
 
         try:
-            results = FornecedordorModelObject().all(
+            results = FornecedordorQuery().all(
                 limit, offset, cgccpf=cgccpf, PRONAC=PRONAC, nome=nome)
-            n_records = FornecedordorModelObject().count(
+            n_records = FornecedordorQuery().count(
                 cgccpf=cgccpf, PRONAC=PRONAC, nome=nome)
         except Exception as e:
             result = {

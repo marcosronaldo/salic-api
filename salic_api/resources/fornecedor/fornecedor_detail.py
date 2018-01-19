@@ -1,5 +1,5 @@
 from salic_api.app.security import decrypt
-from .models import FornecedordorModelObject
+from .models import FornecedordorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
 from ..serialization import listify_queryset
@@ -31,8 +31,8 @@ class FornecedorDetail(ListResource):
         cgccpf = decrypt(fornecedor_id)
 
         try:
-            results = FornecedordorModelObject().all(limit=1, offset=0,
-                                                     cgccpf=cgccpf)
+            results = FornecedordorQuery().all(limit=1, offset=0,
+                                               cgccpf=cgccpf)
         except Exception as e:
             result = {
                 'message': 'internal error',

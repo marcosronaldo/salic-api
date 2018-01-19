@@ -1,14 +1,11 @@
 from sqlalchemy import case, func
 from sqlalchemy.sql.expression import desc
 
-from ..model_base import QueryBase
+from ..query import Query
 from ..shared_models import Interessado, Projeto
 
 
-class ProponenteModelObject(QueryBase):
-    def __init__(self):
-        super(ProponenteModelObject, self).__init__()
-
+class ProponenteQuery(Query):
     def all(self, limit, offset, nome=None, cgccpf=None, municipio=None,
             UF=None, tipo_pessoa=None, sort_field=None, sort_order=None):
 
@@ -20,7 +17,7 @@ class ProponenteModelObject(QueryBase):
             'total_captado': func.sum(
                 func.sac.dbo.fnCustoProjeto(Projeto.AnoProjeto,
                                             Projeto.Sequencial))
-            }
+        }
 
         if sort_field == None:
             sort_field = 'cgccpf'

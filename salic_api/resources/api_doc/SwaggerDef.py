@@ -15,7 +15,6 @@ class SwaggerDef(ListResource):
             result = {
                 'message': 'internal error',
                 'message_code': 13,
-                'more': 'something is broken'
             }
             return self.render(result, status_code=503)
 

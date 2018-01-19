@@ -3,7 +3,7 @@ from sqlalchemy import func
 from ..database.connector import SqlConnector
 
 
-class QueryBase:
+class Query:
     """
     Base class for all query objects for the SALIC api.
     """

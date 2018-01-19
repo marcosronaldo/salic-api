@@ -1,6 +1,6 @@
 from salic_api.app.security import decrypt
 from salic_api.app.security import encrypt
-from .models import DoacaoModelObject
+from .models import DoacaoQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
 from ..serialization import listify_queryset
@@ -90,7 +90,7 @@ class Doacao(ListResource):
             offset = current_app.config['OFFSET_PAGING']
 
         try:
-            results, n_records = DoacaoModelObject().all(limit, offset, cgccpf)
+            results, n_records = DoacaoQuery().all(limit, offset, cgccpf)
         except Exception as e:
             Log.error(str(e))
             result = {

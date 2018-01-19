@@ -1,5 +1,5 @@
 from salic_api.app.security import decrypt
-from .models import ProductModelObject
+from .models import ProductQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
 from ..serialization import listify_queryset
@@ -95,8 +95,8 @@ class Produto(ListResource):
             offset = current_app.config['OFFSET_PAGING']
 
         try:
-            results = ProductModelObject().all(limit, offset, cgccpf)
-            n_records = ProductModelObject().count(cgccpf)
+            results = ProductQuery().all(limit, offset, cgccpf)
+            n_records = ProductQuery().count(cgccpf)
         except Exception as e:
             result = {
                 'message': 'internal error',

@@ -1,10 +1,10 @@
-from ..model_base import QueryBase
+from ..query import Query
 from ..shared_models import PreProjeto, Mecanismo
 
 
-class PreProjetoModelObject(QueryBase):
+class PreProjetoQuery(Query):
     def __init__(self):
-        super(PreProjetoModelObject, self).__init__()
+        super(PreProjetoQuery, self).__init__()
 
     def all(self, limit, offset, id=None, nome=None, data_inicio=None,
             data_termino=None, extra_fields=False):

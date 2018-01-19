@@ -1,4 +1,4 @@
-from .models import PreProjetoModelObject
+from .models import PreProjetoQuery
 from ..resource_base import *
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
@@ -11,7 +11,7 @@ class PreProjetoDetail(ListResource):
     def get(self, id):
         try:
             Log.debug('Starting database call')
-            results, n_records = PreProjetoModelObject().all(
+            results, n_records = PreProjetoQuery().all(
                 limit=1, offset=0, id=id, extra_fields=True)
             Log.debug('Database call was successful')
 

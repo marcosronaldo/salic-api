@@ -1,5 +1,5 @@
 from salic_api.app.security import decrypt
-from .models import Incentivador
+from .models import IncentivadorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
 from ..serialization import listify_queryset
@@ -34,7 +34,7 @@ class IncentivadorDetail(ListResource):
         cgccpf = decrypt(incentivador_id)
 
         try:
-            results, n_records = Incentivador().all(
+            results, n_records = IncentivadorQuery().all(
                 limit=1, offset=0, cgccpf=cgccpf)
 
         except Exception as e:

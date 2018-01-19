@@ -1,10 +1,8 @@
 from salic_api.resources.resource_base import InvalidResult
 from . import utils
 from .models import (
-    ProjetoQuery, CertidoesNegativasModelObject,
-    DivulgacaoModelObject, DescolamentoModelObject,
-    DistribuicaoModelObject, ReadequacaoModelObject,
-    CaptacaoQuery
+    ProjetoQuery, CertidoesNegativasQuery, DivulgacaoQuery, DescolamentoQuery,
+    DistribuicaoQuery, ReadequacaoQuery, CaptacaoQuery
 )
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
@@ -12,6 +10,9 @@ from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...app.security import encrypt
 
+#
+# Map values from SQL model to JSON result
+#
 DISTRIBUICOES_KEY_MAP = {
     'area': 'area',
     'segmento': 'segmento',
@@ -144,7 +145,7 @@ class ProjetoDetail(ListResource):
         id_PRONAC = projeto.pop('IdPRONAC')
 
         # Certidões
-        certidoes_negativas = CertidoesNegativasModelObject().all(PRONAC)
+        certidoes_negativas = CertidoesNegativasQuery().all(PRONAC)
         projeto['certidoes_negativas'] = listify_queryset(certidoes_negativas)
 
         # Documentos anexados
@@ -158,19 +159,19 @@ class ProjetoDetail(ListResource):
             marca['link'] = utils.build_brand_link(marca)
 
         # Divulgação
-        divulgacao = DivulgacaoModelObject().all(id_PRONAC)
+        divulgacao = DivulgacaoQuery().all(id_PRONAC)
         projeto['divulgacao'] = listify_queryset(divulgacao)
 
         # Deslocamentos
-        deslocamentos = DescolamentoModelObject().all(id_PRONAC)
+        deslocamentos = DescolamentoQuery().all(id_PRONAC)
         projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
 
         # Distribuições
-        distribuicoes = DistribuicaoModelObject().all(id_PRONAC)
+        distribuicoes = DistribuicaoQuery().all(id_PRONAC)
         projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
 
         # Readequações
-        readequacoes = ReadequacaoModelObject().all(id_PRONAC)
+        readequacoes = ReadequacaoQuery().all(id_PRONAC)
         projeto['readequacoes'] = self.cleaned_readequacoes(readequacoes)
 
         # Prorrogação

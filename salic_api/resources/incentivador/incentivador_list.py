@@ -1,7 +1,7 @@
 from flask import current_app
 from flask import request
 
-from .models import Incentivador
+from .models import IncentivadorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
 from ..serialization import listify_queryset
@@ -146,13 +146,13 @@ class IncentivadorList(ListResource):
                 return self.render(result, status_code=405)
 
         try:
-            results, n_records = Incentivador().all(limit, offset,
-                                                    nome, cgccpf,
-                                                    municipio, UF,
-                                                    tipo_pessoa,
-                                                    PRONAC,
-                                                    sort_field,
-                                                    sort_order)
+            results, n_records = IncentivadorQuery().all(limit, offset,
+                                                         nome, cgccpf,
+                                                         municipio, UF,
+                                                         tipo_pessoa,
+                                                         PRONAC,
+                                                         sort_field,
+                                                         sort_order)
 
         except Exception as e:
             Log.error(str(e))

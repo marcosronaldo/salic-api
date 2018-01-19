@@ -1,11 +1,11 @@
 from sqlalchemy.sql import text
 
-from ..model_base import QueryBase
+from ..query import Query
 from ..projeto.models import ProjetoQuery
 from ..serialization import listify_queryset
 
 
-class FornecedordorModelObject(QueryBase):
+class FornecedordorQuery(Query):
     def all(self, limit, offset, cgccpf=None, PRONAC=None, nome=None):
 
         if cgccpf is not None:
@@ -207,9 +207,9 @@ class FornecedordorModelObject(QueryBase):
         return n_records[0]['total']
 
 
-class ProductModelObject(QueryBase):
+class ProductQuery(Query):
     def __init__(self):
-        super(ProductModelObject, self).__init__()
+        super(ProductQuery, self).__init__()
 
     def all(self, limit, offset, cgccpf):
         return ProjetoQuery().payments_listing(limit, offset,

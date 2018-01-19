@@ -1,5 +1,5 @@
 from salic_api.app.security import decrypt
-from .models import ProponenteModelObject
+from .models import ProponenteQuery
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
@@ -38,8 +38,8 @@ class ProponenteDetail(ListResource):
         cgccpf = decrypt(proponente_id)
 
         try:
-            results, n_records = ProponenteModelObject().all(limit=1, offset=0,
-                                                             cgccpf=cgccpf)
+            results, n_records = ProponenteQuery().all(limit=1, offset=0,
+                                                       cgccpf=cgccpf)
         except Exception as e:
             api_error = APIError('DatadabaseError')
             Log.error('%s : ' % (api_error.internal_message) + str(e))

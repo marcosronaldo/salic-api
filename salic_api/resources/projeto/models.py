@@ -4,7 +4,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
 
-from ..model_base import QueryBase
+from ..query import Query
 from ..serialization import listify_queryset
 from ..shared_models import (
     Projeto, Interessado, Mecanismo, Situacao, Enquadramento, PreProjeto,
@@ -13,7 +13,7 @@ from ..shared_models import (
 from ...utils.timer import timer
 
 
-class ProjetoQuery(QueryBase):
+class ProjetoQuery(Query):
     #
     # SQL procedures
     #
@@ -583,7 +583,7 @@ class ProjetoQuery(QueryBase):
         return res.all(), total_records
 
 
-class CaptacaoQuery(QueryBase):
+class CaptacaoQuery(Query):
     def all(self, PRONAC):
         res = self.sql_connector.session.query(
             Captacao.PRONAC,
@@ -602,7 +602,7 @@ class CaptacaoQuery(QueryBase):
         return res.all()
 
 
-class AreaQuery(QueryBase):
+class AreaQuery(Query):
     def all(self):
         return self.sql_connector.session.query(
             Area.Descricao.label('nome'),
@@ -610,7 +610,7 @@ class AreaQuery(QueryBase):
         ).all()
 
 
-class SegmentoQuery(QueryBase):
+class SegmentoQuery(Query):
     def all(self):
         return self.sql_connector.session.query(
             Segmento.Descricao.label('nome'),
@@ -618,9 +618,9 @@ class SegmentoQuery(QueryBase):
         ).all()
 
 
-class CertidoesNegativasModelObject(QueryBase):
+class CertidoesNegativasQuery(Query):
     def __init__(self):
-        super(CertidoesNegativasModelObject, self).__init__()
+        super(CertidoesNegativasQuery, self).__init__()
 
     def all(self, PRONAC=None, CgcCpf=None):
 
@@ -650,12 +650,12 @@ class CertidoesNegativasModelObject(QueryBase):
         return res.all()
 
 
-class DivulgacaoModelObject(QueryBase):
+class DivulgacaoQuery(Query):
     V1 = aliased(Verificacao)
     V2 = aliased(Verificacao)
 
     def __init__(self):
-        super(DivulgacaoModelObject, self).__init__()
+        super(DivulgacaoQuery, self).__init__()
 
     def all(self, IdPRONAC):
         stmt = text(
@@ -674,9 +674,9 @@ class DivulgacaoModelObject(QueryBase):
         }).fetchall()
 
 
-class DescolamentoModelObject(QueryBase):
+class DescolamentoQuery(Query):
     def __init__(self):
-        super(DescolamentoModelObject, self).__init__()
+        super(DescolamentoQuery, self).__init__()
 
     def all(self, IdPRONAC):
         stmt = text(
@@ -709,9 +709,9 @@ class DescolamentoModelObject(QueryBase):
         }).fetchall()
 
 
-class DistribuicaoModelObject(QueryBase):
+class DistribuicaoQuery(Query):
     def __init__(self):
-        super(DistribuicaoModelObject, self).__init__()
+        super(DistribuicaoQuery, self).__init__()
 
     def all(self, IdPRONAC):
         return (
@@ -742,9 +742,9 @@ class DistribuicaoModelObject(QueryBase):
         )
 
 
-class ReadequacaoModelObject(QueryBase):
+class ReadequacaoQuery(Query):
     def __init__(self):
-        super(ReadequacaoModelObject, self).__init__()
+        super(ReadequacaoQuery, self).__init__()
 
     def all(self, IdPRONAC):
         stmt = text(
@@ -778,7 +778,7 @@ class ReadequacaoModelObject(QueryBase):
         }).fetchall()
 
 
-class AdequacoesPedidoModelObject(QueryBase):
+class AdequacoesPedidoModelObject(Query):
     def __init__(self):
         super(AdequacoesPedidoModelObject, self).__init__()
 
@@ -815,7 +815,7 @@ class AdequacoesPedidoModelObject(QueryBase):
         }).fetchall()
 
 
-class AdequacoesParecerModelObject(QueryBase):
+class AdequacoesParecerModelObject(Query):
     def __init__(self):
         super(AdequacoesParecerModelObject, self).__init__()
 

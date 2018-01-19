@@ -1,7 +1,7 @@
 from flask import request
 
 from salic_api.app.security import encrypt, decrypt
-from .models import ProponenteModelObject
+from .models import ProponenteQuery
 from ..api_error import APIError
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
@@ -137,12 +137,12 @@ class ProponenteList(ListResource):
                 return self.render(result, status_code=405)
 
         try:
-            results, n_records = ProponenteModelObject().all(limit, offset,
-                                                             nome,
-                                                             cgccpf, municipio,
-                                                             UF, tipo_pessoa,
-                                                             sort_field,
-                                                             sort_order)
+            results, n_records = ProponenteQuery().all(limit, offset,
+                                                       nome,
+                                                       cgccpf, municipio,
+                                                       UF, tipo_pessoa,
+                                                       sort_field,
+                                                       sort_order)
         except Exception as e:
             api_error = APIError('DatadabaseError')
             Log.error('%s : ' % (api_error.internal_message) + str(e))
