@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Date, Integer, String, ForeignKey, Text, case
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import column_property
 from sqlalchemy.orm import relationship
@@ -27,16 +27,18 @@ class Projeto(Base):
     ResumoProjeto = Column(Text)
     ProvidenciaTomada = Column(String)
     Segmento = Column(String, ForeignKey("Segmento.Codigo"))
-    Segmento_related = relationship("Segmento", foreign_keys=[Segmento])
     Situacao = Column(String, ForeignKey("Situacao.Codigo"))
-    Situacao_related = relationship("Situacao", foreign_keys=[Situacao])
     Area = Column(String, ForeignKey("Area.Codigo"))
-    Area_related = relationship("Area", foreign_keys=[Area])
     CgcCpf = Column(String, ForeignKey("Interessado.CgcCpf"))
-    Interessado_related = relationship("Interessado", foreign_keys=[CgcCpf])
     idProjeto = Column(Integer, ForeignKey("PreProjeto.idPreProjeto"))
-    preprojeto_related = relationship("PreProjeto", foreign_keys=[idProjeto])
     Mecanismo = Column(String, ForeignKey("Mecanismo.Codigo"))
+
+    # Related fields
+    Area_related = relationship("Area", foreign_keys=[Area])
+    preprojeto_related = relationship("PreProjeto", foreign_keys=[idProjeto])
+    Situacao_related = relationship("Situacao", foreign_keys=[Situacao])
+    Interessado_related = relationship("Interessado", foreign_keys=[CgcCpf])
+    Segmento_related = relationship("Segmento", foreign_keys=[Segmento])
     mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
 
 
@@ -50,7 +52,6 @@ class PreProjeto(Base):
     dtAceite = Column(Date)
     DtArquivamento = Column(Date)
     Mecanismo = Column(String, ForeignKey("Mecanismo.Codigo"))
-    mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
     Objetivos = Column(String)
     Justificativa = Column(String)
     Acessibilidade = Column(String)
@@ -62,6 +63,9 @@ class PreProjeto(Base):
     ImpactoAmbiental = Column(String)
     EspecificacaoTecnica = Column(String)
     EstrategiadeExecucao = Column(String)
+
+    # Related fields
+    mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
 
 
 class Segmento(Base):
@@ -79,6 +83,15 @@ class Enquadramento(Base):
     AnoProjeto = Column(String)
     Sequencial = Column(String)
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
+
+    # Computed properties
+    enquadramento = case(
+        [
+            (Enquadramento == '1', 'Artigo 26'),
+            (Enquadramento == '2', 'Artigo 18'),
+        ],
+        else_='Nao enquadrado',
+    ).label('enquadramento')
 
 
 class Mecanismo(Base):
@@ -111,10 +124,16 @@ class Interessado(Base):
     Uf = Column(String)
     Cidade = Column(String)
     tipoPessoa = Column(String)
+
+    # Related field
     captacao_related = relationship(
-        'Captacao', primaryjoin='Interessado.CgcCpf==Captacao.CgcCpfMecena')
+        'Captacao',
+        primaryjoin='Interessado.CgcCpf==Captacao.CgcCpfMecena',
+    )
     projeto_related = relationship(
-        'Projeto', primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf')
+        'Projeto',
+        primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf',
+    )
 
 
 class Captacao(Base):
@@ -127,9 +146,16 @@ class Captacao(Base):
     CaptacaoReal = Column(String)
     DtRecibo = Column(Date)
     CgcCpfMecena = Column(String, ForeignKey('Interessado.CgcCpf'))
+
+    # Related fields
     interessado_related = relationship(
-        'Interessado', foreign_keys=[CgcCpfMecena])
-    # projeto_related = relationship('Projeto', primaryjoin='Captacao.PRONAC==Projeto.PRONAC')
+        'Interessado',
+        foreign_keys=[CgcCpfMecena],
+    )
+    # projeto_related = relationship(
+    #     'Projeto',
+    #     primaryjoin='Captacao.PRONAC==Projeto.PRONAC',
+    # )
 
 
 class CertidoesNegativas(Base):
@@ -162,8 +188,9 @@ class PlanoDivulgacao(Base):
     idPeca = Column(Integer)
     idVeiculo = Column(Integer)
     stPlanoDivulgacao = Column(Integer)
-
     idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
+
+    # Related fields
     projeto_related = relationship('Projeto', foreign_keys=[idProjeto])
 
 
@@ -183,17 +210,11 @@ class PlanoDistribuicao(Base):
 
     idPlanoDistribuicao = Column(Integer, primary_key=True)
     idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
-    projeto_related = relationship('Projeto', foreign_keys=[idProjeto])
     idProduto = Column(Integer, ForeignKey('Produto.Codigo'))
-    produto_related = relationship('Produto', foreign_keys=[idProduto])
     stPrincipal = Column(Integer)
     Segmento = Column(String, ForeignKey('Segmento.Codigo'))
-    segmento_related = relationship('Segmento', foreign_keys=[Segmento])
     Area = Column(String, ForeignKey('Area.Codigo'))
-    area_related = relationship('Area', foreign_keys=[Area])
     idPosicaoDaLogo = Column(Integer, ForeignKey('Verificacao.idVerificacao'))
-    verificacao_related = relationship('Verificacao',
-                                       foreign_keys=[idPosicaoDaLogo])
     PrecoUnitarioNormal = Column(String)
     PrecoUnitarioPromocional = Column(String)
     QtdeProduzida = Column(Integer)
@@ -206,6 +227,14 @@ class PlanoDistribuicao(Base):
     QtdeUnitarioPromocional = Column(Integer)
     stPlanoDistribuicaoProduto = Column(Integer)
 
+    # Related fields
+    area_related = relationship('Area', foreign_keys=[Area])
+    produto_related = relationship('Produto', foreign_keys=[idProduto])
+    projeto_related = relationship('Projeto', foreign_keys=[idProjeto])
+    segmento_related = relationship('Segmento', foreign_keys=[Segmento])
+    verificacao_related = relationship('Verificacao',
+                                       foreign_keys=[idPosicaoDaLogo])
+
 
 #
 # This data is stored as SQL procedures. We create a new table when working
@@ -215,7 +244,7 @@ class Custos(Base):
     __tablename__ = 'Custos'
 
     idCustos = Column(Integer, primary_key=True)
-    idProjeto = Column(Integer, ForeignKey("Projetos.idProjeto"))
+    IdPRONAC = Column(Integer, ForeignKey("Projetos.IdPRONAC"))
     valor_proposta = Column(Integer)
     valor_solicitado = Column(Integer)
     valor_aprovado = Column(Integer)

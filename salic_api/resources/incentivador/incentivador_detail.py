@@ -34,7 +34,7 @@ class IncentivadorDetail(ListResource):
         cgccpf = decrypt(incentivador_id)
 
         try:
-            results, n_records = IncentivadorQuery().all(
+            results, n_records = IncentivadorQuery().query(
                 limit=1, offset=0, cgccpf=cgccpf)
 
         except Exception as e:

@@ -38,8 +38,8 @@ class ProponenteDetail(ListResource):
         cgccpf = decrypt(proponente_id)
 
         try:
-            results, n_records = ProponenteQuery().all(limit=1, offset=0,
-                                                       cgccpf=cgccpf)
+            results, n_records = ProponenteQuery().query(limit=1, offset=0,
+                                                         cgccpf=cgccpf)
         except Exception as e:
             api_error = APIError('DatadabaseError')
             Log.error('%s : ' % (api_error.internal_message) + str(e))

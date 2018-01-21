@@ -1,11 +1,10 @@
-from salic_api.resources.resource_base import InvalidResult
 from . import utils
 from .models import (
     ProjetoQuery, CertidoesNegativasQuery, DivulgacaoQuery, DescolamentoQuery,
     DistribuicaoQuery, ReadequacaoQuery, CaptacaoQuery
 )
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import ListResource
+from ..resource_base import DetailResource, InvalidResult
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...app.security import encrypt
@@ -46,74 +45,58 @@ DOCUMENTOS_KEY_MAP = {
 }
 
 
-class ProjetoDetail(ListResource):
+class ProjetoDetail(DetailResource):
     resource_path = 'projeto'
     query_class = ProjetoQuery
 
-    def build_links(self, args={}):
-        pronac = args['pronac']
+    def hal_links(self, result, PRONAC):
+        url_id = encrypt(result['cgccpf'])
+        return {
+            'self': self.url('/projetos/' + PRONAC),
+            'proponente': self.url('/proponentes/%s' % url_id),
+            'incentivadores': self.url('/incentivadores/?pronac=' + PRONAC),
+            'fornecedores': self.url('/fornecedores/?pronac=' + PRONAC),
+        }
 
-        self.links = links = {}
-        url_id = encrypt(args['proponente_id'])
+    def hal_embedded(self, data, PRONAC):
+        fields = [
+            'captacoes', 'certidoes_negativas', 'deslocamento', 'distribuicao',
+            'divulgacao', 'documentos_anexados', 'marcas_anexadas',
+            'prorrogacao', 'readequacoes', 'relacao_bens_captal',
+            'relatorio_fisco', 'relacao_pagamentos']
+        return {field: data.pop(field) for field in fields}
 
-        links['self'] = self.url('/projetos/' + pronac)
-        links['proponente'] = self.url('/proponentes/%s' % url_id)
-        links['incentivadores'] = self.url('/incentivadores/?pronac=' + pronac)
-        links['fornecedores'] = self.url('/fornecedores/?pronac=' + pronac)
+    def hal_embedded_links(self, data, PRONAC):
+        return {
+            # 'captacoes':
+            #     self.links_captacoes(data['captacoes'], PRONAC),
+            # 'relacao_pagamentos':
+            #     self.links_produtos(data['relacao_pagamentos'], PRONAC),
+        }
 
-        self.captacoes_links = []
-        for captacao in args['captacoes']:
+    def links_captacoes(self, captacoes, pronac):
+        links = []
+        for captacao in captacoes:
             url = '/incentivadores/%s' % encrypt(captacao['cgccpf'])
-            self.captacoes_links.append({
+            links.append({
                 'projeto': self.url('/projetos/%s' % pronac),
                 'incentivador': self.url(url),
             })
+        return links
 
-        self.produtos_links = []
-        for produto in args['produtos']:
+    def links_produtos(self, produtos, pronac):
+        links = []
+        for produto in produtos:
             cgccpf_id = encrypt(produto['cgccpf'])
-            self.produtos_links.append({
+            links.append({
                 'projeto': self.url('projetos/%s' % pronac),
                 'fornecedor': self.url('/fornecedores/%s' % cgccpf_id),
             })
+        return links
 
-    def hal_builder(self, data, args=None):
-        hal_data = data
-        hal_data['_links'] = dict(self.links)
-        hal_data['_embedded'] = {
-            'captacoes': [], 'relacao_bens_captal': [],
-            'marcas_anexadas': [], 'deslocamento': [],
-            'divulgacao': [], 'relatorio_fisco': [],
-            'certidoes_negativas': [], 'relacao_pagamentos': [],
-            'readequacoes': [], 'documentos_anexados': [],
-            'distribuicao': [], 'prorrogacao': []
-        }
-
-        for index in range(len(data['captacoes'])):
-            data['captacoes'][index]['_links'] = self.captacoes_links[index]
-
-        for index in range(len(data['relacao_pagamentos'])):
-            data['relacao_pagamentos'][index]['_links'] = \
-                self.produtos_links[index]
-
-        for emb_field in hal_data['_embedded']:
-            hal_data['_embedded'][emb_field] = data[emb_field]
-            del data[emb_field]
-
-        return hal_data
-
-    def fetch_result(self, PRONAC):
-        result, n_records = ProjetoQuery().all(limit=1, offset=0, PRONAC=PRONAC)
-        if n_records == 0:
-            raise InvalidResult({
-                'message': 'No project with PRONAC %s' % PRONAC,
-                'message_code': 11
-            }, 404)
-        return result
-
-    def check_pronac(self, PRONAC):
+    def check_pronac(self, pronac):
         try:
-            int(PRONAC)
+            int(pronac)
         except ValueError:
             result = {
                 'message': 'PRONAC must be an integer',
@@ -121,32 +104,38 @@ class ProjetoDetail(ListResource):
             }
             raise InvalidResult(result, status_code=405)
 
-    def finalize_result(self, result, PRONAC):
+    def fetch_result(self, PRONAC):
+        result = super().fetch_result(PRONAC=PRONAC)
+
         # Sanitizing text values
         sanitize_fields = (
             'acessibilidade', 'objetivos', 'justificativa', 'etapa',
             'ficha_tecnica', 'impacto_ambiental', 'especificacao_tecnica',
-            'estrategia_execucao', 'providencia', 'democratizacao', 'sinopse',
+            'estrategia_execucao', 'providencia', 'democratizacao',
+            'sinopse',
             'resumo',
         )
         for field in sanitize_fields:
             result[field] = sanitize(result[field], truncated=False)
 
-        self.build_links(args={
-            'PRONAC': PRONAC,
-            'proponente_id': result['cgccpf'],
-            'captacoes': result['captacoes'],
-            'produtos': result['relacao_pagamentos'],
-        })
+        # Clean cgccpf
+        result['cgccpf'] = result['cgccpf'] or '00000000000000'
+        result["cgccpf"] = remove_blanks(str(result["cgccpf"]))
+        result['cgccpf'] = cgccpf_mask(result['cgccpf'])
 
-        self.clean_cgcpf(result)
+        for section in ['captacoes', 'relacao_pagamentos']:
+            for item in result[section]:
+                item['cgccpf'] = cgccpf_mask(item['cgccpf'])
 
-    def fetch_related(self, projeto, PRONAC):
+        return result
+
+    def insert_related(self, projeto, PRONAC):
         id_PRONAC = projeto.pop('IdPRONAC')
 
         # Certidões
-        certidoes_negativas = CertidoesNegativasQuery().all(PRONAC)
-        projeto['certidoes_negativas'] = listify_queryset(certidoes_negativas)
+        certidoes_negativas = CertidoesNegativasQuery().query(PRONAC)
+        projeto['certidoes_negativas'] = listify_queryset(
+            certidoes_negativas)
 
         # Documentos anexados
         documentos = ProjetoQuery().attached_documents(id_PRONAC)
@@ -159,19 +148,19 @@ class ProjetoDetail(ListResource):
             marca['link'] = utils.build_brand_link(marca)
 
         # Divulgação
-        divulgacao = DivulgacaoQuery().all(id_PRONAC)
+        divulgacao = DivulgacaoQuery().query(id_PRONAC)
         projeto['divulgacao'] = listify_queryset(divulgacao)
 
         # Deslocamentos
-        deslocamentos = DescolamentoQuery().all(id_PRONAC)
+        deslocamentos = DescolamentoQuery().query(id_PRONAC)
         projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
 
         # Distribuições
-        distribuicoes = DistribuicaoQuery().all(id_PRONAC)
+        distribuicoes = DistribuicaoQuery().query(id_PRONAC)
         projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
 
         # Readequações
-        readequacoes = ReadequacaoQuery().all(id_PRONAC)
+        readequacoes = ReadequacaoQuery().query(id_PRONAC)
         projeto['readequacoes'] = self.cleaned_readequacoes(readequacoes)
 
         # Prorrogação
@@ -191,12 +180,12 @@ class ProjetoDetail(ListResource):
         projeto['relacao_bens_captal'] = listify_queryset(capital_goods)
 
         # Captações
-        captacoes = CaptacaoQuery().all(PRONAC=PRONAC)
+        captacoes = CaptacaoQuery().query(PRONAC=PRONAC)
         projeto['captacoes'] = listify_queryset(captacoes)
 
     # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
-    def get(self, PRONAC):
-        return super().get(PRONAC=PRONAC)
+    # def get(self, PRONAC):
+    #     return super().get(PRONAC=PRONAC)
 
     def cleaned_deslocamentos(self, deslocamentos):
         deslocamentos = listify_queryset(deslocamentos)
@@ -239,17 +228,6 @@ class ProjetoDetail(ListResource):
 
         distribuicoes = listify_queryset(distribuicoes)
         return list(map(clean, distribuicoes))
-
-    def clean_cgcpf(self, result):
-        result['cgccpf'] = result['cgccpf'] or '00000000000000'
-        result["cgccpf"] = remove_blanks(str(result["cgccpf"]))
-        result['cgccpf'] = cgccpf_mask(result['cgccpf'])
-
-        for captacao in result['captacoes']:
-            captacao['cgccpf'] = cgccpf_mask(captacao['cgccpf'])
-
-        for produto in result['relacao_pagamentos']:
-            produto['cgccpf'] = cgccpf_mask(produto['cgccpf'])
 
 
 def map_keys(key_map, data=None):

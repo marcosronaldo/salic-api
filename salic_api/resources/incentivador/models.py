@@ -7,9 +7,9 @@ from ...utils.strings import pc_quote
 
 
 class IncentivadorQuery(Query):
-    def all(self, limit, offset, nome=None, cgccpf=None, municipio=None,
-            UF=None, tipo_pessoa=None, PRONAC=None, sort_field=None,
-            sort_order=None):
+    def query(self, limit, offset, nome=None, cgccpf=None, municipio=None,
+              UF=None, tipo_pessoa=None, PRONAC=None, sort_field=None,
+              sort_order=None):
 
         start_row = offset
         end_row = offset + limit
@@ -30,7 +30,7 @@ class IncentivadorQuery(Query):
 
         sort_field = sort_mapping_fields[sort_field]
 
-        res = self.sql_connector.session.query(
+        res = self.sql_connector.session.select(
             Interessado.Nome.label('nome'),
             Interessado.Cidade.label('municipio'),
             Interessado.Uf.label('UF'),
@@ -81,19 +81,16 @@ class IncentivadorQuery(Query):
             res = res.order_by(sort_field)
         total_records = res.count()
         res = res.slice(start_row, end_row)
-        return res.all(), total_records
+        return res.query(), total_records
 
 
 class DoacaoQuery(Query):
-    def __init__(self):
-        super(DoacaoQuery, self).__init__()
-
-    def all(self, limit, offset, cgccpf=None):
+    def query(self, limit, offset, cgccpf=None):
         start_row = offset
         end_row = offset + limit
 
         res = (
-            self.sql_connector.session.query(
+            self.sql_connector.session.select(
                 Captacao.PRONAC,
                 Captacao.CaptacaoReal.label('valor'),
                 Captacao.DtRecibo.label('data_recibo'),
@@ -113,12 +110,12 @@ class DoacaoQuery(Query):
         res = res.order_by(desc(Captacao.DtRecibo))
         total_records = res.count()
         res = res.slice(start_row, end_row)
-        return res.all(), total_records
+        return res.query(), total_records
 
     def total(self, cgccpf):
         total_doado = func.sum(Captacao.CaptacaoReal).label('total_doado')
         return (
-            self.sql_connector.session.query(total_doado)
+            self.sql_connector.session.select(total_doado)
                 .join(Interessado,
                       Captacao.CgcCpfMecena == Interessado.CgcCpf)
                 .filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))

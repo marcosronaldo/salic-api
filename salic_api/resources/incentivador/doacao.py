@@ -90,7 +90,7 @@ class Doacao(ListResource):
             offset = current_app.config['OFFSET_PAGING']
 
         try:
-            results, n_records = DoacaoQuery().all(limit, offset, cgccpf)
+            results, n_records = DoacaoQuery().query(limit, offset, cgccpf)
         except Exception as e:
             Log.error(str(e))
             result = {

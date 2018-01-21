@@ -53,7 +53,7 @@ class Captacao(ListResource):
     def get(self, PRONAC):
 
         try:
-            results = CaptacaoQuery().all(PRONAC=PRONAC)
+            results = CaptacaoQuery().query(PRONAC=PRONAC)
         except Exception as e:
             log.error(str(e))
             result = {

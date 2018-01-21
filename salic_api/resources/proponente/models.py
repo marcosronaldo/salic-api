@@ -6,8 +6,8 @@ from ..shared_models import Interessado, Projeto
 
 
 class ProponenteQuery(Query):
-    def all(self, limit, offset, nome=None, cgccpf=None, municipio=None,
-            UF=None, tipo_pessoa=None, sort_field=None, sort_order=None):
+    def query(self, limit, offset, nome=None, cgccpf=None, municipio=None,
+              UF=None, tipo_pessoa=None, sort_field=None, sort_order=None):
 
         start_row = offset
         end_row = offset + limit
@@ -28,7 +28,7 @@ class ProponenteQuery(Query):
             [(Interessado.tipoPessoa == '1', 'fisica'), ],
             else_='juridica')
 
-        res = self.sql_connector.session.query(
+        res = self.sql_connector.session.select(
             func.sum(func.sac.dbo.fnCustoProjeto(Projeto.AnoProjeto,
                                                  Projeto.Sequencial)).label(
                 'total_captado'),
@@ -81,4 +81,4 @@ class ProponenteQuery(Query):
 
         res = res.slice(start_row, end_row)
 
-        return res.all(), total_records
+        return res.query(), total_records

@@ -108,7 +108,7 @@ class FornecedorList(ListResource):
             PRONAC = request.args.get('PRONAC')
 
         try:
-            results = FornecedordorQuery().all(
+            results = FornecedordorQuery().query(
                 limit, offset, cgccpf=cgccpf, PRONAC=PRONAC, nome=nome)
             n_records = FornecedordorQuery().count(
                 cgccpf=cgccpf, PRONAC=PRONAC, nome=nome)

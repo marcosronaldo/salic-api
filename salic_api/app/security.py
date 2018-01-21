@@ -1,4 +1,5 @@
 from hashlib import md5
+import codecs
 
 from Crypto import Random
 from Crypto.Cipher import AES
@@ -6,14 +7,17 @@ from flask import current_app as app
 
 
 def url_key():
-    return app.config['URL_KEY'].encode('ascii')
+    return app.config['URL_KEY'].rjust(16).encode('ascii')
 
 
 def encrypt(text):
+    # FIXME: check the correct algorithm
+    text = text.encode('utf8')
     iv = Random.new().read(AES.block_size)
+    iv = b'0' * 16
     cipher = AES.new(url_key(), AES.MODE_CFB, iv)
-    msg = iv + cipher.encrypt(b''.join(text))
-    return msg.encode('hex')
+    msg = iv + cipher.encrypt(text)
+    return codecs.encode(msg, 'hex').decode('ascii')
 
 
 def decrypt(cypher_text):

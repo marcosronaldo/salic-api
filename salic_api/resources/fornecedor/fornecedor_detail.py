@@ -31,8 +31,8 @@ class FornecedorDetail(ListResource):
         cgccpf = decrypt(fornecedor_id)
 
         try:
-            results = FornecedordorQuery().all(limit=1, offset=0,
-                                               cgccpf=cgccpf)
+            results = FornecedordorQuery().query(limit=1, offset=0,
+                                                 cgccpf=cgccpf)
         except Exception as e:
             result = {
                 'message': 'internal error',

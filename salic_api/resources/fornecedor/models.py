@@ -1,12 +1,12 @@
 from sqlalchemy.sql import text
 
-from ..query import Query
 from ..projeto.models import ProjetoQuery
+from ..query import Query
 from ..serialization import listify_queryset
 
 
 class FornecedordorQuery(Query):
-    def all(self, limit, offset, cgccpf=None, PRONAC=None, nome=None):
+    def query(self, limit, offset, cgccpf=None, PRONAC=None, nome=None):
 
         if cgccpf is not None:
             query = text("""
@@ -208,18 +208,8 @@ class FornecedordorQuery(Query):
 
 
 class ProductQuery(Query):
-    def __init__(self):
-        super(ProductQuery, self).__init__()
-
-    def all(self, limit, offset, cgccpf):
-        return ProjetoQuery().payments_listing(limit, offset,
-                                               cgccpf=cgccpf)
+    def query(self, limit, offset, cgccpf):
+        return ProjetoQuery().payments_listing(limit, offset, cgccpf=cgccpf)
 
     def count(self, cgccpf):
         return ProjetoQuery().payments_listing_count(cgccpf=cgccpf)
-
-        # n_records = listify_queryset(result)
-
-        # print 'full list:' + str(n_records)
-
-        # return n_records[0]['total']

@@ -11,7 +11,7 @@ class PreProjetoDetail(ListResource):
     def get(self, id):
         try:
             Log.debug('Starting database call')
-            results, n_records = PreProjetoQuery().all(
+            results, n_records = PreProjetoQuery().query(
                 limit=1, offset=0, id=id, extra_fields=True)
             Log.debug('Database call was successful')
 

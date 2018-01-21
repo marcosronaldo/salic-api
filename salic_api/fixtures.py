@@ -4,7 +4,7 @@ from .database.connector import get_session
 from .resources.shared_models import Area, Projeto, PreProjeto, \
     PlanoDistribuicao, Produto, PlanoDivulgacao, Verificacao, Segmento, \
     Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
-    CertidoesNegativas
+    CertidoesNegativas, Custos
 
 
 #
@@ -191,6 +191,19 @@ def plano_distribuicao_example():
     )]
 
 
+def custos_example():
+    return [Custos(
+        idCustos=1,
+        IdPRONAC=20001234,
+        valor_proposta=1000,
+        valor_solicitado=1000,
+        valor_aprovado=1000,
+        valor_aprovado_convenio=1000,
+        custo_projeto=1000,
+        outras_fontes=0,
+    )]
+
+
 #
 # Registe all factories
 #
@@ -199,5 +212,5 @@ FACTORIES = [
     enquadramento_example, mecanismo_example, situacao_example,
     interessado_example, captacao_example, certidoes_negativas_example,
     verificacao_example, plano_divulgacao_example, produto_example,
-    plano_distribuicao_example,
+    plano_distribuicao_example, custos_example,
 ]

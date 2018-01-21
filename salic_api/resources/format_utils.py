@@ -76,6 +76,7 @@ def remove_html_tags(word):
     if word is None:
         return ""
 
+    return word  # FIXME
     return strip_markup(word)
 
 
@@ -83,7 +84,7 @@ def HTMLEntitiesToUnicode(word):
     """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
     if word is None:
         return ""
-
+    return word  # FIXME
     word = str(BeautifulStoneSoup(
         word, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
     return word

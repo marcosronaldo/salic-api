@@ -95,7 +95,7 @@ class Produto(ListResource):
             offset = current_app.config['OFFSET_PAGING']
 
         try:
-            results = ProductQuery().all(limit, offset, cgccpf)
+            results = ProductQuery().query(limit, offset, cgccpf)
             n_records = ProductQuery().count(cgccpf)
         except Exception as e:
             result = {

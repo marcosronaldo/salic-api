@@ -146,13 +146,13 @@ class IncentivadorList(ListResource):
                 return self.render(result, status_code=405)
 
         try:
-            results, n_records = IncentivadorQuery().all(limit, offset,
-                                                         nome, cgccpf,
-                                                         municipio, UF,
-                                                         tipo_pessoa,
-                                                         PRONAC,
-                                                         sort_field,
-                                                         sort_order)
+            results, n_records = IncentivadorQuery().query(limit, offset,
+                                                           nome, cgccpf,
+                                                           municipio, UF,
+                                                           tipo_pessoa,
+                                                           PRONAC,
+                                                           sort_field,
+                                                           sort_order)
 
         except Exception as e:
             Log.error(str(e))

@@ -76,7 +76,7 @@ class SalicResource(Resource):
             current_app.cache.clear()
             current_app.before_request(on_request_start)
 
-        self.to_hal = self.build_hal
+        self.to_hal = self.apply_hal_data
 
     #
     # Error factories
@@ -91,37 +91,13 @@ class SalicResource(Resource):
     #
     # HAL links
     #
-    def build_hal(self, data, args):
+    def apply_hal_data(self, result, **kwargs):
         """
-        Insert HAL info on output data.
+        Insert HAL information on output data.
 
         HAL info usually comprises of a _links and a _embedded fields
         """
-        links = self.hal_links(data, args)
-        embedded = self.hal_embedded(data, args)
-
-        if isinstance(data, dict):
-            result = data
-        else:
-            result = {}
-
-        if links:
-            result['_links'] = links
-        if embedded:
-            result['_embedded'] = embedded
-        return result
-
-    def hal_links(self, data, args):
-        """
-        Return the link dictionary that is stored on '_links' field of a
-        JSON+HAL response.
-        """
-        path = self.resource_path
-
-        if path is None:
-            return None
-        else:
-            return {'self': self.url('/%s/' % path)}
+        raise NotImplementedError('must be implemented on subclass')
 
     #
     # Utility functions
@@ -138,13 +114,6 @@ class SalicResource(Resource):
         else:
             base = self.resource_path + '/' or ''
             return current_app.config['API_ROOT_URL'] + base + path
-
-    def hal_embedded(self, data, args):
-        """
-        Return a dictionary of embedded resources stored at the '_embedded'
-        field of a JSON+HAL response.
-        """
-        return None
 
     def unique_cgccpf(self, cgccpf, elements):
         """
@@ -168,11 +137,9 @@ class SalicResource(Resource):
         """
 
         try:
-            result = self.fetch_result(**kwargs)
-            result = self.prepare_result(result, **kwargs)
-            self.fetch_related(result, **kwargs)
-            self.finalize_result(result, **kwargs)
-            return self.render(result)
+            data = self.fetch_result(**kwargs)
+            assert data is not None
+            return self.render(data, args=kwargs)
 
         # Expected errors
         except InvalidResult as error:
@@ -190,33 +157,24 @@ class SalicResource(Resource):
 
     def fetch_result(self, **kwargs):
         """
+        Happy path for obtaining a raw representation of the resulting object
+        from the database.
+        """
+        raise NotImplementedError('must be implemented on a subclass')
+
+    def query_db(self, **kwargs):
+        """
         Return a query with all requested objects
         """
         if self.query_class is None:
             raise RuntimeError(
                 'improperly configured (%s): please define the query_class for '
-                'the current resource or implement the .all() method.' %
-                type(self).__name__
+                'the current resource or implement the .fetch_queryset() '
+                'method.' % type(self).__name__
             )
-        return self.query_class().all(**kwargs)
+        return self.query_class().query(**kwargs)
 
-    def prepare_result(self, result, **kwargs):
-        """
-        Prepare result obtained from .fetch_result() to be ready for JSON
-        serialization.
-        """
-        return listify_queryset(result)
-
-    def finalize_result(self, result, **kwargs):
-        """
-        Final preparations on the result object before sending it to the
-        render function.
-
-        This function is called after fetch_related(). The default
-        implementation is empty, but it can be overriden on subclasses.
-        """
-
-    def fetch_related(self, result, **kwargs):
+    def insert_related(self, result, **kwargs):
         """
         Fetch all related and embedded data from other models and add it to the
         current result.
@@ -225,7 +183,7 @@ class SalicResource(Resource):
         subclasses.
         """
 
-    def render(self, data, headers=None, status_code=200, raw=False):
+    def render(self, data, headers=None, status_code=200, raw=False, args=None):
         """
         Render response for given data.
 
@@ -272,10 +230,10 @@ class SalicResource(Resource):
         else:
             if not raw:
                 if status_code == 200:
-                    args = {}
+                    args = args or {}
                     if 'X-Total-Count' in headers:
                         args['total'] = headers['X-Total-Count']
-                    data = self.to_hal(data, args=args)
+                    data = self.to_hal(data, **args)
                 data = serialize(data, 'json')
             response = Response(data, content_type=JSON_MIME)
 
@@ -312,11 +270,119 @@ class ListResource(SalicResource):
     Base class for all Salic-API end points that return lists.
     """
 
+    detail_class = None
+    embedding_field = None
+    queryset_size = None
+
+    def apply_hal_data(self, items, **kwargs):
+        for item in items:
+            item['_links'] = self.hal_item_links(item, **kwargs)
+
+        result = {
+            '_embedded': {
+                self.embedding_field: items,
+            }
+        }
+
+        links = self.hal_listing_links(items, **kwargs)
+        if links:
+            result['_links'] = links
+
+        return result
+
+    def hal_listing_links(self, items, **kwargs):
+        path = self.resource_path
+        if path is None:
+            return {}
+        else:
+            return {'self': self.url('/%s/' % path)}
+
+    def hal_item_links(self, item, **kwargs):
+        return {}
+
+    def query_db(self, limit=None, offset=None, **kwargs):
+        """
+        Return a pair of (queryset, size) with a possibly truncated queryset of
+        results and the number of elements in the complete queryset.
+        """
+        query = super().query_db(**kwargs)
+        self.queryset_size = query.count()
+        limited_query = query.limit(limit).offset(offset)
+        return listify_queryset(limited_query)
+
+    def fetch_result(self, **kwargs):
+        results = self.query_db(**kwargs)
+        for result in results:
+            self.insert_related(result, **kwargs)
+        return results
+
 
 class DetailResource(SalicResource):
     """
     Base class for all end points that return dictionaries.
     """
+
+    def apply_hal_data(self, result, **kwargs):
+        links = self.hal_links(result, **kwargs)
+        embedded = self.hal_embedded(result, **kwargs)
+        if links:
+            result['_links'] = links
+        if embedded:
+            result['_embedded'] = embedded
+            link_map = self.hal_embedded_links(embedded, **kwargs)
+            for name, links in link_map.items():
+                for item in embedded[name]:
+                    item['_links'] = dict(links)
+        return result
+
+    def hal_links(self, result, **kwargs):
+        """
+        Return the link dictionary that is stored on '_links' field of a
+        JSON+HAL response.
+        """
+        path = self.resource_path
+        if path is None:
+            return {}
+        else:
+            return {'self': self.url('/%s/' % path)}
+
+    def hal_embedded(self, data, **kwargs):
+        """
+        Return a dictionary of embedded resources stored at the '_embedded'
+        field of a JSON+HAL response.
+        """
+        return {}
+
+    def hal_embedded_links(self, embedded, **kwargs):
+        """
+        Return a dictionary mapping each embedded list with its corresponding
+        dictionary of links.
+
+        This method does nothing and should be overridden on subclasses.
+        """
+        return {}
+
+    def resource_not_found_error(self):
+        tname = self.query_class.__name__[:-5]
+        return InvalidResult({
+            'message': '%r not found at %s' % (tname, request.base_url),
+            'message_code': 11
+        }, 404)
+
+    def query_db(self, **kwargs):
+        query = super().query_db(**kwargs).limit(1)
+        query = listify_queryset(query)
+        if len(query) == 1:
+            obj, = query
+        else:
+            raise self.resource_not_found_error()
+        return obj
+
+    def fetch_result(self, **kwargs):
+        result = self.query_db(**kwargs)
+        self.insert_related(result, **kwargs)
+        print('result', result)
+        return result
 
 
 def format_args(args: dict):

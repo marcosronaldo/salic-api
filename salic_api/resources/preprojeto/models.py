@@ -3,11 +3,8 @@ from ..shared_models import PreProjeto, Mecanismo
 
 
 class PreProjetoQuery(Query):
-    def __init__(self):
-        super(PreProjetoQuery, self).__init__()
-
-    def all(self, limit, offset, id=None, nome=None, data_inicio=None,
-            data_termino=None, extra_fields=False):
+    def query(self, limit, offset, id=None, nome=None, data_inicio=None,
+              data_termino=None, extra_fields=False):
 
         start_row = offset
         end_row = offset + limit
@@ -31,7 +28,7 @@ class PreProjetoQuery(Query):
         else:
             additional_fields = ()
 
-        res = self.sql_connector.session.query(
+        res = self.sql_connector.session.select(
             PreProjeto.NomeProjeto.label('nome'),
             PreProjeto.idPreProjeto.label('id'),
             PreProjeto.DtInicioDeExecucao.label('data_inicio'),
@@ -63,4 +60,4 @@ class PreProjetoQuery(Query):
 
         res = res.slice(start_row, end_row)
 
-        return res.all(), total_records
+        return res.query(), total_records

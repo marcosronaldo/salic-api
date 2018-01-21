@@ -137,12 +137,12 @@ class ProponenteList(ListResource):
                 return self.render(result, status_code=405)
 
         try:
-            results, n_records = ProponenteQuery().all(limit, offset,
-                                                       nome,
-                                                       cgccpf, municipio,
-                                                       UF, tipo_pessoa,
-                                                       sort_field,
-                                                       sort_order)
+            results, n_records = ProponenteQuery().query(limit, offset,
+                                                         nome,
+                                                         cgccpf, municipio,
+                                                         UF, tipo_pessoa,
+                                                         sort_field,
+                                                         sort_order)
         except Exception as e:
             api_error = APIError('DatadabaseError')
             Log.error('%s : ' % (api_error.internal_message) + str(e))

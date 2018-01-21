@@ -115,11 +115,11 @@ class PreProjetoList(ListResource):
 
         try:
             Log.debug('Starting database call')
-            results, n_records = PreProjetoQuery().all(limit, offset, id,
-                                                       nome,
-                                                       data_inicio,
-                                                       data_termino,
-                                                       extra_fields=True)
+            results, n_records = PreProjetoQuery().query(limit, offset, id,
+                                                         nome,
+                                                         data_inicio,
+                                                         data_termino,
+                                                         extra_fields=True)
             Log.debug('Database call was successful')
 
         except Exception as e:
