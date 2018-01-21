@@ -1,4 +1,5 @@
 import logging
+import os
 
 from flask import Response
 from flask import current_app
@@ -10,6 +11,8 @@ from .serialization import serialize, listify_queryset
 from ..app.security import md5hash
 
 log = logging.getLogger('salic-api')
+DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
+APP_CONFIGURED = False
 
 # Formats and mime types
 VALID_FORMATS = {'json', 'xml', 'csv'}
@@ -43,6 +46,7 @@ class SalicResource(Resource):
     # Basics
     resource_path = None
     query_class = None
+    request_args = set()
 
     # Pre-defined error messages
     INTERNAL_ERROR = {
@@ -53,30 +57,16 @@ class SalicResource(Resource):
         'message': 'invalid format',
         'code': 55,
     }
+    MAX_LIMIT_PAGING_ERROR = {
+        'message': 'Max limit paging exceeded',
+        'message_code': 7,
+    }
 
-    def __init__(self):
-        # Rate limiting setup
-        if current_app.config['RATE_LIMITING_ACTIVE']:
-            rate_limit = current_app.config['GLOBAL_RATE_LIMITS']
-            log.info('Rate limiting active: %s' % rate_limit)
-        else:
-            log.info('Rate limiting is off')
-
-        # Caching setup
-        if current_app.config['CACHING_ACTIVE']:
-            log.info('Caching is active')
-        else:
-            current_app.config['CACHE_TYPE'] = 'null'
-            log.info('Caching is off')
-            current_app.config['CACHE_NO_NULL_WARNING'] = True
-
-        # Register the cache instance and binds it on to your app
-        if getattr(current_app, 'cache', None) is None:
-            current_app.cache = Cache(current_app)
-            current_app.cache.clear()
-            current_app.before_request(on_request_start)
-
-        self.to_hal = self.apply_hal_data
+    def __init__(self, query_data=None):
+        init_config()
+        self.query_data = query_data
+        self.url_args = {}
+        self.args = {}
 
     #
     # Error factories
@@ -88,16 +78,64 @@ class SalicResource(Resource):
         log.info('invalid request (%s, code=13)' % status_code)
         return InvalidResult(self.INTERNAL_ERROR, status_code)
 
+    def max_limit_paging_error(self, status_code=405):
+        """
+        Raised when paging limit is greater than maximum.
+        """
+        log.info('limit greater than maximum (%s, code=7)' % status_code)
+        return InvalidResult(self.MAX_LIMIT_PAGING_ERROR, status_code)
+
+    def resource_not_found_error(self):
+        """
+        Raised when requested object is not found on the databaser.
+        """
+        type_name = self.query_class.__name__[:-5]
+        return InvalidResult({
+            'message': '%r not found at %s' % (type_name, request.base_url),
+            'message_code': 11
+        }, 404)
+
+    def invalid_request_args_error(self, args):
+        """
+        Raised when user make a request with invalid arguments.
+        """
+        data = ', '.join(map(repr, args))
+        return InvalidResult({
+            'message': 'invalid request arguments: (%s)' % data,
+            'message_code': 13,  # Is it?
+        }, 500)
+
+    def empty_query_error(self):
+        """
+        Raised when query return no value.
+        """
+        results = {
+            'message': 'No object was found with your criteria',
+            'message_code': 11
+        }
+        return InvalidResult(results, 404)
+
     #
     # HAL links
     #
-    def apply_hal_data(self, result, **kwargs):
+    def apply_hal_data(self, result):
         """
         Insert HAL information on output data.
 
         HAL info usually comprises of a _links and a _embedded fields
         """
         raise NotImplementedError('must be implemented on subclass')
+
+    def hal_links(self, result):
+        """
+        Return the link dictionary that is stored on '_links' field of a
+        JSON+HAL response.
+        """
+        path = self.resource_path
+        if path is None:
+            return {}
+        else:
+            return {'self': self.url('/%s/' % path)}
 
     #
     # Utility functions
@@ -128,6 +166,18 @@ class SalicResource(Resource):
         else:
             return n_records - (n_records % limit)
 
+    def prepare_args(self, kwargs):
+        """
+        Inject all request arguments to the dictionary of arguments.
+        """
+        if not self.request_args.issuperset(request.args):
+            diff = self.request_args - request.args
+            raise self.invalid_request_args_error(diff)
+
+        arg_getter = request.args.get
+        extra = {arg: arg_getter(arg) for arg in self.request_args}
+        return dict(kwargs, **extra)
+
     #
     # Creating response
     #
@@ -136,54 +186,53 @@ class SalicResource(Resource):
         Default response to a GET request.
         """
 
+        self.url_args.update(kwargs)
+        self.args.update(self.prepare_args(kwargs))
+
         try:
-            data = self.fetch_result(**kwargs)
-            assert data is not None
-            return self.render(data, args=kwargs)
+            data = self.fetch_result()
+            return self.render(data)
 
         # Expected errors
         except InvalidResult as error:
-            if current_app.testing:
+            if current_app.testing or DEBUG:
                 raise
             return error.render(self)
 
         # Unexpected errors
         except Exception as ex:
-            if current_app.testing:
+            if current_app.testing or DEBUG:
                 raise
             fmt = (type(self).__name__, type(ex).__name__, ex)
             log.error('%s: unhandled exception, %s: %s' % fmt)
             return self.internal_error().render(self)
 
-    def fetch_result(self, **kwargs):
+    def fetch_result(self):
         """
         Happy path for obtaining a raw representation of the resulting object
         from the database.
         """
         raise NotImplementedError('must be implemented on a subclass')
 
-    def query_db(self, **kwargs):
+    def query_db(self):
         """
         Return a query with all requested objects
         """
+        if self.query_data is not None:
+            return self.query_data
+
         if self.query_class is None:
             raise RuntimeError(
                 'improperly configured (%s): please define the query_class for '
-                'the current resource or implement the .fetch_queryset() '
+                'the current resource or implement the .query_db() '
                 'method.' % type(self).__name__
             )
-        return self.query_class().query(**kwargs)
 
-    def insert_related(self, result, **kwargs):
-        """
-        Fetch all related and embedded data from other models and add it to the
-        current result.
+        query_args = self.args
+        data = self.query_data = self.query_class().query(**query_args)
+        return data
 
-        The default implementation does nothing, but can be overridden in
-        subclasses.
-        """
-
-    def render(self, data, headers=None, status_code=200, raw=False, args=None):
+    def render(self, data, headers=None, status_code=200, raw=False):
         """
         Render response for given data.
 
@@ -230,10 +279,10 @@ class SalicResource(Resource):
         else:
             if not raw:
                 if status_code == 200:
-                    args = args or {}
                     if 'X-Total-Count' in headers:
-                        args['total'] = headers['X-Total-Count']
-                    data = self.to_hal(data, **args)
+                        total = headers['X-Total-Count']
+                        self.args.setdefault('total', total)
+                    data = self.apply_hal_data(data)
                 data = serialize(data, 'json')
             response = Response(data, content_type=JSON_MIME)
 
@@ -270,51 +319,154 @@ class ListResource(SalicResource):
     Base class for all Salic-API end points that return lists.
     """
 
-    detail_class = None
+    detail_resource_class = None
     embedding_field = None
     queryset_size = None
+    has_pagination = True
+    detail_resource = None
+    detail_pk = None
 
-    def apply_hal_data(self, items, **kwargs):
+    @property
+    def _embedding_field(self):
+        if self.embedding_field is None:
+            if self.resource_path is not None and '/' not in self.resource_path:
+                return self.resource_path
+            else:
+                raise RuntimeError(
+                    'You must define the embedding_field class attribute for '
+                    '%s.' % type(self).__name__
+                )
+        else:
+            return self.embedding_field
+
+    @property
+    def limit(self):
+        return self.args.get('limit', current_app.config['LIMIT_PAGING'])
+
+    @property
+    def offset(self):
+        return self.args.get('offset', 0)
+
+    def __init__(self):
+        self.queryset_size = 0
+        if self.detail_resource_class is not None:
+            self.detail_resource = self.detail_resource_class()
+        super().__init__()
+
+    def apply_hal_data(self, result):
+        embedding_field = self._embedding_field
+        items = result.pop(embedding_field)
+        result['_embedded'] = {embedding_field: items}
+
+        # Create links for each item
         for item in items:
-            item['_links'] = self.hal_item_links(item, **kwargs)
+            links = self.hal_item_links(item)
+            if links:
+                item['_links'] = links
 
-        result = {
-            '_embedded': {
-                self.embedding_field: items,
-            }
-        }
-
-        links = self.hal_listing_links(items, **kwargs)
+        # Create pagination links
+        if self.has_pagination:
+            links = self.hal_pagination_links(items)
+        else:
+            links = self.hal_links(result)
         if links:
             result['_links'] = links
 
         return result
 
-    def hal_listing_links(self, items, **kwargs):
-        path = self.resource_path
-        if path is None:
-            return {}
-        else:
-            return {'self': self.url('/%s/' % path)}
-
-    def hal_item_links(self, item, **kwargs):
+    def hal_item_links(self, item):
+        """
+        Return a mapping of HAL links for a single item of the result.
+        """
+        if self.detail_resource is not None:
+            return self.prepared_detail_object(item).hal_links(item)
         return {}
 
-    def query_db(self, limit=None, offset=None, **kwargs):
+    def hal_pagination_links(self, results, limit=None, offset=None):
+        """
+        Create pagination links: self, first, last, next.
+        """
+
+        total = self.queryset_size
+        base = self.url(self.resource_path)
+        limit = current_app.config['LIMIT_PAGING'] if limit is None else limit
+        offset = offset or 0
+        pages = total // limit
+
+        if limit > current_app.config['LIMIT_PAGING']:
+            raise self.max_limit_paging_error()
+
+        def link(offset):
+            return '%s/?limit=%d&offset=%d' % (base, limit, offset)
+
+        return {
+            'self': link(offset),
+            'next': link(offset + 1 if offset < pages else offset),
+            'first': link(0),
+            'last': link(pages),
+        }
+
+    def query_db(self):
         """
         Return a pair of (queryset, size) with a possibly truncated queryset of
         results and the number of elements in the complete queryset.
         """
-        query = super().query_db(**kwargs)
+        query = super().query_db()
+        query = self.filter_query(query)
+        query = self.sort_query(query)
         self.queryset_size = query.count()
-        limited_query = query.limit(limit).offset(offset)
+        limited_query = query.limit(self.limit).offset(self.offset)
         return listify_queryset(limited_query)
 
-    def fetch_result(self, **kwargs):
-        results = self.query_db(**kwargs)
-        for result in results:
-            self.insert_related(result, **kwargs)
-        return results
+    def filter_query(self, query):
+        """
+        Filter query according to the filtering arguments.
+        """
+        return query
+
+    def sort_query(self, query):
+        """
+        Sort query according to sorting arguments.
+        """
+        return query
+
+    def fetch_result(self):
+        items = self.query_db()
+        if len(items) == 0:
+            raise self.empty_query_error()
+
+        for item in items:
+            self.prepare_item(item)
+
+        result = {self._embedding_field: items}
+        if self.has_pagination:
+            result.update(total=self.queryset_size, count=len(items))
+        return result
+
+    def prepare_item(self, item):
+        """
+        Clean item inserted in the result list.
+        """
+        if self.detail_resource is None:
+            return
+        self.prepared_detail_object(item).prepare_result(item)
+
+    def prepared_detail_object(self, item):
+        """
+        Modify list of arguments to pass to a detail resource.
+        """
+        args = dict(self.args)
+        args[self.detail_pk] = item[self.detail_pk]
+        args.pop('limit', None)
+        args.pop('offset', None)
+        self.detail_resource.args = args
+        return self.detail_resource
+
+    def render(self, data, headers=None, **kwargs):
+        if 'total' in data:
+            headers = dict(headers or ())
+            headers['X-Total-Count'] = data['total']
+        return super().render(data, headers, **kwargs)
 
 
 class DetailResource(SalicResource):
@@ -322,38 +474,27 @@ class DetailResource(SalicResource):
     Base class for all end points that return dictionaries.
     """
 
-    def apply_hal_data(self, result, **kwargs):
-        links = self.hal_links(result, **kwargs)
-        embedded = self.hal_embedded(result, **kwargs)
+    def apply_hal_data(self, result):
+        links = self.hal_links(result)
+        embedded = self.hal_embedded(result)
         if links:
             result['_links'] = links
         if embedded:
             result['_embedded'] = embedded
-            link_map = self.hal_embedded_links(embedded, **kwargs)
+            link_map = self.hal_embedded_links(embedded)
             for name, links in link_map.items():
                 for item in embedded[name]:
                     item['_links'] = dict(links)
         return result
 
-    def hal_links(self, result, **kwargs):
-        """
-        Return the link dictionary that is stored on '_links' field of a
-        JSON+HAL response.
-        """
-        path = self.resource_path
-        if path is None:
-            return {}
-        else:
-            return {'self': self.url('/%s/' % path)}
-
-    def hal_embedded(self, data, **kwargs):
+    def hal_embedded(self, data):
         """
         Return a dictionary of embedded resources stored at the '_embedded'
         field of a JSON+HAL response.
         """
         return {}
 
-    def hal_embedded_links(self, embedded, **kwargs):
+    def hal_embedded_links(self, embedded):
         """
         Return a dictionary mapping each embedded list with its corresponding
         dictionary of links.
@@ -362,15 +503,8 @@ class DetailResource(SalicResource):
         """
         return {}
 
-    def resource_not_found_error(self):
-        tname = self.query_class.__name__[:-5]
-        return InvalidResult({
-            'message': '%r not found at %s' % (tname, request.base_url),
-            'message_code': 11
-        }, 404)
-
-    def query_db(self, **kwargs):
-        query = super().query_db(**kwargs).limit(1)
+    def query_db(self):
+        query = super().query_db().limit(1)
         query = listify_queryset(query)
         if len(query) == 1:
             obj, = query
@@ -378,11 +512,28 @@ class DetailResource(SalicResource):
             raise self.resource_not_found_error()
         return obj
 
-    def fetch_result(self, **kwargs):
-        result = self.query_db(**kwargs)
-        self.insert_related(result, **kwargs)
-        print('result', result)
+    def fetch_result(self):
+        result = self.query_db()
+        self.insert_related(result)
+        self.prepare_result(result)
         return result
+
+    def insert_related(self, result):
+        """
+        Fetch all related and embedded data from other models and add it to the
+        current result.
+
+        The default implementation does nothing, but can be overridden in
+        subclasses.
+        """
+
+    def prepare_result(self, result):
+        """
+        Clean result after insertion of related objects.
+
+        The default implementation does nothing, but can be overridden in
+        subclasses.
+        """
 
 
 def format_args(args: dict):
@@ -394,6 +545,39 @@ def on_request_start():
     real_ip = request.headers.get('X-Real-Ip', '')
     args = format_args(request.args)
     log.info(' '.join([request.path, args, real_ip, content_type]))
+
+
+def init_config():
+    """
+    Initial configuration for the current app. Triggered the first time a
+    resource is initialized.
+    """
+
+    global APP_CONFIGURED
+
+    if not APP_CONFIGURED:
+        # Rate limiting setup
+        if current_app.config['RATE_LIMITING_ACTIVE']:
+            rate_limit = current_app.config['GLOBAL_RATE_LIMITS']
+            log.info('Rate limiting active: %s' % rate_limit)
+        else:
+            log.info('Rate limiting is off')
+
+        # Caching setup
+        if current_app.config['CACHING_ACTIVE']:
+            log.info('Caching is active')
+        else:
+            current_app.config['CACHE_TYPE'] = 'null'
+            log.info('Caching is off')
+            current_app.config['CACHE_NO_NULL_WARNING'] = True
+
+        # Register the cache instance and binds it on to your app
+        if getattr(current_app, 'cache', None) is None:
+            current_app.cache = Cache(current_app)
+            current_app.cache.clear()
+            current_app.before_request(on_request_start)
+
+        APP_CONFIGURED = True
 
 
 class InvalidResult(Exception):

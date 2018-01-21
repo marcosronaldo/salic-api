@@ -32,14 +32,18 @@ def cov(ctx):
     main(['tests', '--cov'])
 
 
-@task
-def run(ctx):
+@task(
+    help={'debug': 'enable debugging warnings'}
+)
+def run(ctx, debug=False):
     "Run flask application."
 
     env = {
         'FLASK_APP': 'salic_api.app.default',
         'PYTHONPATH': '.:' + ':'.join(sys.path),
     }
+    if debug:
+        env['DEBUG'] = 'true'
     ctx.run(sys.executable + ' -m flask run', env=env)
 
 

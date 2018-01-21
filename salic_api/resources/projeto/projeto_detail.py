@@ -48,17 +48,20 @@ DOCUMENTOS_KEY_MAP = {
 class ProjetoDetail(DetailResource):
     resource_path = 'projeto'
     query_class = ProjetoQuery
+    pronac = property(lambda self: self.args['PRONAC'])
 
-    def hal_links(self, result, PRONAC):
+    def hal_links(self, result):
         url_id = encrypt(result['cgccpf'])
+        print(self.args)
+        pronac = self.pronac
         return {
-            'self': self.url('/projetos/' + PRONAC),
+            'self': self.url('/projetos/' + pronac),
             'proponente': self.url('/proponentes/%s' % url_id),
-            'incentivadores': self.url('/incentivadores/?pronac=' + PRONAC),
-            'fornecedores': self.url('/fornecedores/?pronac=' + PRONAC),
+            'incentivadores': self.url('/incentivadores/?pronac=' + pronac),
+            'fornecedores': self.url('/fornecedores/?pronac=' + pronac),
         }
 
-    def hal_embedded(self, data, PRONAC):
+    def hal_embedded(self, data):
         fields = [
             'captacoes', 'certidoes_negativas', 'deslocamento', 'distribuicao',
             'divulgacao', 'documentos_anexados', 'marcas_anexadas',
@@ -66,7 +69,7 @@ class ProjetoDetail(DetailResource):
             'relatorio_fisco', 'relacao_pagamentos']
         return {field: data.pop(field) for field in fields}
 
-    def hal_embedded_links(self, data, PRONAC):
+    def hal_embedded_links(self, data):
         return {
             # 'captacoes':
             #     self.links_captacoes(data['captacoes'], PRONAC),
@@ -104,8 +107,8 @@ class ProjetoDetail(DetailResource):
             }
             raise InvalidResult(result, status_code=405)
 
-    def fetch_result(self, PRONAC):
-        result = super().fetch_result(PRONAC=PRONAC)
+    def prepare_result(self, result):
+        result.pop('IdPRONAC')
 
         # Sanitizing text values
         sanitize_fields = (
@@ -124,63 +127,60 @@ class ProjetoDetail(DetailResource):
         result['cgccpf'] = cgccpf_mask(result['cgccpf'])
 
         for section in ['captacoes', 'relacao_pagamentos']:
-            for item in result[section]:
+            for item in result.get(section, ()):
                 item['cgccpf'] = cgccpf_mask(item['cgccpf'])
 
-        return result
-
-    def insert_related(self, projeto, PRONAC):
-        id_PRONAC = projeto.pop('IdPRONAC')
+    def insert_related(self, projeto):
+        pronac = self.pronac
 
         # Certidões
-        certidoes_negativas = CertidoesNegativasQuery().query(PRONAC)
-        projeto['certidoes_negativas'] = listify_queryset(
-            certidoes_negativas)
+        certidoes_negativas = CertidoesNegativasQuery().query(pronac)
+        projeto['certidoes_negativas'] = listify_queryset(certidoes_negativas)
 
         # Documentos anexados
-        documentos = ProjetoQuery().attached_documents(id_PRONAC)
+        documentos = ProjetoQuery().attached_documents(pronac)
         projeto['documentos_anexados'] = self.cleaned_documentos(documentos)
 
         # Marcas anexadas
-        marcas = ProjetoQuery().attached_brands(id_PRONAC)
+        marcas = ProjetoQuery().attached_brands(pronac)
         projeto['marcas_anexadas'] = marcas = listify_queryset(marcas)
         for marca in marcas:
             marca['link'] = utils.build_brand_link(marca)
 
         # Divulgação
-        divulgacao = DivulgacaoQuery().query(id_PRONAC)
+        divulgacao = DivulgacaoQuery().query(pronac)
         projeto['divulgacao'] = listify_queryset(divulgacao)
 
         # Deslocamentos
-        deslocamentos = DescolamentoQuery().query(id_PRONAC)
+        deslocamentos = DescolamentoQuery().query(pronac)
         projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
 
         # Distribuições
-        distribuicoes = DistribuicaoQuery().query(id_PRONAC)
+        distribuicoes = DistribuicaoQuery().query(pronac)
         projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
 
         # Readequações
-        readequacoes = ReadequacaoQuery().query(id_PRONAC)
+        readequacoes = ReadequacaoQuery().query(pronac)
         projeto['readequacoes'] = self.cleaned_readequacoes(readequacoes)
 
         # Prorrogação
-        prorrogacao = ProjetoQuery().postpone_request(id_PRONAC)
+        prorrogacao = ProjetoQuery().postpone_request(pronac)
         projeto['prorrogacao'] = listify_queryset(prorrogacao)
 
         # Relação de pagamentos
-        pagamentos = ProjetoQuery().payments_listing(idPronac=id_PRONAC)
+        pagamentos = ProjetoQuery().payments_listing(idPronac=pronac)
         projeto['relacao_pagamentos'] = listify_queryset(pagamentos)
 
         # Relatório fisco
-        relatorio_fisco = ProjetoQuery().taxing_report(id_PRONAC)
+        relatorio_fisco = ProjetoQuery().taxing_report(pronac)
         projeto['relatorio_fisco'] = listify_queryset(relatorio_fisco)
 
         # Relação de bens de capital
-        capital_goods = ProjetoQuery().goods_capital_listing(id_PRONAC)
+        capital_goods = ProjetoQuery().goods_capital_listing(pronac)
         projeto['relacao_bens_captal'] = listify_queryset(capital_goods)
 
         # Captações
-        captacoes = CaptacaoQuery().query(PRONAC=PRONAC)
+        captacoes = CaptacaoQuery().query(PRONAC=pronac)
         projeto['captacoes'] = listify_queryset(captacoes)
 
     # FIXME: @current_app.cache.cached(timeout=current_app.config['GLOBAL_CACHE_TIMEOUT'])
