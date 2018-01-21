@@ -28,6 +28,11 @@ def populate():
             session.add(obj)
     session.commit()
 
+#
+# Global constants
+#
+CPF = '1234'
+
 
 #
 # Example objects
@@ -62,7 +67,7 @@ def projeto_exexample():
         Segmento='1',
         Situacao='1',
         Area='1',
-        CgcCpf='123.456.789-00',
+        CgcCpf=CPF,
         idProjeto=1,
         Mecanismo='1',
     )]
@@ -114,12 +119,12 @@ def situacao_example():
 
 def interessado_example():
     return [Interessado(
-        CgcCpf='123.456.789-00',
+        CgcCpf=CPF,
         Nome='Nome',
         Responsavel='Responsavel',
         Uf='Uf',
         Cidade='Cidade',
-        tipoPessoa='tipoPessoa',
+        tipoPessoa='2',  # Juridica
     )]
 
 
@@ -129,7 +134,7 @@ def captacao_example():
         Sequencial='1234',
         CaptacaoReal='CaptacaoReal',
         DtRecibo=date(2000, 1, 1),
-        CgcCpfMecena='123.456.789-00',
+        CgcCpfMecena=CPF,
     )]
 
 
@@ -141,7 +146,7 @@ def certidoes_negativas_example():
         DtValidade=date(2000, 3, 1),
         CodigoCertidao=1,
         cdSituacaoCertidao=1,
-        CgcCpf='123.456.789-00',
+        CgcCpf=CPF,
     )]
 
 

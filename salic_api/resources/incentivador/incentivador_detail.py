@@ -1,65 +1,27 @@
-from flask import current_app
-
 from .models import IncentivadorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import ListResource
-from ..serialization import listify_queryset
-from ...app.security import decrypt
-from ...utils.log import Log
+from ..resource_base import DetailResource
+from ...app import decrypt
 
 
-class IncentivadorDetail(ListResource):
-    def build_links(self, args={}):
-        incentivador_id = args['incentivador_id']
-        self.links['self'] += incentivador_id
-        self.links['doacoes'] = self.links['self'] + '/doacoes'
+class IncentivadorDetail(DetailResource):
+    query_class = IncentivadorQuery
+    resource_path = 'incentivadores'
 
-    def __init__(self):
-        self.tipos_pessoa = {'1': 'fisica', '2': 'juridica'}
-        super(IncentivadorDetail, self).__init__()
-
-        self.links = {
-            "self": current_app.config['API_ROOT_URL'] + 'incentivadores/'
+    def hal_links(self, result):
+        encrypted_id = self.args['incentivador_id']
+        url = self.url('/incentivadores/%s' % encrypted_id)
+        return {
+            'self': url,
+            'doacoes': url + '/doacoes'
         }
 
-        def hal_builder(data, args={}):
-            hal_data = data
-            hal_data['_links'] = self.links
+    def build_query_args(self):
+        args = dict(self.args)
+        incentivador_id = args.pop('incentivador_id')
+        args['cgccpf'] = decrypt(incentivador_id)
+        return args
 
-            return hal_data
-
-        self.to_hal = hal_builder
-
-    def get(self, incentivador_id):
-
-        cgccpf = decrypt(incentivador_id)
-
-        try:
-            results, n_records = IncentivadorQuery().query(
-                limit=1, offset=0, cgccpf=cgccpf)
-
-        except Exception as e:
-            Log.error(str(e))
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-                'more': 'something is broken'
-            }
-            return self.render(result, status_code=503)
-
-        if n_records == 0 or len(results) == 0:
-
-            result = {
-                'message': 'No donator was found with your criteria',
-                'message_code': 11
-            }
-
-            return self.render(result, status_code=404)
-
-        headers = {}
-        data = listify_queryset(results)
-        incentivador = data[0]
-        incentivador["cgccpf"] = remove_blanks(str(incentivador["cgccpf"]))
-        self.build_links(args={'incentivador_id': incentivador_id})
-        incentivador["cgccpf"] = cgccpf_mask(incentivador["cgccpf"])
-        return self.render(incentivador, headers)
+    def prepare_result(self, result):
+        result["cgccpf"] = remove_blanks(str(result["cgccpf"]))
+        result["cgccpf"] = cgccpf_mask(result["cgccpf"])

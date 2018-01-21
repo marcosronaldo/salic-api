@@ -1,5 +1,5 @@
-from hashlib import md5
 import codecs
+from hashlib import md5
 
 from Crypto import Random
 from Crypto.Cipher import AES
@@ -10,26 +10,45 @@ def url_key():
     return app.config['URL_KEY'].rjust(16).encode('ascii')
 
 
+SECRET_KEY = ('1234' * 4).encode('ascii')
+STATIC_IV = Random.new().read(AES.block_size)
+TESTING_IV = b'0123456789abcdef'
+STATIC_IV = None
+
+
 def encrypt(text):
-    # FIXME: check the correct algorithm
-    text = text.encode('utf8')
-    iv = Random.new().read(AES.block_size)
-    iv = b'0' * 16
-    cipher = AES.new(url_key(), AES.MODE_CFB, iv)
-    msg = iv + cipher.encrypt(text)
+    """
+    Uses AES to encrypt text with a global secret key.
+
+    It saves the initialization vector with the resulting message.
+    """
+
+    if STATIC_IV is None:
+        iv = Random.new().read(AES.block_size)
+    else:
+        iv = STATIC_IV
+
+    cipher = AES.new(SECRET_KEY, AES.MODE_CFB, iv)
+    msg = iv + cipher.encrypt(text.encode('utf8'))
     return codecs.encode(msg, 'hex').decode('ascii')
 
 
-def decrypt(cypher_text):
-    try:
-        enc_msg = cypher_text.decode('hex')
-        iv = enc_msg[:AES.block_size]
-        cipher = AES.new(url_key(), AES.MODE_CFB, iv)
-        dec_msg = cipher.decrypt(enc_msg)
-    except Exception:
+def decrypt(text):
+    """
+    Uses AES to decrypt text with a global secret key.
+
+    It extracts the initialization vector from the input message.
+    """
+
+    msg = codecs.decode(text.encode('ascii'), 'hex')
+    iv = msg[:AES.block_size]
+
+    if len(iv) != AES.block_size:
         return 'invalid'
 
-    return dec_msg[AES.block_size:]
+    cipher = AES.new(SECRET_KEY, AES.MODE_CFB, iv)
+    decoded = cipher.decrypt(msg[AES.block_size:])
+    return decoded.decode('utf8')
 
 
 def md5hash(text):

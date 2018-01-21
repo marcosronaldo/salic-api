@@ -135,6 +135,14 @@ class Interessado(Base):
         primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf',
     )
 
+    # Computed fields
+    tipo_pessoa = case(
+        [
+            (tipoPessoa == '1', 'fisica'),
+        ],
+        else_='juridica'
+    ).label('tipo_pessoa')
+
 
 class Captacao(Base):
     __tablename__ = 'Captacao'

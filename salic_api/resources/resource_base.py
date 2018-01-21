@@ -185,7 +185,6 @@ class SalicResource(Resource):
         """
         Default response to a GET request.
         """
-
         self.url_args.update(kwargs)
         self.args.update(self.prepare_args(kwargs))
 
@@ -228,9 +227,16 @@ class SalicResource(Resource):
                 'method.' % type(self).__name__
             )
 
-        query_args = self.args
+        query_args = self.build_query_args()
         data = self.query_data = self.query_class().query(**query_args)
         return data
+
+    def build_query_args(self):
+        """
+        Return a dictionary with arguments to be passed to the query method of
+        the query class.
+        """
+        return self.args
 
     def render(self, data, headers=None, status_code=200, raw=False):
         """

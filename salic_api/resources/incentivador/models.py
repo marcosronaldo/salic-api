@@ -1,122 +1,98 @@
-from sqlalchemy import case, func
+from sqlalchemy import func
 from sqlalchemy.sql.expression import desc
 
-from ..query import Query
+from ..query import Query, filter_query_like, filter_query
 from ..shared_models import Interessado, Projeto, Captacao
 from ...utils.strings import pc_quote
 
 
 class IncentivadorQuery(Query):
-    def query(self, limit, offset, nome=None, cgccpf=None, municipio=None,
+    group_by_fields = (
+        Interessado.Nome,
+        Interessado.Cidade,
+        Interessado.Uf,
+        Interessado.Responsavel,
+        Interessado.CgcCpf,
+        Interessado.tipo_pessoa,
+    )
+
+    total_doado = func.sum(Captacao.CaptacaoReal).label('total_doado')
+
+    query_fields = (
+        Interessado.Nome.label('nome'),
+        Interessado.Cidade.label('municipio'),
+        Interessado.Uf.label('UF'),
+        Interessado.Responsavel.label('responsavel'),
+        Interessado.CgcCpf.label('cgccpf'),
+        total_doado,
+        Interessado.tipo_pessoa,
+    )
+
+    TIPOS_PESSOA = {'fisica': '1', 'juridica': '2'}
+
+    def query(self, limit=1, offset=0, nome=None, cgccpf=None, municipio=None,
               UF=None, tipo_pessoa=None, PRONAC=None, sort_field=None,
               sort_order=None):
 
-        start_row = offset
-        end_row = offset + limit
-        tipo_pessoa_case = case(
-            [
-                (Interessado.tipoPessoa == '1', 'fisica'),
-            ],
-            else_='juridica'
-        )
+        query = self.raw_query(*self.query_fields).join(Captacao)
 
-        sort_mapping_fields = {
-            'cgccpf': Interessado.CgcCpf,
-            'total_doado': func.sum(Captacao.CaptacaoReal)
-        }
+        query = filter_query_like(query, {
+            Interessado.CgcCpf: cgccpf,
+            Interessado.Nome: nome,
+        })
 
-        if sort_field == None:
-            sort_field = 'cgccpf'
-
-        sort_field = sort_mapping_fields[sort_field]
-
-        res = self.sql_connector.session.select(
-            Interessado.Nome.label('nome'),
-            Interessado.Cidade.label('municipio'),
-            Interessado.Uf.label('UF'),
-            Interessado.Responsavel.label('responsavel'),
-            Interessado.CgcCpf.label('cgccpf'),
-            func.sum(Captacao.CaptacaoReal).label('total_doado'),
-            tipo_pessoa_case.label('tipo_pessoa'),
-        ).join(Captacao)
+        query = filter_query(query, {
+            Interessado.Uf: UF,
+            Interessado.Cidade: municipio,
+            Interessado.tipoPessoa: self.TIPOS_PESSOA.get(tipo_pessoa),
+        })
 
         if PRONAC is not None:
-            res = res \
+            query = query \
                 .join(Projeto, Captacao.PRONAC == Projeto.PRONAC) \
                 .filter(Captacao.PRONAC == PRONAC)
 
-        if cgccpf is not None:
-            res = res.filter(Interessado.CgcCpf.like('%' + cgccpf + '%'))
+        query = query.group_by(*self.group_by_fields)
+        return self.sort_query(query, sort_field, sort_order)
 
-        if nome is not None:
-            res = res.filter(Interessado.Nome.like('%' + nome + '%'))
+    def sort_query(self, query, sort_field, sort_order):
+        sorting_fields = {
+            'cgccpf': Interessado.CgcCpf,
+            'total_doado': self.total_doado
+        }
+        sort_field = sorting_fields[sort_field or 'cgccpf']
 
-        if UF is not None:
-            res = res.filter(Interessado.Uf == UF)
-
-        if municipio is not None:
-            res = res.filter(Interessado.Cidade == municipio)
-
-        if tipo_pessoa is not None:
-            if tipo_pessoa == 'fisica':
-                tipo_pessoa = '1'
-            else:
-                tipo_pessoa = '2'
-
-            res = res.filter(Interessado.tipoPessoa == tipo_pessoa)
-
-        res = res.group_by(
-            Interessado.Nome,
-            Interessado.Cidade,
-            Interessado.Uf,
-            Interessado.Responsavel,
-            Interessado.CgcCpf,
-            tipo_pessoa_case,
-        )
-
-        # order by descending
         if sort_order == 'desc':
-            res = res.order_by(desc(sort_field))
+            query = query.order_by(desc(sort_field))
         else:
-            res = res.order_by(sort_field)
-        total_records = res.count()
-        res = res.slice(start_row, end_row)
-        return res.query(), total_records
+            query = query.order_by(sort_field)
+        return query
 
 
 class DoacaoQuery(Query):
-    def query(self, limit, offset, cgccpf=None):
-        start_row = offset
-        end_row = offset + limit
+    query_fields = (
+        Captacao.PRONAC,
+        Captacao.CaptacaoReal.label('valor'),
+        Captacao.DtRecibo.label('data_recibo'),
+        Projeto.NomeProjeto.label('nome_projeto'),
+        Captacao.CgcCpfMecena.label('cgccpf'),
+        Interessado.Nome.label('nome_doador'),
+    )
 
-        res = (
-            self.sql_connector.session.select(
-                Captacao.PRONAC,
-                Captacao.CaptacaoReal.label('valor'),
-                Captacao.DtRecibo.label('data_recibo'),
-                Projeto.NomeProjeto.label('nome_projeto'),
-                Captacao.CgcCpfMecena.label('cgccpf'),
-                Interessado.Nome.label('nome_doador'),
-            )
-                .join(Projeto,
-                      Captacao.PRONAC == Projeto.PRONAC)
-                .join(Interessado,
-                      Captacao.CgcCpfMecena == Interessado.CgcCpf)
+    def query(self, limit=None, offset=0, cgccpf=None):
+        query = (
+            self.raw_query(*self.query_fields)
+                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
+                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
-
         if cgccpf is not None:
-            res = res.filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
-
-        res = res.order_by(desc(Captacao.DtRecibo))
-        total_records = res.count()
-        res = res.slice(start_row, end_row)
-        return res.query(), total_records
+            return query.filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
+        return query
 
     def total(self, cgccpf):
-        total_doado = func.sum(Captacao.CaptacaoReal).label('total_doado')
+        total = func.sum(Captacao.CaptacaoReal).label('total_doado')
         return (
-            self.sql_connector.session.select(total_doado)
-                .join(Interessado,
-                      Captacao.CgcCpfMecena == Interessado.CgcCpf)
+            self.raw_query(total)
+                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
                 .filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
         )

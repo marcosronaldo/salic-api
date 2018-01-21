@@ -74,7 +74,14 @@ class TestCoreUrls:
         assert project_data == project_expected
         assert data == expected
 
-    def test_incentivadores_detail(self):
+    def test_incentivadores_detail(self, client):
+        url = '/v1/incentivadores/30313233343536373839616263646566e0797636'
+        data = client.get(url).get_data(as_text=True)
+        data = json.loads(data)
+        expected = copy.deepcopy(INCENTIVADOR_RESPONSE)
+        assert sorted(data) == sorted(expected)
+        assert data['_links'] == expected['_links']
+        assert data == expected
 
 
 PROJETO_RESPONSE = {
@@ -101,7 +108,7 @@ PROJETO_RESPONSE = {
         'captacoes': [
             {
                 'PRONAC': '20001234',
-                'cgccpf': '123.456.789-00',
+                'cgccpf': '1234',
                 'data_recibo': '2000-01-01',
                 'nome_doador': 'Nome',
                 'nome_projeto': 'Test',
@@ -115,7 +122,7 @@ PROJETO_RESPONSE = {
         'fornecedores': 'v1/fornecedores/?pronac=20001234',
         'incentivadores': 'v1/incentivadores/?pronac=20001234',
         'self': 'v1/projetos/20001234',
-        'proponente': 'v1/proponentes/3030303030303030303030303030303068da9e95bad279317b10bc1957fe',
+        'proponente': 'v1/proponentes/30313233343536373839616263646566e0797636',
     },
 
     # Campos do objeto
@@ -124,7 +131,7 @@ PROJETO_RESPONSE = {
     'acessibilidade': 'Acessibilidade',
     'ano_projeto': '2000',
     'area': 'Artes Cênicas',
-    'cgccpf': '123.456.789-00',
+    'cgccpf': '1234',
     'data_inicio': '2000-01-01',
     'data_termino': '2000-02-01',
     'democratizacao': 'DemocratizacaoDeAcesso',
@@ -151,4 +158,18 @@ PROJETO_RESPONSE = {
     'valor_projeto': 1000,
     'valor_proposta': 1000,
     'valor_solicitado': 1000,
+}
+
+INCENTIVADOR_RESPONSE = {
+    'UF': 'Uf',
+    '_links': {
+        'self': 'v1/incentivadores/30313233343536373839616263646566e0797636',
+        'doacoes': 'v1/incentivadores/30313233343536373839616263646566e0797636/doacoes',
+    },
+    'cgccpf': '1234',
+    'municipio': 'Cidade',
+    'nome': 'Nome',
+    'responsavel': 'Responsavel',
+    'tipo_pessoa': 'juridica',
+    'total_doado': 0.0,
 }
