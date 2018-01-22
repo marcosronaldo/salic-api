@@ -22,7 +22,6 @@ use_sql_procedures = False
 
 def dummy(field, id_projeto, *args):
     return getattr(Custos, field)
-    # return res.filter(Custos.idProjeto == id_projeto)
 
 
 ano_projeto = Projeto.AnoProjeto
@@ -68,6 +67,8 @@ valor_proposta = coalesce(valor_proposta_base, valor_solicitado)
 #
 # Query classes
 #
+
+
 class ProjetoQuery(Query):
     #
     # Global info
@@ -160,7 +161,6 @@ class ProjetoQuery(Query):
                 Interessado.Nome: proponente,
                 Interessado.CgcCpf: cgccpf,
                 Projeto.NomeProjeto: nome,
-
             })
 
             # Filter query by dates

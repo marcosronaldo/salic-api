@@ -11,7 +11,6 @@ def url_key():
 
 
 SECRET_KEY = ('1234' * 4).encode('ascii')
-STATIC_IV = Random.new().read(AES.block_size)
 TESTING_IV = b'0123456789abcdef'
 STATIC_IV = None
 

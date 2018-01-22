@@ -68,20 +68,28 @@ class TestCoreUrls:
             'total': 1,
         }
         assert sorted(data) == sorted(expected)
-
         project_data, = data['_embedded']['projetos']
         project_expected, = expected['_embedded']['projetos']
         assert project_data == project_expected
         assert data == expected
 
-    def test_incentivadores_detail(self, client):
-        url = '/v1/incentivadores/30313233343536373839616263646566e0797636'
+    def check_detail_endpoint(self, client, url, expected):
         data = client.get(url).get_data(as_text=True)
         data = json.loads(data)
-        expected = copy.deepcopy(INCENTIVADOR_RESPONSE)
+        expected = copy.deepcopy(expected)
         assert sorted(data) == sorted(expected)
         assert data['_links'] == expected['_links']
         assert data == expected
+
+    def test_incentivadores_detail(self, client):
+        url = '/v1/incentivadores/30313233343536373839616263646566e0797636'
+        expected = INCENTIVADOR_RESPONSE
+        self.check_detail_endpoint(client, url, expected)
+
+    def test_fornecedores_detail(self, client):
+        url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
+        expected = FORNECEDOR_RESPONSE
+        self.check_detail_endpoint(client, url, expected)
 
 
 PROJETO_RESPONSE = {
@@ -172,4 +180,14 @@ INCENTIVADOR_RESPONSE = {
     'responsavel': 'Responsavel',
     'tipo_pessoa': 'juridica',
     'total_doado': 0.0,
+}
+
+FORNECEDOR_RESPONSE = {
+    "cgccpf": "1234",
+    "_links": {
+        "self": "v1/fornecedores/e086c217a3c9a10686402496c185279a5a3dcef357436305f1c4f2eb2aae",
+        "produtos": "v1/fornecedores/e086c217a3c9a10686402496c185279a5a3dcef357436305f1c4f2eb2aae/produtos"
+    },
+    "email": "Email",
+    "nome": "Name"
 }

@@ -245,6 +245,81 @@ class PlanoDistribuicao(Base):
 
 
 #
+# Additional tables from other databases
+#
+class tbComprovantePagamentoxPlanilhaAprovacao(Base):
+    # planilha "a"
+    _full_name = 'BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao'
+    __tablename__ = 'tbComprovantePagamentoxPlanilhaAprovacao'
+
+    idPlanilhaAprovacao = Column(Integer, primary_key=True)
+    idComprovantePagamento = Column(
+        Integer,
+        ForeignKey('tbComprovantePagamento.idComprovantePagamento'))
+
+
+class tbComprovantePagamento(Base):
+    # planilha "b"
+    _full_name = 'BDCORPORATIVO.scSAC.tbComprovantePagamento'
+    __tablename__ = 'tbComprovantePagamento'
+
+    idComprovantePagamento = Column(Integer, primary_key=True)
+    idFornecedor = Column(Integer)
+    idArquivo = Column(Integer, ForeignKey('tbArquivo.idArquivo'))
+
+
+class tbArquivo(Base):
+    # planilha "f"
+    _full_name = 'BDCORPORATIVO.scCorp.tbArquivo'
+    __tablename__ = 'tbArquivo'
+
+    idArquivo = Column(Integer, primary_key=True)
+
+
+class tbPlanilhaAprovacao(Base):
+    # planilha "f"
+    _full_name = 'SAC.dbo.tbPlanilhaAprovacao'
+    __tablename__ = 'tbPlanilhaAprovacao'
+
+    idPlanilhaAprovacao = Column(Integer, primary_key=True)
+    idPlanilhaItem = Column(Integer)
+
+
+class tbPlanilhaItens(Base):
+    _full_name = 'SAC.dbo.tbPlanilhaItens'
+    __tablename__ = 'tbPlanilhaItens'
+
+    idPlanilhaItens = Column(Integer, primary_key=True)
+    idPlanilhaItem = Column(Integer)
+
+
+class Nomes(Base):
+    _full_name = 'Agentes.dbo.Nomes'
+    __tablename__ = 'Nomes'
+
+    idNome = Column(Integer, primary_key=True)
+    idAgente = Column(Integer, ForeignKey('Agentes.idAgente'))
+    Descricao = Column(String)
+
+
+class Agentes(Base):
+    _full_name = 'Agentes.dbo.Agentes'
+    __tablename__ = 'Agentes'
+
+    idAgente = Column(Integer, primary_key=True)
+    CNPJCPF = Column(String)
+
+
+class Internet(Base):
+    _full_name = 'Agentes.dbo.Internet'
+    __tablename__ = 'Internet'
+
+    idInternet = Column(Integer, primary_key=True)
+    idAgente = Column(Integer, ForeignKey('Agentes.idAgente'))
+    Descricao = Column(String)
+
+
+#
 # This data is stored as SQL procedures. We create a new table when working
 # with local Sqlite data
 #
