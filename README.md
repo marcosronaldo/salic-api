@@ -23,6 +23,37 @@ satisfatório:
 
 ## Instalação Automatizada
 
+### Virtualenv
+
+Git clone + virtualenv + pip:
+  
+  # Instale o virtualenvwrapper 
+  $ sudo apt-get install virtualenvwrapper
+  $ virtualenvwrapper.sh
+  $ mkvirtualenv -p /usr/python3 salic-api
+  $ workon salic-api
+  
+  # Clone o repositorio
+  $ git clone https://github.com/lappis-unb/salic-api
+  
+  # Instale as dependencias
+  $ python setup.py develop
+  $ pip install -e ".[dev]"
+  
+  # Inicialize o banco de desenvolvimento
+  $ inv db -f
+  
+  # Rodar a aplicacao em modo de desenvolvimento
+  $ inv run
+  
+  # Rode os testes
+  $ pytest --lf --max-fail=2 --cov
+  
+
+### Docker
+...
+
+
 Execute como root o script **install.sh**
 
 ```bash
