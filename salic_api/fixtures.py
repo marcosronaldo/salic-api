@@ -4,7 +4,9 @@ from .database.connector import get_session
 from .resources.shared_models import Area, Projeto, PreProjeto, \
     PlanoDistribuicao, Produto, PlanoDivulgacao, Verificacao, Segmento, \
     Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
-    CertidoesNegativas, Custos
+    CertidoesNegativas, Custos, tbComprovantePagamentoxPlanilhaAprovacao, \
+    tbComprovantePagamento, tbArquivo, tbPlanilhaAprovacao, tbPlanilhaItens, \
+    Nomes, Agentes, Internet
 
 
 #
@@ -27,6 +29,7 @@ def populate():
         for obj in factory():
             session.add(obj)
     session.commit()
+
 
 #
 # Global constants
@@ -209,6 +212,64 @@ def custos_example():
     )]
 
 
+def tbcomprovantepagamentoxplanilhaaprovacao_example():
+    return [tbComprovantePagamentoxPlanilhaAprovacao(
+        idPlanilhaAprovacao=1,
+        idComprovantePagamento=1,
+    )]
+
+
+def tbcomprovantepagamento_example():
+    return [tbComprovantePagamento(
+        idComprovantePagamento=1,
+        idFornecedor=1,
+        idArquivo=1,
+    )]
+
+
+def tbarquivo_example():
+    return [tbArquivo(
+        idArquivo=1,
+    )]
+
+
+def tbplanilhaaprovacao_example():
+    return [tbPlanilhaAprovacao(
+        idPlanilhaAprovacao=1,
+        idPlanilhaItem=1,
+    )]
+
+
+def tbPlanilhaItens_example():
+    return [tbPlanilhaItens(
+        idPlanilhaItens=1,
+        idPlanilhaItem=1,
+    )]
+
+
+def nomes_example():
+    return [Nomes(
+        idNome=1,
+        idAgente=1,
+        Descricao='Name',
+    )]
+
+
+def agentes_example():
+    return [Agentes(
+        idAgente=1,
+        CNPJCPF=CPF,
+    )]
+
+
+def internet_example():
+    return [Internet(
+        idInternet=1,
+        idAgente=1,
+        Descricao='email',
+    )]
+
+
 #
 # Registe all factories
 #
@@ -218,4 +279,8 @@ FACTORIES = [
     interessado_example, captacao_example, certidoes_negativas_example,
     verificacao_example, plano_divulgacao_example, produto_example,
     plano_distribuicao_example, custos_example,
+    tbcomprovantepagamentoxplanilhaaprovacao_example,
+    tbcomprovantepagamento_example, tbarquivo_example,
+    tbplanilhaaprovacao_example, tbPlanilhaItens_example,
+    nomes_example, agentes_example, internet_example,
 ]

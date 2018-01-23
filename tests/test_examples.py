@@ -185,9 +185,9 @@ INCENTIVADOR_RESPONSE = {
 FORNECEDOR_RESPONSE = {
     "cgccpf": "1234",
     "_links": {
-        "self": "v1/fornecedores/e086c217a3c9a10686402496c185279a5a3dcef357436305f1c4f2eb2aae",
-        "produtos": "v1/fornecedores/e086c217a3c9a10686402496c185279a5a3dcef357436305f1c4f2eb2aae/produtos"
+        "self": "v1/fornecedores/30313233343536373839616263646566e0797636",
+        "produtos": "v1/fornecedores/30313233343536373839616263646566e0797636/produtos"
     },
-    "email": "Email",
+    "email": "email",
     "nome": "Name"
 }

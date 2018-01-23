@@ -1,18 +1,11 @@
-from .models import FornecedordorQuery
-from ..format_utils import remove_blanks, cgccpf_mask
+from .models import FornecedorQuery
 from ..resource_base import DetailResource
-from ..serialization import listify_queryset
 from ...app.security import decrypt
 
 
 class FornecedorDetail(DetailResource):
-    query_class = FornecedordorQuery
+    query_class = FornecedorQuery
     resource_path = 'fornecedores'
-
-    def build_links(self, args={}):
-        fornecedor_id = args['fornecedor_id']
-        self.links['self'] += fornecedor_id
-        self.links['produtos'] = self.links['self'] + '/produtos'
 
     def build_query_args(self):
         args = dict(self.args)
@@ -20,34 +13,9 @@ class FornecedorDetail(DetailResource):
         args['cgccpf'] = decrypt(fornecedor_id)
         return args
 
-    def _get(self, fornecedor_id):
-        cgccpf = decrypt(fornecedor_id)
-
-        try:
-            results = FornecedordorQuery().query(limit=1, offset=0)
-        except Exception as e:
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-                'more': 'something is broken'
-            }
-            return self.render(result, status_code=503)
-
-        results = listify_queryset(results)
-
-        n_records = len(results)
-
-        if n_records == 0 or len(results) == 0:
-            result = {
-                'message': 'No supplier was found with your criteria',
-                'message_code': 11
-            }
-            return self.render(result, status_code=404)
-
-        headers = {}
-        data = results
-        fornecedor = data[0]
-        fornecedor["cgccpf"] = remove_blanks(fornecedor["cgccpf"])
-        self.build_links(args={'fornecedor_id': fornecedor_id})
-        fornecedor["cgccpf"] = cgccpf_mask(fornecedor["cgccpf"])
-        return self.render(fornecedor, headers)
+    def hal_links(self, result):
+        fornecedor_id = self.args['fornecedor_id']
+        return {
+            'self': self.url('/fornecedores/%s' % fornecedor_id),
+            'produtos': self.url('/fornecedores/%s/produtos' % fornecedor_id),
+        }

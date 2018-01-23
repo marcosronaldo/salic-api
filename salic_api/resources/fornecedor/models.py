@@ -5,10 +5,11 @@ from ..query import Query
 from ..serialization import listify_queryset
 from ..shared_models import Agentes, Nomes, Internet, \
     tbComprovantePagamento as Comprovante, \
-    tbComprovantePagamentoxPlanilhaAprovacao as ComprovanteAprovacao
+    tbComprovantePagamentoxPlanilhaAprovacao as ComprovanteAprovacao, \
+    tbPlanilhaAprovacao, tbPlanilhaItens, tbArquivo
 
 
-class FornecedordorQuery(Query):
+class FornecedorQuery(Query):
     query_fields = (
         Agentes.CNPJCPF.label('cgccpf'),
         Nomes.Descricao.label('nome'),
@@ -16,40 +17,37 @@ class FornecedordorQuery(Query):
     )
 
     def query(self, limit=1, offset=0, cgccpf=None, PRONAC=None, nome=None):
-        # tbComprovantePagamentoxPlanilhaAprovacao == ComprovanteAprovacao
-
         query = self.raw_query(*self.query_fields)
-        # query = distinct(query)
+        query = query.select_from(ComprovanteAprovacao)
+        query = query.distinct(*self.query_fields)
         query = (query
             .join(Comprovante,
                   ComprovanteAprovacao.idComprovantePagamento ==
                   Comprovante.idComprovantePagamento)
-            .join(Internet,
-              Comprovante.idFornecedor == Internet.idAgente, isouter=True)
-        )
+            .outerjoin(Internet,
+                       Comprovante.idFornecedor == Internet.idAgente)
+            .outerjoin(tbPlanilhaAprovacao,
+                       ComprovanteAprovacao.idPlanilhaAprovacao ==
+                       tbPlanilhaAprovacao.idPlanilhaAprovacao)
+            .outerjoin(tbPlanilhaItens,
+                       tbPlanilhaAprovacao.idPlanilhaItem ==
+                       tbPlanilhaItens.idPlanilhaItens)
+            .outerjoin(Nomes,
+                       Comprovante.idFornecedor == Nomes.idAgente)
+            .outerjoin(tbArquivo,
+                       Comprovante.idArquivo == tbArquivo.idArquivo)
+            .outerjoin(Agentes,
+                       Comprovante.idFornecedor == Agentes.idAgente)
+
+            )
+        query = query.filter(Agentes.CNPJCPF.like(cgccpf))
+        query = query.order_by('cgccpf')
         return query
 
-        # FIXME: Left joins
-        # .join(tbPlanilhaAprovacao,
-        #           ComprovanteAprovacao.idPlanilhaAprovacao ==
-        #           tbPlanilhaAprovacao.idPlanilhaAprovacao)
-        # .join(tbPlanilhaItens,
-        #           tbPlanilhaAprovacao.idPlanilhaItem ==
-        #           tbPlanilhaItens.idPlanilhaItens)
-        # .join(Nomes,
-        #           Comprovante.idFornecedor == Nomes.idAgente)
-        # .join(tbArquivo,
-        #           Comprovante.idArquivo == tbArquivo.idArquivo)
-        # .join(Agentes,
-        #           Comprovante.idFornecedor == Agentes.idAgente)
-
-        # query = query.filter(Agentes.CNPJCPF.like(cgccpf))
-        # query = query.orderby('cgccpf')
-        return query
-
+        # FIXME: move this to a separarte function
         if cgccpf is not None:
             query = text(FORNECEDOR_CGCCPF)
-            return self.session.execute(query, {
+            return self.session.execute(querys, {
                 'cgccpf': '%{}%'.format(cgccpf),
                 'offset': offset,
                 'limit': limit,
