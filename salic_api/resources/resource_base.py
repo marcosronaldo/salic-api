@@ -16,7 +16,7 @@ APP_CONFIGURED = False
 
 # Formats and mime types
 VALID_FORMATS = {'json', 'xml', 'csv'}
-JSON_MIME = 'application/hal+json; charset=utf-8'
+JSON_MIME = 'application/json; charset=utf-8'
 CSV_MIME = 'text/csv; charset=utf-8'
 XML_MIME = 'application/xml; charset=utf-8'
 
