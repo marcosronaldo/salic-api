@@ -31,7 +31,8 @@ Git clone + virtualenv + pip:
 # Instale o virtualenvwrapper 
 $ sudo apt-get install virtualenvwrapper
 $ virtualenvwrapper.sh
-$ mkvirtualenv -p /usr/python3 salic-api
+$ source `which virtualenvwrapper.sh`
+$ mkvirtualenv -p /usr/bin/python3 salic-api
 $ workon salic-api
 
 # Clone o repositorio
