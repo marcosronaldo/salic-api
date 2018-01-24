@@ -24,3 +24,10 @@ def timer(action, verbose=True):
         msecs = (time.time() - start) * 1000
         if verbose:
             log.debug('Action completed in %f ms' % msecs)
+
+
+def pc_quote(st):
+    """
+    Comenta string com sinais de '%'
+    """
+    return '%{}%'.format(st)

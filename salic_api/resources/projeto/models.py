@@ -12,7 +12,7 @@ from ..shared_models import (
     Projeto, Interessado, Situacao, Enquadramento, PreProjeto,
     Captacao, CertidoesNegativas, Verificacao, PlanoDistribuicao, Produto, Area,
     Segmento, Custos, Mecanismo)
-from ...utils.timer import timer
+from salic_api.utils import timer
 
 #
 # SQL procedures

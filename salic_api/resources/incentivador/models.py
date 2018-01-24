@@ -3,7 +3,7 @@ from sqlalchemy.sql.expression import desc
 
 from ..query import Query, filter_query_like, filter_query
 from ..shared_models import Interessado, Projeto, Captacao
-from ...utils.strings import pc_quote
+from salic_api.utils import pc_quote
 
 
 class IncentivadorQuery(Query):
