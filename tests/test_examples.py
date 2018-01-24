@@ -120,6 +120,32 @@ class TestCoreUrls:
         expected = PROPONENTE_RESPONSE
         self.check_endpoint(client, url, expected)
 
+    def test_proponentes_list(self, client):
+        data = client.get('/v1/proponentes/').get_data(as_text=True)
+        data = json.loads(data)
+        expected = copy.deepcopy(PROPONENTE_RESPONSE)
+
+        expected = {
+            'count': 1,
+            '_embedded': {
+                'proponentes': [
+                    expected,
+                ]
+            },
+            '_links': {
+                'self': 'v1/proponentes/proponentes/?limit=100&offset=0',
+                'first': 'v1/proponentes/proponentes/?limit=100&offset=0',
+                'last': 'v1/proponentes/proponentes/?limit=100&offset=0',
+                'next': 'v1/proponentes/proponentes/?limit=100&offset=0',
+            },
+            'total': 1,
+        }
+        assert sorted(data) == sorted(expected)
+        proponente_data, = data['_embedded']['proponentes']
+        proponente_expected, = expected['_embedded']['proponentes']
+        assert proponente_data == proponente_expected
+        assert data == expected
+
 
 PROJETO_RESPONSE = {
     # Embedded data

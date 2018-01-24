@@ -1,17 +1,18 @@
-from salic_api.app.security import decrypt
+from ...app.security import decrypt
 from .models import ProponenteQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import DetailResource
 
 
 class ProponenteDetail(DetailResource):
-    query_class = ProponenteQuery
     resource_path = 'proponentes'
+    query_class = ProponenteQuery
 
     sort_fields = ['total_captado']
 
     def hal_links(self, result):
         proponente_id = self.args['proponente_id']
+
         return {
             'self': self.url('/proponentes/%s' % proponente_id),
             'projetos': self.url('/projetos/?proponente_id=%s' % proponente_id)
