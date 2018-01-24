@@ -52,7 +52,6 @@ class ProjetoDetail(DetailResource):
 
     def hal_links(self, result):
         url_id = encrypt(result['cgccpf'])
-        print(self.args)
         pronac = self.pronac
         return {
             'self': self.url('/projetos/' + pronac),
