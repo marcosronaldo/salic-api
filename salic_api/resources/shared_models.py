@@ -97,7 +97,8 @@ class Enquadramento(Base):
 class Mecanismo(Base):
     __tablename__ = 'Mecanismo'
 
-    Codigo = Column(Integer, primary_key=True)
+    # FIXME: descobrir qual é o tipo do Codigo de Mecanismo (String ou Integer?)
+    Codigo = Column(String, primary_key=True)
     Descricao = Column(String)
 
 

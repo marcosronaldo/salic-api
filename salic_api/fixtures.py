@@ -49,7 +49,7 @@ def areas_example():
 
 
 # PRONAC = column_property(AnoProjeto + Sequencial)
-def projeto_exexample():
+def projeto_example():
     return [Projeto(
         IdPRONAC=20001234,
         AnoProjeto='2000',
@@ -72,7 +72,7 @@ def projeto_exexample():
         Area='1',
         CgcCpf=CPF,
         idProjeto=1,
-        Mecanismo='1',
+        Mecanismo='mecenato',
     )]
 
 
@@ -85,17 +85,17 @@ def pre_projeto_example():
         dtAceite=date(2000, 1, 1),
         DtArquivamento=date(2000, 3, 1),
         Mecanismo='mecenato',
-        Objetivos='cutural',
+        Objetivos='cultural',
         Justificativa='Justificativa',
         Acessibilidade='Acessibilidade',
         DemocratizacaoDeAcesso='DemocratizacaoDeAcesso',
-        EtapaDeTrabalho='EtapaDeTrabalho ',
-        FichaTecnica='FichaTecnica ',
-        ResumoDoProjeto='ResumoDoProjeto ',
-        Sinopse='Sinopse ',
-        ImpactoAmbiental='ImpactoAmbiental ',
-        EspecificacaoTecnica='EspecificacaoTecnica ',
-        EstrategiadeExecucao='EstrategiadeExecucao ',
+        EtapaDeTrabalho='EtapaDeTrabalho',
+        FichaTecnica='FichaTecnica',
+        ResumoDoProjeto='ResumoDoProjeto',
+        Sinopse='Sinopse',
+        ImpactoAmbiental='ImpactoAmbiental',
+        EspecificacaoTecnica='EspecificacaoTecnica',
+        EstrategiadeExecucao='EstrategiadeExecucao',
     )]
 
 
@@ -113,7 +113,7 @@ def enquadramento_example():
 
 
 def mecanismo_example():
-    return [Mecanismo(Descricao='Descricao')]
+    return [Mecanismo(Codigo='mecenato', Descricao='Descricao')]
 
 
 def situacao_example():
@@ -275,7 +275,7 @@ def internet_example():
 # Registe all factories
 #
 FACTORIES = [
-    areas_example, projeto_exexample, pre_projeto_example, segmento_example,
+    areas_example, projeto_example, pre_projeto_example, segmento_example,
     enquadramento_example, mecanismo_example, situacao_example,
     interessado_example, captacao_example, certidoes_negativas_example,
     verificacao_example, plano_divulgacao_example, produto_example,

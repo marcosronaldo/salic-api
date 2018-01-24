@@ -9,6 +9,14 @@ class TestCoreUrls:
         '/v1/projetos/segmentos',
     ]
 
+    def check_endpoint(self, client, url, expected):
+        data = client.get(url).get_data(as_text=True)
+        data = json.loads(data)
+        expected = copy.deepcopy(expected)
+        assert sorted(data) == sorted(expected)
+        assert data['_links'] == expected['_links']
+        assert data == expected
+
     def test_core_url_examples(self, client):
         for url in self.valid_core_urls:
             assert client.get(url).status_code == 200, url
@@ -39,12 +47,10 @@ class TestCoreUrls:
         }
 
     def test_projetos_detail(self, client):
-        data = client.get('/v1/projetos/20001234').get_data(as_text=True)
-        data = json.loads(data)
-        assert sorted(data) == sorted(PROJETO_RESPONSE)
-        assert data['_links'] == PROJETO_RESPONSE['_links']
-        assert data['_embedded'] == PROJETO_RESPONSE['_embedded']
-        assert data == PROJETO_RESPONSE
+        url = '/v1/projetos/20001234'
+        expected = PROJETO_RESPONSE
+        self.check_endpoint(client, url, expected)
+
 
     def test_projetos_list(self, client):
         data = client.get('/v1/projetos/').get_data(as_text=True)
@@ -73,28 +79,46 @@ class TestCoreUrls:
         assert project_data == project_expected
         assert data == expected
 
-    def check_detail_endpoint(self, client, url, expected):
-        data = client.get(url).get_data(as_text=True)
-        data = json.loads(data)
-        expected = copy.deepcopy(expected)
-        assert sorted(data) == sorted(expected)
-        assert data['_links'] == expected['_links']
-        assert data == expected
-
     def test_incentivadores_detail(self, client):
         url = '/v1/incentivadores/30313233343536373839616263646566e0797636'
         expected = INCENTIVADOR_RESPONSE
-        self.check_detail_endpoint(client, url, expected)
+        self.check_endpoint(client, url, expected)
 
     def test_fornecedores_detail(self, client):
         url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
         expected = FORNECEDOR_RESPONSE
-        self.check_detail_endpoint(client, url, expected)
+        self.check_endpoint(client, url, expected)
+
+    def test_preprojetos_detail(self, client):
+        url = '/v1/propostas/1'
+        expected = PREPROJETO_RESPONSE
+        self.check_endpoint(client, url, expected)
+
+    def test_preprojetos_list(self, client):
+        url = '/v1/propostas/'
+        expected = copy.deepcopy(PREPROJETO_RESPONSE)
+
+        expected = {
+            'count': 1,
+                '_embedded': {
+                    'propostas': [
+                        expected,
+                    ]
+                },
+                '_links': {
+                    'self': 'v1/propostas/propostas/?limit=100&offset=0',
+                    'first': 'v1/propostas/propostas/?limit=100&offset=0',
+                    'last': 'v1/propostas/propostas/?limit=100&offset=0',
+                    'next': 'v1/propostas/propostas/?limit=100&offset=0',
+                },
+                'total': 1,
+        }
+        self.check_endpoint(client, url, expected)
 
     def test_proponentes_detail(self, client):
         url = '/v1/proponentes/30313233343536373839616263646566e0797636'
         expected = PROPONENTE_RESPONSE
-        self.check_detail_endpoint(client, url, expected)
+        self.check_endpoint(client, url, expected)
 
 
 PROJETO_RESPONSE = {
@@ -158,7 +182,7 @@ PROJETO_RESPONSE = {
     'mecanismo': 'Descricao',
     'municipio': 'Cidade',
     'nome': 'Test',
-    'objetivos': 'cutural',
+    'objetivos': 'cultural',
     'outras_fontes': 0,
     'proponente': 'Nome',
     'providencia': 'nenhuma',
@@ -208,5 +232,29 @@ PROPONENTE_RESPONSE = {
     'responsavel': 'Responsavel',
     'UF': 'Uf',
     'total_captado': 1000,
-    'municipio': 'Cidade'
+    'municipio': 'Cidade',
+}
+
+PREPROJETO_RESPONSE = {
+    'acessibilidade': 'Acessibilidade',
+    'data_aceite': '2000-01-01',
+    'data_arquivamento': '2000-03-01',
+    'data_inicio': '2000-01-01',
+    'data_termino': '2000-02-01',
+    'democratizacao': 'DemocratizacaoDeAcesso',
+    'especificacao_tecnica': 'EspecificacaoTecnica',
+    'estrategia_execucao': 'EstrategiadeExecucao',
+    'etapa': 'EtapaDeTrabalho',
+    'ficha_tecnica': 'FichaTecnica',
+    'id': 1,
+    'impacto_ambiental': 'ImpactoAmbiental',
+    'justificativa': 'Justificativa',
+    'mecanismo': 'Descricao',
+    'nome': 'Test',
+    'objetivos': 'cultural',
+    'resumo': 'ResumoDoProjeto',
+    'sinopse': 'Sinopse',
+    '_links': {
+        'self': 'v1/propostas/1',
+    },
 }

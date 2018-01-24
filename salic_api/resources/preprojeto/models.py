@@ -1,63 +1,59 @@
-from ..query import Query
+from ..query import Query, filter_query_like, filter_query
 from ..shared_models import PreProjeto, Mecanismo
 
 
 class PreProjetoQuery(Query):
-    def query(self, limit, offset, id=None, nome=None, data_inicio=None,
-              data_termino=None, extra_fields=False):
+    query_fields = (
+        PreProjeto.NomeProjeto.label('nome'),
+        PreProjeto.idPreProjeto.label('id'),
+        PreProjeto.DtInicioDeExecucao.label('data_inicio'),
+        PreProjeto.DtFinalDeExecucao.label('data_termino'),
+        PreProjeto.dtAceite.label('data_aceite'),
+        PreProjeto.DtArquivamento.label('data_arquivamento'),
+        PreProjeto.Acessibilidade.label('acessibilidade'),
+        PreProjeto.Objetivos.label('objetivos'),
+        PreProjeto.Justificativa.label('justificativa'),
+        PreProjeto.DemocratizacaoDeAcesso.label('democratizacao'),
+        PreProjeto.EtapaDeTrabalho.label('etapa'),
+        PreProjeto.FichaTecnica.label('ficha_tecnica'),
+        PreProjeto.ResumoDoProjeto.label('resumo'),
+        PreProjeto.Sinopse.label('sinopse'),
+        PreProjeto.ImpactoAmbiental.label('impacto_ambiental'),
+        PreProjeto.EspecificacaoTecnica.label('especificacao_tecnica'),
+        PreProjeto.EstrategiadeExecucao.label('estrategia_execucao'),
+        Mecanismo.Descricao.label('mecanismo'),
+    )
 
-        start_row = offset
-        end_row = offset + limit
 
-        if extra_fields:
-            additional_fields = (
-                PreProjeto.Acessibilidade.label('acessibilidade'),
-                PreProjeto.Objetivos.label('objetivos'),
-                PreProjeto.Justificativa.label('justificativa'),
-                PreProjeto.DemocratizacaoDeAcesso.label('democratizacao'),
-                PreProjeto.EtapaDeTrabalho.label('etapa'),
-                PreProjeto.FichaTecnica.label('ficha_tecnica'),
-                PreProjeto.ResumoDoProjeto.label('resumo'),
-                PreProjeto.Sinopse.label('sinopse'),
-                PreProjeto.ImpactoAmbiental.label('impacto_ambiental'),
-                PreProjeto.EspecificacaoTecnica.label(
-                    'especificacao_tecnica'),
-                PreProjeto.EstrategiadeExecucao.label(
-                    'estrategia_execucao'),
-            )
+    def query(self, limit=1, offset=0, id=None, nome=None, data_inicio=None,
+              data_termino=None, sort_field=None, sort_order=None):
+        query = self.raw_query(*self.query_fields)
+        query = query.select_from(PreProjeto)
+        query = query.join(Mecanismo)
+        query = query.order_by(PreProjeto.idPreProjeto)
+        query = filter_query_like(query, {
+            PreProjeto.NomeProjeto: nome,
+        })
+        query = filter_query(query, {
+            PreProjeto.idPreProjeto: id,
+            PreProjeto.DtInicioDeExecucao: data_inicio,
+            PreProjeto.DtFinalDeExecucao: data_termino,
+        })
+
+        sort_field = self.sort_field(sort_field)
+        if sort_order == 'desc':
+            query = query.order_by(desc(sort_field))
         else:
-            additional_fields = ()
+            query = query.order_by(sort_field)
+        return query
 
-        res = self.sql_connector.session.select(
-            PreProjeto.NomeProjeto.label('nome'),
-            PreProjeto.idPreProjeto.label('id'),
-            PreProjeto.DtInicioDeExecucao.label('data_inicio'),
-            PreProjeto.DtFinalDeExecucao.label('data_termino'),
-            PreProjeto.dtAceite.label('data_aceite'),
-            PreProjeto.DtArquivamento.label('data_arquivamento'),
-
-            Mecanismo.Descricao.label('mecanismo'),
-
-            *additional_fields
-
-        ).join(Mecanismo) \
-            .order_by(PreProjeto.idPreProjeto)
-
-        if nome is not None:
-            res = res.filter(
-                PreProjeto.NomeProjeto.like('%' + nome + '%'))
-
-        if id is not None:
-            res = res.filter(PreProjeto.idPreProjeto == id)
-
-        if data_inicio is not None:
-            res = res.filter(PreProjeto.DtInicioDeExecucao == data_inicio)
-
-        if data_termino is not None:
-            res = res.filter(PreProjeto.DtFinalDeExecucao == data_termino)
-
-        total_records = self.count(res)
-
-        res = res.slice(start_row, end_row)
-
-        return res.query(), total_records
+    def sort_field(self, sort_field=None):
+        sorting_fields = {
+            'nome':PreProjeto.NomeProjeto,
+            'id': PreProjeto.idPreProjeto,
+            'data_inicio': PreProjeto.DtInicioDeExecucao,
+            'data_termino':PreProjeto.DtFinalDeExecucao,
+            'data_aceite': PreProjeto.dtAceite,
+            'data_arquivamento': PreProjeto.DtArquivamento,
+        }
+        return sorting_fields[sort_field or 'data_inicio']
