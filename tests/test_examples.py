@@ -66,10 +66,10 @@ class TestCoreUrls:
                 ]
             },
             '_links': {
-                'self': 'v1/projetos/projetos/?limit=100&offset=0',
-                'first': 'v1/projetos/projetos/?limit=100&offset=0',
-                'last': 'v1/projetos/projetos/?limit=100&offset=0',
-                'next': 'v1/projetos/projetos/?limit=100&offset=0',
+                'self': 'v1/projetos/?limit=100&offset=0',
+                'first': 'v1/projetos/?limit=100&offset=0',
+                'last': 'v1/projetos/?limit=100&offset=0',
+                'next': 'v1/projetos/?limit=100&offset=0',
             },
             'total': 1,
         }
@@ -145,6 +145,11 @@ class TestCoreUrls:
         proponente_expected, = expected['_embedded']['proponentes']
         assert proponente_data == proponente_expected
         assert data == expected
+
+    def test_projeto_captacoes(self, client):
+        url = '/v1/projetos/20001234/captacoes'
+        expected = CAPTACOES_RESPONSE
+        self.check_detail_endpoint(client, url, expected)
 
 
 PROJETO_RESPONSE = {
@@ -283,4 +288,26 @@ PREPROJETO_RESPONSE = {
     '_links': {
         'self': 'v1/propostas/1',
     },
+}
+CAPTACOES_RESPONSE = {
+    '_embedded': {
+        'captacoes': [
+            {
+                'PRONAC': '20001234',
+                'cgccpf': '1234',
+                'data_recibo': '2000-01-01',
+                'nome_doador': 'Nome',
+                'nome_projeto': 'Test',
+                'valor': 'CaptacaoReal'
+            }
+        ]
+    },
+    '_links': {
+        'first': 'v1/projetos/20001234/captacoes/?limit=100&offset=0',
+        'last': 'v1/projetos/20001234/captacoes/?limit=100&offset=0',
+        'self': 'v1/projetos/20001234/captacoes/?limit=100&offset=0',
+        'next': 'v1/projetos/20001234/captacoes/?limit=100&offset=0',
+    },
+    'count': 1,
+    'total': 1,
 }
