@@ -46,6 +46,7 @@ class SalicResource(Resource):
     # Basics
     resource_path = None
     query_class = None
+    csv_columns = None
     request_args = set()
 
     # Pre-defined error messages
@@ -171,12 +172,14 @@ class SalicResource(Resource):
         """
         Inject all request arguments to the dictionary of arguments.
         """
-        if not self.request_args.issuperset(request.args):
-            diff = self.request_args - request.args
+        args = set(self.request_args)
+        args.add('format')
+        if not args.issuperset(request.args):
+            diff = args.symmetric_difference(request.args)
             raise self.invalid_request_args_error(diff)
 
         arg_getter = request.args.get
-        extra = {arg: arg_getter(arg) for arg in self.request_args}
+        extra = {arg: arg_getter(arg) for arg in args}
         return dict(kwargs, **extra)
 
     #
@@ -237,7 +240,9 @@ class SalicResource(Resource):
         Return a dictionary with arguments to be passed to the query method of
         the query class.
         """
-        return self.args
+        args = dict(self.args)
+        args.pop('format', None)
+        return args
 
     def render(self, data, headers=None, status_code=200, raw=False):
         """
@@ -269,7 +274,13 @@ class SalicResource(Resource):
 
         elif content_type == 'csv':
             if not raw:
-                data = serialize(data, 'csv')
+                columns = self.csv_columns
+                if columns is None:
+                    class_name = type(self).__name__
+                    msg = 'resource %s must define a csv_columns attribute ' \
+                          'in order to support CSV' % class_name
+                    raise RuntimeError(msg)
+                data = serialize(data, 'csv', columns=columns)
             resource_path = request.path.split("/")
 
             if resource_path[len(resource_path) - 1] != "":

@@ -8,7 +8,7 @@ class FornecedorDetail(DetailResource):
     resource_path = 'fornecedores'
 
     def build_query_args(self):
-        args = dict(self.args)
+        args = super().build_query_args()
         fornecedor_id = args.pop('fornecedor_id')
         args['cgccpf'] = decrypt(fornecedor_id)
         return args

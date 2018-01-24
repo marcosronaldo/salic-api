@@ -18,7 +18,7 @@ class ProponenteDetail(DetailResource):
         }
 
     def build_query_args(self):
-        args = dict(self.args)
+        args = super().build_query_args()
         proponente_id = args.pop('proponente_id')
         args['cgccpf'] = decrypt(proponente_id)
         return args

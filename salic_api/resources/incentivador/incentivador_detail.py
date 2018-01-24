@@ -7,6 +7,8 @@ from ...utils import decrypt
 class IncentivadorDetail(DetailResource):
     query_class = IncentivadorQuery
     resource_path = 'incentivadores'
+    csv_columns = ['cgccpf', 'nome', 'responsavel', 'tipo_pessoa', 'UF',
+                   'municipio', 'total_doado']
 
     def hal_links(self, result):
         encrypted_id = self.args['incentivador_id']
@@ -17,7 +19,7 @@ class IncentivadorDetail(DetailResource):
         }
 
     def build_query_args(self):
-        args = dict(self.args)
+        args = super().build_query_args()
         incentivador_id = args.pop('incentivador_id')
         args['cgccpf'] = decrypt(incentivador_id)
         return args

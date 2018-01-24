@@ -83,6 +83,4 @@ def decrypt(text):
 
 
 def md5hash(text):
-    m = md5.new()
-    m.update(text)
-    return m.hexdigest()
+    return md5(text.encode('utf8')).hexdigest()
