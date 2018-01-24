@@ -22,6 +22,11 @@ class TestCoreUrls:
         expected = PROJETOS_AREAS
         check_endpoint(client, url, expected)
 
+    def test_projetos_detail(self, client):
+        url = '/v1/projetos/20001234'
+        expected = PROJETO_RESPONSE
+        check_endpoint(client, url, expected)
+
     def test_projetos_list(self, client):
         url = '/v1/projetos/'
         expected = single_list(PROJETO_RESPONSE, 'projetos')
@@ -62,7 +67,7 @@ class TestCoreUrls:
         expected = single_list(PROPONENTE_RESPONSE, 'proponentes')
         check_endpoint(client, url, expected)
 
-    def test_projeto_captacoes(self, client):
+    def test_projeto_captacoes_list(self, client):
         url = '/v1/projetos/20001234/captacoes'
         expected = CAPTACOES_RESPONSE
         check_endpoint(client, url, expected)

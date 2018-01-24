@@ -1,4 +1,35 @@
-def payments_listing_sql(idPronac, limit):
+SALIC_SCHEMAS = {
+    'BDCORPORATIVO.scSAC',
+    'BDCORPORATIVO.scCorp',
+    'SAC.dbo',
+    'Agentes.dbo',
+}
+
+USE_SQLITE = True
+
+
+def normalize_sql(sql):
+    """
+    Normalize raw sql before sending it to the database.
+    """
+    if USE_SQLITE:
+        return clean_sql_fields(sql)
+    return sql
+
+
+def clean_sql_fields(sql):
+    """
+    Remove all references to different databases from the SQL command.
+
+    This commands replaces 'BDCORPORATIVO.scSAC', 'SAC.dbo', etc by empty
+    strings.
+    """
+    for db in SALIC_SCHEMAS:
+        sql = sql.replace(db + '.', '')
+    return sql
+
+
+def payments_listing_sql(idPronac, paginate):
     """
     Create SQL to query payment listings.
     """
@@ -12,10 +43,12 @@ def payments_listing_sql(idPronac, limit):
         })
     else:
         fmt['extra_joins'] = PAYMENT_LISTING_JOIN_CGCCPF
-        if not limit:
-            fmt['tail'] = PAYMENT_LISTING_LIMIT
+        if paginate:
+            fmt['tail'] = PAGINATION_SQL
 
-    return PAYMENT_LISTING_SQL.format(**fmt)
+    sql = PAYMENT_LISTING_SQL.format(**fmt)
+    normalized_sql = normalize_sql(sql)
+    return normalized_sql
 
 
 PAYMENT_LISTING_PRONAC_SELECT = (
@@ -29,10 +62,6 @@ PAYMENT_LISTING_JOIN_IDPRONAC = (
 PAYMENT_LISTING_JOIN_CGCCPF = (
     '\n    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente'
     '          WHERE (c.idPronac = :idPronac)'
-)
-PAYMENT_LISTING_LIMIT = (
-    '\n    OFFSET :offset ROWS'
-    '\n    FETCH NEXT :limit ROWS ONLY'
 )
 PAYMENT_LISTING_SQL = """
 SELECT
@@ -65,7 +94,8 @@ SELECT
     a.vlComprovado as valor_pagamento,
     b.idArquivo as id_arquivo,
     b.dsJustificativa as justificativa,
-    f.nmArquivo as nm_arquivo FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
+    f.nmArquivo as nm_arquivo 
+    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
     INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
     LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
     LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
@@ -74,3 +104,13 @@ SELECT
 
     ORDER BY data_pagamento{tail};
 """
+
+if USE_SQLITE:
+    PAGINATION_SQL = (
+        '\n    LIMIT :limit OFFSET :offset'
+    )
+else:
+    PAGINATION_SQL = (
+        '\n    OFFSET :offset ROWS'
+        '\n    FETCH NEXT :limit ROWS ONLY'
+    )

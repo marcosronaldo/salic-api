@@ -257,6 +257,8 @@ class tbComprovantePagamentoxPlanilhaAprovacao(Base):
     idComprovantePagamento = Column(
         Integer,
         ForeignKey('tbComprovantePagamento.idComprovantePagamento'))
+    tpDocumento = Column(Integer)
+    vlComprovado = Column(String)
 
 
 class tbComprovantePagamento(Base):
@@ -267,6 +269,12 @@ class tbComprovantePagamento(Base):
     idComprovantePagamento = Column(Integer, primary_key=True)
     idFornecedor = Column(Integer)
     idArquivo = Column(Integer, ForeignKey('tbArquivo.idArquivo'))
+    DtPagamento = Column(Date)
+    dtEmissao = Column(Date)
+    tpFormaDePagamento = Column(String)
+    nrDocumentoDePagamento = Column(String)
+    nrComprovante = Column(String)
+    dsJustificativa = Column(String)
 
 
 class tbArquivo(Base):
@@ -275,6 +283,7 @@ class tbArquivo(Base):
     __tablename__ = 'tbArquivo'
 
     idArquivo = Column(Integer, primary_key=True)
+    nmArquivo = Column(String)
 
 
 class tbPlanilhaAprovacao(Base):
@@ -284,6 +293,7 @@ class tbPlanilhaAprovacao(Base):
 
     idPlanilhaAprovacao = Column(Integer, primary_key=True)
     idPlanilhaItem = Column(Integer)
+    idPronac = Column(Integer)
 
 
 class tbPlanilhaItens(Base):
@@ -292,6 +302,7 @@ class tbPlanilhaItens(Base):
 
     idPlanilhaItens = Column(Integer, primary_key=True)
     idPlanilhaItem = Column(Integer)
+    Descricao = Column(String)
 
 
 class Nomes(Base):

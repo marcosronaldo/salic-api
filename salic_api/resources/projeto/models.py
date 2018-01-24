@@ -211,20 +211,19 @@ class ProjetoQuery(Query):
 
     # FIXME: ???
     def attached_brands(self, idPronac):
-        return []  # FIXME
-        if use_sql_procedures:
-            query = text("""
-                    SELECT a.idArquivo as id_arquivo, a.nmArquivo as nome_arquivo, a.dtEnvio as data_envio, d.idDocumento as id_documento, CAST(dsDocumento AS TEXT) AS descricao
-                        FROM BDCORPORATIVO.scCorp.tbArquivoImagem AS ai
-                        INNER JOIN BDCORPORATIVO.scCorp.tbArquivo AS a ON ai.idArquivo = a.idArquivo
-                        INNER JOIN BDCORPORATIVO.scCorp.tbDocumento AS d ON a.idArquivo = d.idArquivo
-                        INNER JOIN BDCORPORATIVO.scCorp.tbDocumentoProjeto AS dp ON dp.idDocumento = d.idDocumento
-                        INNER JOIN SAC.dbo.Projetos AS p ON dp.idPronac = p.IdPRONAC WHERE (dp.idTipoDocumento = 1) AND (p.idPronac = :IdPRONAC)
-                """)
-            return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
+        return []
+        query = text("""
+                SELECT a.idArquivo as id_arquivo, a.nmArquivo as nome_arquivo, a.dtEnvio as data_envio, d.idDocumento as id_documento, CAST(dsDocumento AS TEXT) AS descricao
+                    FROM BDCORPORATIVO.scCorp.tbArquivoImagem AS ai
+                    INNER JOIN BDCORPORATIVO.scCorp.tbArquivo AS a ON ai.idArquivo = a.idArquivo
+                    INNER JOIN BDCORPORATIVO.scCorp.tbDocumento AS d ON a.idArquivo = d.idArquivo
+                    INNER JOIN BDCORPORATIVO.scCorp.tbDocumentoProjeto AS dp ON dp.idDocumento = d.idDocumento
+                    INNER JOIN SAC.dbo.Projetos AS p ON dp.idPronac = p.IdPRONAC WHERE (dp.idTipoDocumento = 1) AND (p.idPronac = :IdPRONAC)
+            """)
+        return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
     def postpone_request(self, idPronac):
-        return []  # FIXME
+        return []
         query = text("""
                 SELECT a.DtPedido as data_pedido, a.DtInicio as data_inicio, a.DtFinal as data_final, a.Observacao as observacao, a.Atendimento as atendimento,
                     CASE
@@ -244,13 +243,12 @@ class ProjetoQuery(Query):
 
     def payments_listing(self, limit=None, offset=None, idPronac=None,
                          cgccpf=None):
-        return []  # FIXME
         params = {'offset': offset, 'limit': limit}
         if idPronac:
             params['idPronac'] = idPronac
         else:
             params['cgccpf'] = '%{}%'.format(cgccpf)
-        query = payments_listing_sql(idPronac, limit)
+        query = payments_listing_sql(idPronac, limit is not None)
         return self.execute_query(query, params).fetchall()
 
     def payments_listing_count(self, idPronac=None, cgccpf=None):
