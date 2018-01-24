@@ -1,3 +1,5 @@
+import logging
+
 from flask import current_app
 from flask import request
 
@@ -6,7 +8,8 @@ from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
 from ..serialization import listify_queryset
 from ...app import encrypt, decrypt
-from ...utils.log import Log
+
+log = logging.getLogger('salic-api')
 
 
 def limit_url(url, limit, offset, extra=None):
@@ -138,7 +141,7 @@ class IncentivadorList(ListResource):
                 sort_order = 'asc'
 
             if sort_field not in self.sort_fields:
-                Log.error('sorting field error: ' + str(sort_field))
+                log.error('sorting field error: ' + str(sort_field))
                 result = {
                     'message': 'field error: "%s"' % sort_field,
                     'message_code': 10,
@@ -155,7 +158,7 @@ class IncentivadorList(ListResource):
                                                            sort_order)
 
         except Exception as e:
-            Log.error(str(e))
+            log.error(str(e))
             result = {
                 'message': 'internal error',
                 'message_code': 13,

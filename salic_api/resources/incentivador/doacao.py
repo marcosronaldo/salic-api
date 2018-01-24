@@ -1,8 +1,14 @@
+import logging
+
+from flask import current_app, request
+
 from .models import DoacaoQuery
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ListResource
 from ..serialization import listify_queryset
 from ...app.security import encrypt, decrypt
+
+log = logging.getLogger('salic-api')
 
 
 class Doacao(ListResource):
@@ -91,7 +97,7 @@ class Doacao(ListResource):
         try:
             results, n_records = DoacaoQuery().query(limit, offset, cgccpf)
         except Exception as e:
-            Log.error(str(e))
+            log.error(str(e))
             result = {
                 'message': 'internal error',
                 'message_code': 13,

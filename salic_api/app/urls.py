@@ -2,7 +2,7 @@ from flask import redirect
 from flask_cors import CORS
 from flask_restful import Api
 
-from ..resources.api_doc.SwaggerDef import SwaggerDef
+from ..resources.api_doc.swagger_def import SwaggerDef
 from ..resources.fornecedor.fornecedor_detail import FornecedorDetail
 from ..resources.fornecedor.fornecedor_list import FornecedorList
 from ..resources.fornecedor.produto import Produto

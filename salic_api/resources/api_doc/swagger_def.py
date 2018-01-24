@@ -1,7 +1,10 @@
+import logging
+
 from flask import current_app as app
 
 from ..resource_base import ListResource
-from ...utils.log import Log
+
+log = logging.getLogger('salic-api')
 
 
 class SwaggerDef(ListResource):
@@ -9,7 +12,7 @@ class SwaggerDef(ListResource):
         try:
             swagger_file = open(app.config['SWAGGER_DEF_PATH'])
         except Exception:
-            Log.error(
+            log.error(
                 'error trying to open swagger definition file under the path:  \"%s\"' %
                 app.config['SWAGGER_DEF_PATH'])
             result = {
