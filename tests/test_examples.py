@@ -91,6 +91,11 @@ class TestCoreUrls:
         expected = FORNECEDOR_RESPONSE
         self.check_detail_endpoint(client, url, expected)
 
+    def test_proponentes_detail(self, client):
+        url = '/v1/proponentes/30313233343536373839616263646566e0797636'
+        expected = PROPONENTE_RESPONSE
+        self.check_detail_endpoint(client, url, expected)
+
 
 PROJETO_RESPONSE = {
     # Embedded data
@@ -190,4 +195,18 @@ FORNECEDOR_RESPONSE = {
     },
     "email": "email",
     "nome": "Name"
+}
+
+PROPONENTE_RESPONSE = {
+    'nome': 'Nome',
+    'cgccpf': '1234',
+    '_links': {
+        'self': 'v1/proponentes/30313233343536373839616263646566e0797636',
+        'projetos': 'v1/projetos/?proponente_id=30313233343536373839616263646566e0797636'
+    },
+    'tipo_pessoa': 'juridica',
+    'responsavel': 'Responsavel',
+    'UF': 'Uf',
+    'total_captado': 1000,
+    'municipio': 'Cidade'
 }

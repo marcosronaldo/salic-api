@@ -1,16 +1,65 @@
-from sqlalchemy import case, func
-from sqlalchemy.sql.expression import desc
+from sqlalchemy import func
 
-from ..query import Query
-from ..shared_models import Interessado, Projeto
+from ..query import Query, filter_query, filter_query_like
+from ..shared_models import Interessado, Projeto, Custos
+from ..projeto.models import custo_projeto
+
+
+use_sql_procedures = False
 
 
 class ProponenteQuery(Query):
-    def query(self, limit, offset, nome=None, cgccpf=None, municipio=None,
+
+    query_fields = (
+        custo_projeto.label('total_captado'),
+        Interessado.Nome.label('nome'),
+        Interessado.Cidade.label('municipio'),
+        Interessado.Uf.label('UF'),
+        Interessado.Responsavel.label('responsavel'),
+        Interessado.CgcCpf.label('cgccpf'),
+        Interessado.tipo_pessoa.label('tipo_pessoa'),
+    )
+
+    group_by_fields = (
+        Interessado.Nome,
+        Interessado.Cidade,
+        Interessado.Uf,
+        Interessado.Responsavel,
+        Interessado.CgcCpf,
+        Interessado.tipo_pessoa,
+    )
+
+    tipo_pessoa_map = {
+        'fisica': '1',
+        'juridica': '2',
+    }
+
+    def query(self, limit=1, offset=0, nome=None, cgccpf=None, municipio=None,
               UF=None, tipo_pessoa=None, sort_field=None, sort_order=None):
 
-        start_row = offset
-        end_row = offset + limit
+        query = self.raw_query(*self.query_fields)
+        query = query.select_from(Interessado)
+
+        if not use_sql_procedures:
+            query = query.join(Custos)
+
+        query = query.group_by(*self.group_by_fields)
+        query = query.filter(Projeto.idProjeto.isnot(None))
+        query = filter_query_like(query, {
+            Interessado.CgcCpf: cgccpf,
+            Interessado.Nome: nome,
+        })
+        query = filter_query(query, {
+            Interessado.Uf: UF,
+            Interessado.Cidade: municipio,
+            Interessado.tipoPessoa: self.tipo_pessoa_map.get(tipo_pessoa),
+        })
+
+        return self.sorted(query, sort_field, sort_order)
+
+    def sorted(self, query, sort_field, sort_order):
+        # start_row = offset
+        # end_row = offset + limit
 
         sort_mapping_fields = {
             'cgccpf': Interessado.CgcCpf,
@@ -19,66 +68,24 @@ class ProponenteQuery(Query):
                                             Projeto.Sequencial))
         }
 
-        if sort_field == None:
+        if sort_field is None:
             sort_field = 'cgccpf'
 
         sort_field = sort_mapping_fields[sort_field]
 
-        tipo_pessoa_case = case(
-            [(Interessado.tipoPessoa == '1', 'fisica'), ],
-            else_='juridica')
+        return query
+####################################
 
-        res = self.sql_connector.session.select(
-            func.sum(func.sac.dbo.fnCustoProjeto(Projeto.AnoProjeto,
-                                                 Projeto.Sequencial)).label(
-                'total_captado'),
-            Interessado.Nome.label('nome'),
-            Interessado.Cidade.label('municipio'),
-            Interessado.Uf.label('UF'),
-            Interessado.Responsavel.label('responsavel'),
-            Interessado.CgcCpf.label('cgccpf'),
-            tipo_pessoa_case.label('tipo_pessoa'),
-        ).join(Interessado)
 
-        res = res.group_by(Interessado.Nome,
-                           Interessado.Cidade,
-                           Interessado.Uf,
-                           Interessado.Responsavel,
-                           Interessado.CgcCpf,
-                           tipo_pessoa_case
-                           )
-
-        res = res.filter(Projeto.idProjeto.isnot(None))
-
-        if cgccpf is not None:
-            res = res.filter(Interessado.CgcCpf.like('%' + cgccpf + '%'))
-
-        if nome is not None:
-            res = res.filter(Interessado.Nome.like('%' + nome + '%'))
-
-        if UF is not None:
-            res = res.filter(Interessado.Uf == UF)
-
-        if municipio is not None:
-            res = res.filter(Interessado.Cidade == municipio)
-
-        if tipo_pessoa is not None:
-            if tipo_pessoa == 'fisica':
-                tipo_pessoa = '1'
-            else:
-                tipo_pessoa = '2'
-
-            res = res.filter(Interessado.tipoPessoa == tipo_pessoa)
-
-        # order by descending
-        if sort_order == 'desc':
-            res = res.order_by(desc(sort_field))
-        # order by ascending
-        else:
-            res = res.order_by(sort_field)
-
-        total_records = res.count()
-
-        res = res.slice(start_row, end_row)
-
-        return res.query(), total_records
+#         # order by descending
+#         if sort_order == 'desc':
+#             query = query.order_by(desc(sort_field))
+#         # order by ascending
+#         else:
+#             query = query.order_by(sort_field)
+#
+#         total_records = query.count()
+#
+#         query = query.slice(start_row, end_row)
+#
+#         return res.query(), total_records

@@ -203,6 +203,7 @@ def custos_example():
     return [Custos(
         idCustos=1,
         IdPRONAC=20001234,
+        idInteressado=CPF,
         valor_proposta=1000,
         valor_solicitado=1000,
         valor_aprovado=1000,

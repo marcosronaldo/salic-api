@@ -328,6 +328,7 @@ class Custos(Base):
 
     idCustos = Column(Integer, primary_key=True)
     IdPRONAC = Column(Integer, ForeignKey("Projetos.IdPRONAC"))
+    idInteressado = Column(Integer, ForeignKey("Interessado.CgcCpf"))
     valor_proposta = Column(Integer)
     valor_solicitado = Column(Integer)
     valor_aprovado = Column(Integer)
