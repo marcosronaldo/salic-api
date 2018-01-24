@@ -8,7 +8,10 @@ class ProponenteDetail(DetailResource):
     resource_path = 'proponentes'
     query_class = ProponenteQuery
 
-    sort_fields = ['total_captado']
+    #sort_fields = ['total_captado']
+    csv_columns = ['cgccpf', 'nome',  'responsavel', 'tipo_pessoa',
+                   'UF', 'total_captado', 'municipio']
+
 
     def hal_links(self, result):
         proponente_id = self.args['proponente_id']
