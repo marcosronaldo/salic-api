@@ -5,6 +5,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
 
+from salic_api.resources.projeto.raw_sql import payments_listing_sql
 from salic_api.resources.query import filter_query, filter_query_like
 from ..query import Query
 from ..serialization import listify_queryset
@@ -134,15 +135,15 @@ class ProjetoQuery(Query):
             query = self.raw_query(*self.query_fields)
             query = (
                 query
-                .join(PreProjeto)
-                .join(Interessado)
-                .join(Area)
-                .join(Segmento)
-                .join(Situacao)
-                .join(Mecanismo,
-                      Mecanismo.Codigo == Projeto.Mecanismo)
-                .outerjoin(Enquadramento,
-                           Enquadramento.IdPRONAC == Projeto.IdPRONAC)
+                    .join(PreProjeto)
+                    .join(Interessado)
+                    .join(Area)
+                    .join(Segmento)
+                    .join(Situacao)
+                    .join(Mecanismo,
+                          Mecanismo.Codigo == Projeto.Mecanismo)
+                    .outerjoin(Enquadramento,
+                               Enquadramento.IdPRONAC == Projeto.IdPRONAC)
             )
             if not use_sql_procedures:
                 query = query.join(Custos,
@@ -244,21 +245,13 @@ class ProjetoQuery(Query):
     def payments_listing(self, limit=None, offset=None, idPronac=None,
                          cgccpf=None):
         return []  # FIXME
-        if idPronac is not None:
-            if limit is None:
-                query = text(PAYMENT_LISTING_SQL_PRONAC)
-            else:
-                query = text(PAYMENT_LISTINGS_SQL_PRONAC_LIMIT)
-            params = {'idPronac': idPronac, 'offset': offset, 'limit': limit}
-            return self.execute_query(query, params).fetchall()
+        params = {'offset': offset, 'limit': limit}
+        if idPronac:
+            params['idPronac'] = idPronac
         else:
-            if limit is None:
-                query = text(PAYMENT_LISTINGS_SQL)
-            else:
-                query = text(PAYMENT_LISTINGS_SQL_LIMIT)
-            cgccpf_ = '%' + cgccpf + '%'
-            params = {'cgccpf': cgccpf_, 'offset': offset, 'limit': limit}
-            return self.execute_query(query, params).fetchall()
+            params['cgccpf'] = '%{}%'.format(cgccpf)
+        query = payments_listing_sql(idPronac, limit)
+        return self.execute_query(query, params).fetchall()
 
     def payments_listing_count(self, idPronac=None, cgccpf=None):
         return []  # FIXME
@@ -383,8 +376,8 @@ class CaptacaoQuery(Query):
         )
         query = (
             query
-            .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
-            .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
+                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
         return filter_query(query, {Captacao.PRONAC: PRONAC})
 
@@ -494,13 +487,13 @@ class DistribuicaoQuery(Query):
                 Verificacao.Descricao.label('posicao_logo'),
                 Projeto.Localizacao,
             )
-            .join(Projeto)
-            .join(Produto)
-            .join(Area, Area.Codigo == PlanoDistribuicao.Area)
-            .join(Segmento, Segmento.Codigo == PlanoDistribuicao.Segmento)
-            .join(Verificacao)
-            .filter(and_(Projeto.IdPRONAC == IdPRONAC,
-                         PlanoDistribuicao.stPlanoDistribuicaoProduto == 1))
+                .join(Projeto)
+                .join(Produto)
+                .join(Area, Area.Codigo == PlanoDistribuicao.Area)
+                .join(Segmento, Segmento.Codigo == PlanoDistribuicao.Segmento)
+                .join(Verificacao)
+                .filter(and_(Projeto.IdPRONAC == IdPRONAC,
+                             PlanoDistribuicao.stPlanoDistribuicaoProduto == 1))
         )
 
 
@@ -595,183 +588,3 @@ class AdequacoesParecerQuery(Query):
             LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS e ON e.idArquivo = d.idArquivo WHERE (a.idPronac = :IdPRONAC) AND (a.siEncaminhamento <> 12)
         """)
         return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
-
-
-#
-# SQL Statements
-#
-PAYMENT_LISTING_SQL_PRONAC = """
-SELECT
-    d.Descricao as nome,
-    b.idComprovantePagamento as id_comprovante_pagamento,
-    a.idPlanilhaAprovacao as id_planilha_aprovacao,
-    g.CNPJCPF as cgccpf,
-    e.Descricao as nome_fornecedor,
-    b.DtPagamento as data_aprovacao,
-    CASE tpDocumento
-        WHEN 1 THEN ('Boleto Bancario')
-        WHEN 2 THEN ('Cupom Fiscal')
-        WHEN 3 THEN ('Guia de Recolhimento')
-        WHEN 4 THEN ('Nota Fiscal/Fatura')
-        WHEN 5 THEN ('Recibo de Pagamento')
-        WHEN 6 THEN ('RPA')
-        ELSE ''
-    END as tipo_documento,
-    b.nrComprovante as nr_comprovante,
-    b.dtEmissao as data_pagamento,
-    CASE
-      WHEN b.tpFormaDePagamento = '1'
-         THEN 'Cheque'
-      WHEN b.tpFormaDePagamento = '2'
-         THEN 'Transferencia Bancaria'  WHEN b.tpFormaDePagamento = '3'
-         THEN 'Saque/Dinheiro'
-         ELSE ''
-    END as tipo_forma_pagamento,
-    b.nrDocumentoDePagamento nr_documento_pagamento,
-    a.vlComprovado as valor_pagamento,
-    b.idArquivo as id_arquivo,
-    b.dsJustificativa as justificativa,
-    f.nmArquivo as nm_arquivo FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
-    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
-    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
-    LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
-    LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
-    LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
-    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
-
-    ORDER BY data_pagamento
-"""
-
-PAYMENT_LISTINGS_SQL_PRONAC_LIMIT = """
-SELECT
-    d.Descricao as nome,
-    b.idComprovantePagamento as id_comprovante_pagamento,
-    a.idPlanilhaAprovacao as id_planilha_aprovacao,
-    g.CNPJCPF as cgccpf,
-    e.Descricao as nome_fornecedor,
-    b.DtPagamento as data_aprovacao,
-    CASE tpDocumento
-        WHEN 1 THEN ('Boleto Bancario')
-        WHEN 2 THEN ('Cupom Fiscal')
-        WHEN 3 THEN ('Guia de Recolhimento')
-        WHEN 4 THEN ('Nota Fiscal/Fatura')
-        WHEN 5 THEN ('Recibo de Pagamento')
-        WHEN 6 THEN ('RPA')
-        ELSE ''
-    END as tipo_documento,
-    b.nrComprovante as nr_comprovante,
-    b.dtEmissao as data_pagamento,
-    CASE
-      WHEN b.tpFormaDePagamento = '1'
-         THEN 'Cheque'
-      WHEN b.tpFormaDePagamento = '2'
-         THEN 'Transferencia Bancaria'  WHEN b.tpFormaDePagamento = '3'
-         THEN 'Saque/Dinheiro'
-         ELSE ''
-    END as tipo_forma_pagamento,
-    b.nrDocumentoDePagamento nr_documento_pagamento,
-    a.vlComprovado as valor_pagamento,
-    b.idArquivo as id_arquivo,
-    b.dsJustificativa as justificativa,
-    f.nmArquivo as nm_arquivo FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
-    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
-    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
-    LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
-    LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
-    LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
-    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
-
-    ORDER BY data_pagamento
-    OFFSET :offset ROWS
-    FETCH NEXT :limit ROWS ONLY;
-"""
-
-PAYMENT_LISTINGS_SQL = """
-SELECT
-    d.Descricao as nome,
-    b.idComprovantePagamento as id_comprovante_pagamento,
-    a.idPlanilhaAprovacao as id_planilha_aprovacao,
-    g.CNPJCPF as cgccpf,
-    e.Descricao as nome_fornecedor,
-    b.DtPagamento as data_aprovacao,
-    Projetos.AnoProjeto + Projetos.Sequencial as PRONAC,
-    CASE tpDocumento
-        WHEN 1 THEN ('Boleto Bancario')
-        WHEN 2 THEN ('Cupom Fiscal')
-        WHEN 3 THEN ('Guia de Recolhimento')
-        WHEN 4 THEN ('Nota Fiscal/Fatura')
-        WHEN 5 THEN ('Recibo de Pagamento')
-        WHEN 6 THEN ('RPA')
-        ELSE ''
-    END as tipo_documento,
-    b.nrComprovante as nr_comprovante,
-    b.dtEmissao as data_pagamento,
-    CASE
-      WHEN b.tpFormaDePagamento = '1'
-         THEN 'Cheque'
-      WHEN b.tpFormaDePagamento = '2'
-         THEN 'Transferencia Bancaria'  WHEN b.tpFormaDePagamento = '3'
-         THEN 'Saque/Dinheiro'
-         ELSE ''
-    END as tipo_forma_pagamento,
-    b.nrDocumentoDePagamento nr_documento_pagamento,
-    a.vlComprovado as valor_pagamento,
-    b.idArquivo as id_arquivo,
-    b.dsJustificativa as justificativa,
-    f.nmArquivo as nm_arquivo FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
-    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
-    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
-    LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
-    LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
-    LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
-    JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
-    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
-
-    ORDER BY data_pagamento
-"""
-
-PAYMENT_LISTINGS_SQL_LIMIT = """
-SELECT
-    d.Descricao as nome,
-    b.idComprovantePagamento as id_comprovante_pagamento,
-    a.idPlanilhaAprovacao as id_planilha_aprovacao,
-    g.CNPJCPF as cgccpf,
-    e.Descricao as nome_fornecedor,
-    b.DtPagamento as data_aprovacao,
-    Projetos.AnoProjeto + Projetos.Sequencial as PRONAC,
-    CASE tpDocumento
-        WHEN 1 THEN ('Boleto Bancario')
-        WHEN 2 THEN ('Cupom Fiscal')
-        WHEN 3 THEN ('Guia de Recolhimento')
-        WHEN 4 THEN ('Nota Fiscal/Fatura')
-        WHEN 5 THEN ('Recibo de Pagamento')
-        WHEN 6 THEN ('RPA')
-        ELSE ''
-    END as tipo_documento,
-    b.nrComprovante as nr_comprovante,
-    b.dtEmissao as data_pagamento,
-    CASE
-      WHEN b.tpFormaDePagamento = '1'
-         THEN 'Cheque'
-      WHEN b.tpFormaDePagamento = '2'
-         THEN 'Transferencia Bancaria'  WHEN b.tpFormaDePagamento = '3'
-         THEN 'Saque/Dinheiro'
-         ELSE ''
-    END as tipo_forma_pagamento,
-    b.nrDocumentoDePagamento nr_documento_pagamento,
-    a.vlComprovado as valor_pagamento,
-    b.idArquivo as id_arquivo,
-    b.dsJustificativa as justificativa,
-    f.nmArquivo as nm_arquivo FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
-    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
-    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
-    LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
-    LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
-    LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
-    JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
-    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
-
-    ORDER BY data_pagamento
-    OFFSET :offset ROWS
-    FETCH NEXT :limit ROWS ONLY;
-"""
