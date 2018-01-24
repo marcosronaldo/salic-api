@@ -4,7 +4,7 @@ from flask import current_app
 
 from .models import CaptacaoQuery
 from ..resource_base import ListResource
-from ...app.security import encrypt
+from ...utils import encrypt
 
 log = logging.getLogger('salic-api')
 

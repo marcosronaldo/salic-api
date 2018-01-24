@@ -1,7 +1,6 @@
 from flask import Flask
 
 from .rate_limiting import limiter
-from .security import encrypt, decrypt
 
 
 def create_app(config_file='development.cfg'):

@@ -1,7 +1,7 @@
 from .models import ProponenteQuery
 from .proponente_detail import ProponenteDetail
 from ..resource_base import ListResource
-from ...app.security import encrypt
+from ...utils import encrypt
 
 
 class ProponenteList(ListResource):

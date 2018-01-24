@@ -2,10 +2,10 @@ import os
 
 import pytest
 
+import salic_api.utils
 from salic_api.app import create_app
-from salic_api.app import security
 
-security.STATIC_IV = security.TESTING_IV
+salic_api.utils.STATIC_IV = salic_api.utils.TESTING_IV
 
 DIRNAME = os.path.dirname(__file__)
 os.environ['TESTING'] = 'true'

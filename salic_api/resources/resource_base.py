@@ -8,7 +8,7 @@ from flask_cache import Cache
 from flask_restful import Resource
 
 from .serialization import serialize, listify_queryset
-from ..app.security import md5hash
+from ..utils import md5hash
 
 log = logging.getLogger('salic-api')
 DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'

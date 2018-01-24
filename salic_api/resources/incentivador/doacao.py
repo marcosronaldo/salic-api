@@ -6,7 +6,7 @@ from .models import DoacaoQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import ListResource
 from ..serialization import listify_queryset
-from ...app.security import encrypt, decrypt
+from ...utils import encrypt, decrypt
 
 log = logging.getLogger('salic-api')
 
@@ -32,11 +32,11 @@ class Doacao(ListResource):
                 args['limit'], args['offset'] + args['limit']) + query_args
 
         self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
-                                  args['limit']) + query_args
+            '?limit=%d&offset=0' % (
+            args['limit']) + query_args
         self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
-                                 args['limit'], last_offset) + query_args
+            '?limit=%d&offset=%d' % (
+            args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
 
@@ -45,10 +45,10 @@ class Doacao(ListResource):
         for doacao in args['doacoes']:
             doacao_links = {}
             doacao_links['projeto'] = current_app.config['API_ROOT_URL'] + \
-                                      'projetos/%s' % doacao['PRONAC']
+                'projetos/%s' % doacao['PRONAC']
             incentivador_id = encrypt(doacao['cgccpf'])
             doacao_links['incentivador'] = current_app.config['API_ROOT_URL'] + \
-                                           'incentivadores/%s' % incentivador_id
+                'incentivadores/%s' % incentivador_id
 
             self.doacoes_links.append(doacao_links)
 

@@ -21,25 +21,25 @@ class FornecedorQuery(Query):
         query = query.select_from(ComprovanteAprovacao)
         query = query.distinct(*self.query_fields)
         query = (query
-            .join(Comprovante,
-                  ComprovanteAprovacao.idComprovantePagamento ==
-                  Comprovante.idComprovantePagamento)
-            .outerjoin(Internet,
-                       Comprovante.idFornecedor == Internet.idAgente)
-            .outerjoin(tbPlanilhaAprovacao,
-                       ComprovanteAprovacao.idPlanilhaAprovacao ==
-                       tbPlanilhaAprovacao.idPlanilhaAprovacao)
-            .outerjoin(tbPlanilhaItens,
-                       tbPlanilhaAprovacao.idPlanilhaItem ==
-                       tbPlanilhaItens.idPlanilhaItens)
-            .outerjoin(Nomes,
-                       Comprovante.idFornecedor == Nomes.idAgente)
-            .outerjoin(tbArquivo,
-                       Comprovante.idArquivo == tbArquivo.idArquivo)
-            .outerjoin(Agentes,
-                       Comprovante.idFornecedor == Agentes.idAgente)
+                 .join(Comprovante,
+                       ComprovanteAprovacao.idComprovantePagamento ==
+                       Comprovante.idComprovantePagamento)
+                 .outerjoin(Internet,
+                            Comprovante.idFornecedor == Internet.idAgente)
+                 .outerjoin(tbPlanilhaAprovacao,
+                            ComprovanteAprovacao.idPlanilhaAprovacao ==
+                            tbPlanilhaAprovacao.idPlanilhaAprovacao)
+                 .outerjoin(tbPlanilhaItens,
+                            tbPlanilhaAprovacao.idPlanilhaItem ==
+                            tbPlanilhaItens.idPlanilhaItens)
+                 .outerjoin(Nomes,
+                            Comprovante.idFornecedor == Nomes.idAgente)
+                 .outerjoin(tbArquivo,
+                            Comprovante.idArquivo == tbArquivo.idArquivo)
+                 .outerjoin(Agentes,
+                            Comprovante.idFornecedor == Agentes.idAgente)
 
-            )
+                 )
         query = query.filter(Agentes.CNPJCPF.like(cgccpf))
         query = query.order_by('cgccpf')
         return query

@@ -1,7 +1,7 @@
-from ...app.security import decrypt
 from .models import ProponenteQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import DetailResource
+from ...utils import decrypt
 
 
 class ProponenteDetail(DetailResource):
@@ -12,7 +12,6 @@ class ProponenteDetail(DetailResource):
 
     def hal_links(self, result):
         proponente_id = self.args['proponente_id']
-
         return {
             'self': self.url('/proponentes/%s' % proponente_id),
             'projetos': self.url('/projetos/?proponente_id=%s' % proponente_id)

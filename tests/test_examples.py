@@ -32,6 +32,11 @@ class TestCoreUrls:
         expected = INCENTIVADOR_RESPONSE
         check_endpoint(client, url, expected)
 
+    def test_incentivadores_list(self, client):
+        url = '/v1/incentivadores'
+        expected = single_list(INCENTIVADOR_RESPONSE, 'incentivadores')
+        check_endpoint(client, url, expected)
+
     def test_fornecedores_detail(self, client):
         url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
         expected = FORNECEDOR_RESPONSE

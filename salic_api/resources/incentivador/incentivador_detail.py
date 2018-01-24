@@ -1,7 +1,7 @@
 from .models import IncentivadorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import DetailResource
-from ...app import decrypt
+from ...utils import decrypt
 
 
 class IncentivadorDetail(DetailResource):

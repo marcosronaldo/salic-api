@@ -1,4 +1,4 @@
-from salic_api.app.security import decrypt
+from ...utils import decrypt
 from .models import ProductQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
@@ -27,11 +27,11 @@ class Produto(ListResource):
                 args['limit'], args['offset'] + args['limit']) + query_args
 
         self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
-                                  args['limit']) + query_args
+            '?limit=%d&offset=0' % (
+            args['limit']) + query_args
         self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
-                                 args['limit'], last_offset) + query_args
+            '?limit=%d&offset=%d' % (
+            args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
 
@@ -40,9 +40,9 @@ class Produto(ListResource):
         for produto in args['produtos']:
             produto_links = {}
             produto_links['projeto'] = current_app.config['API_ROOT_URL'] + \
-                                       'projetos/%s' % produto['PRONAC']
+                'projetos/%s' % produto['PRONAC']
             produto_links['fornecedor'] = current_app.config['API_ROOT_URL'] + \
-                                          'fornecedores/%s' % fornecedor_id
+                'fornecedores/%s' % fornecedor_id
 
             self.produtos_links.append(produto_links)
 

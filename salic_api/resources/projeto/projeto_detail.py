@@ -7,7 +7,7 @@ from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import DetailResource, InvalidResult
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
-from ...app.security import encrypt
+from ...utils import encrypt
 
 #
 # Map values from SQL model to JSON result

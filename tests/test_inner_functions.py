@@ -1,6 +1,6 @@
 import pytest
 
-from salic_api.app.security import encrypt, decrypt
+from salic_api.utils import encrypt, decrypt
 
 
 @pytest.fixture(params=['foo', 'foobar', '1234', 'ação'])

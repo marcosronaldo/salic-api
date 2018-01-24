@@ -24,7 +24,6 @@ class PreProjetoQuery(Query):
         Mecanismo.Descricao.label('mecanismo'),
     )
 
-
     def query(self, limit=1, offset=0, id=None, nome=None, data_inicio=None,
               data_termino=None, sort_field=None, sort_order=None):
         query = self.raw_query(*self.query_fields)
@@ -49,10 +48,10 @@ class PreProjetoQuery(Query):
 
     def sort_field(self, sort_field=None):
         sorting_fields = {
-            'nome':PreProjeto.NomeProjeto,
+            'nome': PreProjeto.NomeProjeto,
             'id': PreProjeto.idPreProjeto,
             'data_inicio': PreProjeto.DtInicioDeExecucao,
-            'data_termino':PreProjeto.DtFinalDeExecucao,
+            'data_termino': PreProjeto.DtFinalDeExecucao,
             'data_aceite': PreProjeto.dtAceite,
             'data_arquivamento': PreProjeto.DtArquivamento,
         }

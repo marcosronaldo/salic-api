@@ -1,6 +1,6 @@
 from .models import FornecedorQuery
 from ..resource_base import DetailResource
-from ...app.security import decrypt
+from ...utils import decrypt
 
 
 class FornecedorDetail(DetailResource):

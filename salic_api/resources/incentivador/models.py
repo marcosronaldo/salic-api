@@ -3,7 +3,7 @@ from sqlalchemy.sql.expression import desc
 
 from ..query import Query, filter_query_like, filter_query
 from ..shared_models import Interessado, Projeto, Captacao
-from salic_api.utils import pc_quote
+from ...utils import pc_quote
 
 
 class IncentivadorQuery(Query):
@@ -82,8 +82,8 @@ class DoacaoQuery(Query):
     def query(self, limit=None, offset=0, cgccpf=None):
         query = (
             self.raw_query(*self.query_fields)
-                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
-                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+            .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
+            .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
         if cgccpf is not None:
             return query.filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))

@@ -1,4 +1,4 @@
-from salic_api.app.security import encrypt, decrypt
+from ...utils import encrypt, decrypt
 from .models import FornecedorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
 from ..resource_base import *
@@ -25,11 +25,11 @@ class FornecedorList(ListResource):
                 args['limit'], args['offset'] + args['limit']) + query_args
 
         self.links["first"] = self.links["self"] + \
-                              '?limit=%d&offset=0' % (
-                                  args['limit']) + query_args
+            '?limit=%d&offset=0' % (
+            args['limit']) + query_args
         self.links["last"] = self.links["self"] + \
-                             '?limit=%d&offset=%d' % (
-                                 args['limit'], last_offset) + query_args
+            '?limit=%d&offset=%d' % (
+            args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
 
@@ -40,9 +40,9 @@ class FornecedorList(ListResource):
             fornecedor_id_enc = encrypt(fornecedor_id)
 
             links['self'] = current_app.config['API_ROOT_URL'] + \
-                            'fornecedores/%s' % fornecedor_id_enc
+                'fornecedores/%s' % fornecedor_id_enc
             links['produtos'] = current_app.config['API_ROOT_URL'] + \
-                                'fornecedores/%s/produtos/' % fornecedor_id_enc
+                'fornecedores/%s/produtos/' % fornecedor_id_enc
 
             self.fornecedores_links.append(links)
 
