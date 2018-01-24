@@ -148,9 +148,11 @@ class SalicResource(Resource):
         to the API_ROOT_URL.
         """
         base = current_app.config['API_ROOT_URL'].rstrip("/")
-        path = "".join(args).lstrip("/")
-
-        return "/".join([base, path])
+        path = '/'.join(args).lstrip("/")
+        if kwargs:
+            query_args = '?'.join('%s=%s' % item for item in kwargs.items())
+            path = '%s?%s' % (path, query_args)
+        return '%s/%s' % (base, path.lstrip('/'))
 
     def unique_cgccpf(self, cgccpf, elements):
         """
