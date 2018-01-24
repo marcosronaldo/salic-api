@@ -53,8 +53,17 @@ $ pytest --lf --max-fail=2 --cov
 ```
 
 ### Docker
-...
 
+```
+# Clone o repositorio
+$ git clone https://github.com/lappis-unb/salic-api
+
+docker built -t salic-api .
+
+docker run -it --name salic-api -p 5000:5000 -v $PWD:/app salic-api
+```
+
+---
 
 Execute como root o script **install.sh**
 
