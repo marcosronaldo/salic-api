@@ -51,7 +51,6 @@ class TestCoreUrls:
         expected = PROJETO_RESPONSE
         self.check_endpoint(client, url, expected)
 
-
     def test_projetos_list(self, client):
         data = client.get('/v1/projetos/').get_data(as_text=True)
         data = json.loads(data)
@@ -84,6 +83,32 @@ class TestCoreUrls:
         expected = INCENTIVADOR_RESPONSE
         self.check_endpoint(client, url, expected)
 
+    def test_incentivadores_list(self, client):
+        data = client.get('/v1/incentivadores/').get_data(as_text=True)
+        data = json.loads(data)
+        expected = copy.deepcopy(INCENTIVADOR_RESPONSE)
+
+        expected = {
+            'count': 1,
+            '_embedded': {
+                'incentivadores': [
+                    expected,
+                ]
+            },
+            '_links': {
+                'self': 'v1/incentivadores/incentivadores/?limit=100&offset=0',
+                'first': 'v1/incentivadores/incentivadores/?limit=100&offset=0',
+                'last': 'v1/incentivadores/incentivadores/?limit=100&offset=0',
+                'next': 'v1/incentivadores/incentivadores/?limit=100&offset=0',
+            },
+            'total': 1,
+        }
+        assert sorted(data) == sorted(expected)
+        proponente_data, = data['_embedded']['incentivadores']
+        proponente_expected, = expected['_embedded']['incentivadores']
+        assert proponente_data == proponente_expected
+        assert data == expected
+
     def test_fornecedores_detail(self, client):
         url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
         expected = FORNECEDOR_RESPONSE
@@ -100,18 +125,18 @@ class TestCoreUrls:
 
         expected = {
             'count': 1,
-                '_embedded': {
-                    'propostas': [
-                        expected,
-                    ]
-                },
-                '_links': {
-                    'self': 'v1/propostas/propostas/?limit=100&offset=0',
-                    'first': 'v1/propostas/propostas/?limit=100&offset=0',
-                    'last': 'v1/propostas/propostas/?limit=100&offset=0',
-                    'next': 'v1/propostas/propostas/?limit=100&offset=0',
-                },
-                'total': 1,
+            '_embedded': {
+                'propostas': [
+                    expected,
+                ]
+            },
+            '_links': {
+                'self': 'v1/propostas/propostas/?limit=100&offset=0',
+                'first': 'v1/propostas/propostas/?limit=100&offset=0',
+                'last': 'v1/propostas/propostas/?limit=100&offset=0',
+                'next': 'v1/propostas/propostas/?limit=100&offset=0',
+            },
+            'total': 1,
         }
         self.check_endpoint(client, url, expected)
 
