@@ -33,9 +33,10 @@ def cov(ctx):
 
 
 @task(
-    help={'debug': 'enable debugging warnings'}
+    help={'debug': 'enable debugging warnings.',
+          'host': 'set interface to bind to.'}
 )
-def run(ctx, debug=False):
+def run(ctx, debug=False, host=None):
     "Run flask application."
 
     env = {
@@ -44,7 +45,10 @@ def run(ctx, debug=False):
     }
     if debug:
         env['DEBUG'] = 'true'
-    ctx.run(sys.executable + ' -m flask run', env=env)
+    args = ''
+    if host is not None:
+        args += ' -h %s' % host
+    ctx.run("%s -m flask run%s" % (sys.executable, args), env=env)
 
 
 @task(

@@ -140,18 +140,17 @@ class SalicResource(Resource):
     #
     # Utility functions
     #
-    def url(self, path):
+    def url(self, *args, **kwargs):
         """
         Return a normalized URL for a path relative to the current resource.
 
         If path begins with a backslash, treat it as a absolute path relative
         to the API_ROOT_URL.
         """
-        if path.startswith('/'):
-            return current_app.config['API_ROOT_URL'] + path[1:]
-        else:
-            base = self.resource_path + '/' or ''
-            return current_app.config['API_ROOT_URL'] + base + path
+        base = current_app.config['API_ROOT_URL'].rstrip("/")
+        path = "".join(args).lstrip("/")
+
+        return "/".join([base, path])
 
     def unique_cgccpf(self, cgccpf, elements):
         """
