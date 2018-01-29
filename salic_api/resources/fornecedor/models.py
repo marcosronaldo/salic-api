@@ -40,7 +40,10 @@ class FornecedorQuery(Query):
                             Comprovante.idFornecedor == Agentes.idAgente)
 
                  )
-        query = query.filter(Agentes.CNPJCPF.like(cgccpf))
+
+        if cgccpf is not None:
+            query = query.filter(Agentes.CNPJCPF.like(cgccpf))
+
         query = query.order_by('cgccpf')
         return query
 

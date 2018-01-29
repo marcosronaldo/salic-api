@@ -47,6 +47,11 @@ class TestCoreUrls:
         expected = FORNECEDOR_RESPONSE
         check_endpoint(client, url, expected)
 
+    def test_fornecedores_list(self, client):
+        url = '/v1/fornecedores/'
+        expected = single_list(FORNECEDOR_RESPONSE, 'fornecedores')
+        check_endpoint(client, url, expected)
+
     def test_preprojetos_detail(self, client):
         url = '/v1/propostas/1'
         expected = PREPROJETO_RESPONSE
