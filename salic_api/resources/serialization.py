@@ -66,5 +66,6 @@ def to_csv(data, columns):
     writer = csv.DictWriter(file, columns)
     writer.writeheader()
     for row in data:
-        writer.writerow(row)
+        filtered_row = {key: row[key] for key in row if key in columns}
+        writer.writerow(filtered_row)
     return file.getvalue()

@@ -6,6 +6,7 @@ from ...utils import decrypt
 class FornecedorDetail(DetailResource):
     query_class = FornecedorQuery
     resource_path = 'fornecedores'
+    csv_columns = ['email', 'nome', 'cgccpf']
 
     def build_query_args(self):
         args = super().build_query_args()

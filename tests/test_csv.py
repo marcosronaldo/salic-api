@@ -14,6 +14,15 @@ class TestCsv:
         expected = PROPOSTA_CSV
         check_csv(client, url, expected)
 
+    def test_fornecedor_csv(self, client):
+        url = '/v1/fornecedores/3343c59a47414d4dd0294c6f36035e00eda6bd74'
+        expected = FORNECEDOR_CSV
+        check_csv(client, url, expected)
+
+    def test_projeto_csv(self, client):
+        url = '/v1/projetos/20001234'
+        expected = PROJETO_CSV
+        check_csv(client, url, expected)
 
 def check_csv(client, url, expected):
     response = client.get(url + '?format=csv')
@@ -43,3 +52,21 @@ PROPOSTA_CSV = (
     "DemocratizacaoDeAcesso,2000-01-01,Sinopse,Test,EstrategiadeExecucao,"
     "EspecificacaoTecnica,Acessibilidade,cultural,"
     "EtapaDeTrabalho,ResumoDoProjeto,Justificativa\r\n")
+
+FORNECEDOR_CSV = """email,nome,cgccpf
+email,Name,1234
+""".replace('\n', '\r\n')
+
+PROJETO_CSV = (
+"objetivos,cgccpf,valor_captado,situacao,data_termino,PRONAC,valor_solicitado,"
+"etapa,segmento,acessibilidade,especificacao_tecnica,sinopse,valor_projeto,"
+"enquadramento,UF,justificativa,providencia,proponente,democratizacao,"
+"data_inicio,ficha_tecnica,mecanismo,impacto_ambiental,nome,"
+"estrategia_execucao,resumo,outras_fontes,municipio,valor_aprovado,"
+"valor_proposta,ano_projeto,area,code,message\r\n"
+
+"cultural,1234,1000,Descricao,2000-02-01,20001234,1000,EtapaDeTrabalho,"
+"Descricao,Acessibilidade,EspecificacaoTecnica,Sinopse,1000,Artigo 26,DF,"
+"Justificativa,nenhuma,Nome,DemocratizacaoDeAcesso,2000-01-01,FichaTecnica,"
+"Descricao,ImpactoAmbiental,Test,EstrategiadeExecucao,ResumoDoProjeto,0,"
+"Cidade,1000,1000,2000,Artes Cênicas,,\r\n")
