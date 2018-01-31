@@ -175,3 +175,39 @@ CAPTACOES_RESPONSE = {
     'count': 1,
     'total': 1,
 }
+PRODUTOS_RESPONSE = {
+    "count": 1,
+    "_embedded": {
+        "produtos": [
+            {
+                "id_planilha_aprovacao": 1,
+                "justificativa": None,
+                "data_pagamento": None,
+                "nome": None,
+                "cgccpf": "1234",
+                "tipo_forma_pagamento": None,
+                "data_aprovacao": None,
+                "valor_pagamento": None,
+                "_links": {
+                    "projeto": "v1/projetos/148794",
+                    "fornecedor": "v1/fornecedores/1"
+                },
+                "id_arquivo": 1,
+                "nr_comprovante": None,
+                "nome_fornecedor": "Name",
+                "id_comprovante_pagamento": 1,
+                "tipo_documento": None,
+                "nr_documento_pagamento": None,
+                "nm_arquivo": None,
+                "PRONAC": "20001234"
+            }
+        ]
+    },
+    "total": 17,
+    "_links": {
+        "self": "v1/fornecedores/1/produtos/?limit=100&offset=0",
+        "first": "v1/fornecedores/1/produtos/?limit=100&offset=0",
+        "last": "v1/fornecedores/1/produtos/?limit=100&offset=0",
+        "next": "v1/fornecedores/1/produtos/?limit=100&offset=0"
+    }
+}

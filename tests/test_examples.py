@@ -5,7 +5,7 @@ import pytest
 
 from tests.examples import PROJETOS_AREAS, PROJETO_RESPONSE, \
     INCENTIVADOR_RESPONSE, FORNECEDOR_RESPONSE, PROPONENTE_RESPONSE, \
-    PREPROJETO_RESPONSE, CAPTACOES_RESPONSE
+    PREPROJETO_RESPONSE, CAPTACOES_RESPONSE, PRODUTOS_RESPONSE
 
 
 @pytest.mark.usefixtures('db_data')
@@ -78,6 +78,11 @@ class TestCoreUrls:
     def test_projeto_captacoes_list(self, client):
         url = '/v1/projetos/20001234/captacoes'
         expected = CAPTACOES_RESPONSE
+        check_endpoint(client, url, expected)
+
+    def test_fornecedor_produtos(self, client):
+        url = '/v1/fornecedores/1/produtos'
+        expected = PRODUTOS_RESPONSE
         check_endpoint(client, url, expected)
 
 

@@ -1,12 +1,13 @@
 from sqlalchemy.sql import text
 
 from ..projeto.models import ProjetoQuery
-from ..query import Query
+from ..query import Query, filter_query
 from ..serialization import listify_queryset
 from ..shared_models import Agentes, Nomes, Internet, \
     tbComprovantePagamento as Comprovante, \
     tbComprovantePagamentoxPlanilhaAprovacao as ComprovanteAprovacao, \
-    tbPlanilhaAprovacao, tbPlanilhaItens, tbArquivo
+    tbPlanilhaAprovacao, tbPlanilhaItens, tbArquivo, Produto, Enquadramento, \
+    Projeto
 
 
 class FornecedorQuery(Query):
@@ -105,11 +106,37 @@ class FornecedorQuery(Query):
 
 
 class ProductQuery(Query):
-    def query(self, limit, offset, cgccpf):
-        return ProjetoQuery().payments_listing(limit, offset, cgccpf=cgccpf)
+    query_fields = (
+        ComprovanteAprovacao.idPlanilhaAprovacao.label(
+            "id_planilha_aprovacao"),
+        Comprovante.dsJustificativa.label("justificativa"),
+        Comprovante.DtPagamento.label("data_pagamento"),
+        Produto.Nome.label("nome"),
+        Agentes.CNPJCPF.label("cgccpf"),
+        Comprovante.tpFormaDePagamento.label("tipo_forma_pagamento"),
+        Comprovante.DtPagamento.label("data_aprovacao"),
+        ComprovanteAprovacao.vlComprovado.label("valor_pagamento"),
+        Comprovante.idArquivo.label("id_arquivo"),
+        Comprovante.nrComprovante.label("nr_comprovante"),
+        Nomes.Descricao.label("nome_fornecedor"),
+        Comprovante.idComprovantePagamento.label("id_comprovante_pagamento"),
+        ComprovanteAprovacao.tpDocumento.label("tipo_documento"),
+        Comprovante.nrDocumentoDePagamento.label("nr_documento_pagamento"),
+        tbArquivo.nmArquivo.label("nm_arquivo"),
+        Projeto.PRONAC.label("PRONAC"),
+    )
 
-    def count(self, cgccpf):
-        return ProjetoQuery().payments_listing_count(cgccpf=cgccpf)
+    def query(self, fornecedor_id, limit=100, offset=0):
+        q = self.raw_query(*self.query_fields)
+
+        q = q.select_from(Comprovante)
+        q = q.order_by(ComprovanteAprovacao.idPlanilhaAprovacao)
+
+        q = filter_query(q, {
+            Comprovante.idFornecedor: fornecedor_id,
+        })
+
+        return q
 
 
 FORNECEDOR_CGCCPF = """

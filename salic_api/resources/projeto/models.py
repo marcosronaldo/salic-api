@@ -136,15 +136,15 @@ class ProjetoQuery(Query):
             query = self.raw_query(*self.query_fields)
             query = (
                 query
-                    .join(PreProjeto)
-                    .join(Interessado)
-                    .join(Area)
-                    .join(Segmento)
-                    .join(Situacao)
-                    .join(Mecanismo,
-                          Mecanismo.Codigo == Projeto.Mecanismo)
-                    .outerjoin(Enquadramento,
-                               Enquadramento.IdPRONAC == Projeto.IdPRONAC)
+                .join(PreProjeto)
+                .join(Interessado)
+                .join(Area)
+                .join(Segmento)
+                .join(Situacao)
+                .join(Mecanismo,
+                      Mecanismo.Codigo == Projeto.Mecanismo)
+                .outerjoin(Enquadramento,
+                           Enquadramento.IdPRONAC == Projeto.IdPRONAC)
             )
             if not use_sql_procedures:
                 query = query.join(Custos,
@@ -373,8 +373,8 @@ class CaptacaoQuery(Query):
         )
         query = (
             query
-                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
-                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+            .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
+            .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
         return filter_query(query, {Captacao.PRONAC: PRONAC})
 
