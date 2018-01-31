@@ -3,8 +3,9 @@ SALIC_SCHEMAS = {
     'BDCORPORATIVO.scCorp',
     'SAC.dbo',
     'sac.dbo',
-    'Agentes.dbo',
     'Sac.dbo',
+    'Agentes.dbo',
+    'TABELAS.dbo',
 }
 
 USE_SQLITE = True

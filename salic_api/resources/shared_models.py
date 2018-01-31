@@ -415,3 +415,26 @@ class tbDeslocamento(Base):
     idPaisDestino = Column(Integer, ForeignKey('Pais.idPais'))
     idUFDestino = Column(Integer, ForeignKey('uf.iduf'))
     idMunicipioDestino = Column(Integer, ForeignKey('Municipios.idMunicipioIBGE'))
+
+
+class Usuarios(Base):
+    _full_name = 'TABELAS.dbo.Usuarios'
+    __tablename__ = 'Usuarios'
+
+    usu_codigo = Column(Integer, primary_key=True)
+    usu_nome = Column(String)
+
+
+# FIXME put right columns when given access to this table.
+#for now using made up primary key
+class prorrogacao(Base):
+    __tablename__ = 'prorrogacao'
+
+    idProrrogacao = Column(Integer, primary_key=True)
+    Logon = Column(Integer)
+    DtPedido = Column(Date)
+    DtInicio = Column(Date)
+    DtFinal = Column(Date)
+    Observacao = Column(String)
+    Atendimento = Column(String)
+    idPronac = Column(Integer)

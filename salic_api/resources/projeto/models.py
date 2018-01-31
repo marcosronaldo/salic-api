@@ -209,7 +209,6 @@ class ProjetoQuery(Query):
         else:
             return []
 
-    # FIXME: ???
     def attached_brands(self, idPronac):
         query = text(normalize_sql("""
                 SELECT a.idArquivo as id_arquivo
@@ -222,8 +221,7 @@ class ProjetoQuery(Query):
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
     def postpone_request(self, idPronac):
-        return []
-        query = text("""
+        query = text(normalize_sql("""
                 SELECT a.DtPedido as data_pedido, a.DtInicio as data_inicio, a.DtFinal as data_final, a.Observacao as observacao, a.Atendimento as atendimento,
                     CASE
                         WHEN Atendimento = 'A'
@@ -237,7 +235,7 @@ class ProjetoQuery(Query):
                         END as estado
                     , b.usu_nome AS usuario FROM prorrogacao AS a
                     LEFT JOIN TABELAS.dbo.Usuarios AS b ON a.Logon = b.usu_codigo WHERE (idPronac = :IdPRONAC)
-            """)
+            """))
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
     def payments_listing(self, limit=None, offset=None, idPronac=None,

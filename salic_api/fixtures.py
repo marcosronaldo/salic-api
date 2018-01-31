@@ -326,6 +326,26 @@ def tbDeslocamento_example():
         idMunicipioDestino = 1,
     )]
 
+
+def usuarios_example():
+    return[Usuarios(
+        usu_codigo=1,
+        usu_nome='nome',
+    )]
+
+
+def prorrogacao_example():
+    return[prorrogacao(
+        idProrrogacao = 1,
+        Logon = 1,
+        DtPedido = date(2000, 1, 1),
+        DtInicio = date(2000, 1, 1),
+        DtFinal = date(2000, 3, 1),
+        Observacao = 'Observacao',
+        Atendimento = 'A',
+        idPronac = 20001234,
+    )]
+
 #
 # Registe all factories
 #
@@ -341,4 +361,5 @@ FACTORIES = [
     nomes_example, agentes_example, internet_example,
     arquivo_imagem_example, documento_example, documento_projeto_example,
     pais_example, uf_example, municipio_example, tbDeslocamento_example,
+    usuarios_example, prorrogacao_example,
 ]
