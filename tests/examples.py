@@ -181,29 +181,29 @@ PRODUTOS_RESPONSE = {
         "produtos": [
             {
                 "id_planilha_aprovacao": 1,
-                "justificativa": None,
-                "data_pagamento": None,
-                "nome": None,
+                "justificativa": 'Uma justificativa',
+                "data_pagamento": '2000-01-01',
+                "nome": "Um Produto",
                 "cgccpf": "1234",
-                "tipo_forma_pagamento": None,
-                "data_aprovacao": None,
-                "valor_pagamento": None,
-                "_links": {
-                    "projeto": "v1/projetos/148794",
-                    "fornecedor": "v1/fornecedores/1"
-                },
+                "tipo_forma_pagamento": 'Dinheiro',
+                "data_aprovacao": '2000-02-02',
+                "valor_pagamento": '2890',
+                # "_links": {
+                #     "projeto": "v1/projetos/148794",
+                #     "fornecedor": "v1/fornecedores/1"
+                # },
                 "id_arquivo": 1,
-                "nr_comprovante": None,
+                "nr_comprovante": '1',
                 "nome_fornecedor": "Name",
                 "id_comprovante_pagamento": 1,
-                "tipo_documento": None,
-                "nr_documento_pagamento": None,
-                "nm_arquivo": None,
-                "PRONAC": "20001234"
+                "tipo_documento": "Boleto Bancario",
+                "nr_documento_pagamento": '1',
+                "nm_arquivo": '1',
+                "PRONAC": "20001234",
             }
         ]
     },
-    "total": 17,
+    "total": 1,
     "_links": {
         "self": "v1/fornecedores/1/produtos/?limit=100&offset=0",
         "first": "v1/fornecedores/1/produtos/?limit=100&offset=0",

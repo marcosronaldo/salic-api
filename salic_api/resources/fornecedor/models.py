@@ -47,7 +47,7 @@ class FornecedorQuery(Query):
         if cgccpf is not None:
             query = query.filter(Agentes.CNPJCPF.like(cgccpf))
 
-        query = query.order_by('cgccpf')
+        # query = query.order_by('cgccpf')
         return query
 
         # FIXME: move this to a separarte function
@@ -110,8 +110,8 @@ class ProductQuery(Query):
         ComprovanteAprovacao.idPlanilhaAprovacao.label(
             "id_planilha_aprovacao"),
         Comprovante.dsJustificativa.label("justificativa"),
-        Comprovante.DtPagamento.label("data_pagamento"),
-        Produto.Nome.label("nome"),
+        Comprovante.dtEmissao.label("data_pagamento"),
+        Produto.Descricao.label("nome"),
         Agentes.CNPJCPF.label("cgccpf"),
         Comprovante.tpFormaDePagamento.label("tipo_forma_pagamento"),
         Comprovante.DtPagamento.label("data_aprovacao"),
@@ -127,16 +127,24 @@ class ProductQuery(Query):
     )
 
     def query(self, fornecedor_id, limit=100, offset=0):
-        q = self.raw_query(*self.query_fields)
+        query = self.raw_query(*self.query_fields)
 
-        q = q.select_from(Comprovante)
-        q = q.order_by(ComprovanteAprovacao.idPlanilhaAprovacao)
+        query = query.select_from(Comprovante)
+        query = query.order_by(ComprovanteAprovacao.idPlanilhaAprovacao)
+        query = (query
+                 .outerjoin(Nomes,
+                            Comprovante.idFornecedor == Nomes.idAgente)
+                 .outerjoin(Agentes,
+                            Comprovante.idFornecedor == Agentes.idAgente)
+                 .outerjoin(Projeto,
+                            Comprovante.idFornecedor == Agentes.idAgente)
+                )
 
-        q = filter_query(q, {
+        query = filter_query(query, {
             Comprovante.idFornecedor: fornecedor_id,
         })
 
-        return q
+        return query
 
 
 FORNECEDOR_CGCCPF = """

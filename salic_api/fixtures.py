@@ -202,7 +202,7 @@ def plano_divulgacao_example():
 
 def produto_example():
     return [Produto(
-        Descricao='Descricao',
+        Descricao='Um Produto',
         Area='Area',
         Sintese='Sintese',
         Idorgao=1,
@@ -251,6 +251,8 @@ def tbcomprovantepagamentoxplanilhaaprovacao_example():
     return [tbComprovantePagamentoxPlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idComprovantePagamento=1,
+        tpDocumento='Boleto Bancario',
+        vlComprovado='2890',
     )]
 
 
@@ -259,12 +261,19 @@ def tbcomprovantepagamento_example():
         idComprovantePagamento=1,
         idFornecedor=1,
         idArquivo=1,
+        dsJustificativa='Uma justificativa',
+        dtEmissao=date(2000, 1, 1),
+        tpFormaDePagamento='Dinheiro',
+        DtPagamento=date(2000, 2, 2),
+        nrComprovante='1',
+        nrDocumentoDePagamento='1',
     )]
 
 
 def tbarquivo_example():
     return [tbArquivo(
         idArquivo=1,
+        nmArquivo='1',
     )]
 
 
