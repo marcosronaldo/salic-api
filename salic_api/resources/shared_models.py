@@ -284,6 +284,7 @@ class tbArquivo(Base):
 
     idArquivo = Column(Integer, primary_key=True)
     nmArquivo = Column(String)
+    dtEnvio = Column(Date)
 
 
 class tbPlanilhaAprovacao(Base):
@@ -347,3 +348,33 @@ class Custos(Base):
     valor_aprovado_convenio = Column(Integer)
     custo_projeto = Column(Integer)
     outras_fontes = Column(Integer)
+
+
+# FIXME put right columns when given access to this table
+class tbArquivoImagem(Base):
+    _full_name = 'BDCORPORATIVO.scCorp.tbArquivoImagem'
+    __tablename__ = 'tbArquivoImagem'
+
+    idArquivoImagem = Column(Integer, primary_key=True)
+    idArquivo = Column(Integer, ForeignKey("tbArquivo.idArquivo"))
+    imagem = Column(String)
+    dsDocumento = Column(String)
+
+
+class tbDocumento(Base):
+    _full_name = 'BDCORPORATIVO.scCorp.tbDocumento'
+    __tablename__ = 'tbDocumento'
+
+    idDocumento = Column(Integer, primary_key=True)
+    idArquivo = Column(Integer, ForeignKey("tbArquivo.idArquivo"))
+
+
+class tbDocumentoProjeto(Base):
+    _full_name = 'BDCORPORATIVO.scCorp.tbDocumentoProjeto'
+    __tablename__ = 'tbDocumentoProjeto'
+
+    idDocumentoProjeto = Column(Integer, primary_key=True)
+    idDocumento = Column(Integer, ForeignKey("tbDocumento.idDocumento"))
+    idTipoDocumento = Column(Integer)
+    idPronac = Column(Integer)
+

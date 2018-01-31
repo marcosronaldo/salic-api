@@ -5,7 +5,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
 
-from salic_api.resources.projeto.raw_sql import payments_listing_sql
+from salic_api.resources.projeto.raw_sql import payments_listing_sql, normalize_sql
 from salic_api.resources.query import filter_query, filter_query_like
 from ..query import Query
 from ..serialization import listify_queryset
@@ -211,15 +211,14 @@ class ProjetoQuery(Query):
 
     # FIXME: ???
     def attached_brands(self, idPronac):
-        return []
-        query = text("""
-                SELECT a.idArquivo as id_arquivo, a.nmArquivo as nome_arquivo, a.dtEnvio as data_envio, d.idDocumento as id_documento, CAST(dsDocumento AS TEXT) AS descricao
+        query = text(normalize_sql("""
+                SELECT a.idArquivo as id_arquivo
                     FROM BDCORPORATIVO.scCorp.tbArquivoImagem AS ai
                     INNER JOIN BDCORPORATIVO.scCorp.tbArquivo AS a ON ai.idArquivo = a.idArquivo
                     INNER JOIN BDCORPORATIVO.scCorp.tbDocumento AS d ON a.idArquivo = d.idArquivo
                     INNER JOIN BDCORPORATIVO.scCorp.tbDocumentoProjeto AS dp ON dp.idDocumento = d.idDocumento
                     INNER JOIN SAC.dbo.Projetos AS p ON dp.idPronac = p.IdPRONAC WHERE (dp.idTipoDocumento = 1) AND (p.idPronac = :IdPRONAC)
-            """)
+            """))
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
     def postpone_request(self, idPronac):
@@ -423,16 +422,14 @@ class DivulgacaoQuery(Query):
     # V2 = aliased(Verificacao)
 
     def query(self, IdPRONAC):
-        return []  # FIXME
-
-        stmt = text("""
+        stmt = text(normalize_sql("""
             SELECT v1.Descricao as peca,v2.Descricao as veiculo
                 FROM sac.dbo.PlanoDeDivulgacao d
                 INNEr JOIN sac.dbo.Projetos p on (d.idProjeto = p.idProjeto)
                 INNER JOIN sac.dbo.Verificacao v1 on (d.idPeca = v1.idVerificacao)
                 INNER JOIN sac.dbo.Verificacao v2 on (d.idVeiculo = v2.idVerificacao)
                 WHERE p.IdPRONAC=:IdPRONAC AND d.stPlanoDivulgacao = 1
-            """)
+            """))
         return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
 
 

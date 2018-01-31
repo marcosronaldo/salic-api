@@ -1,13 +1,7 @@
 from datetime import date
 
 from .database.connector import get_session
-from .resources.shared_models import Area, Projeto, PreProjeto, \
-    PlanoDistribuicao, Produto, PlanoDivulgacao, Verificacao, Segmento, \
-    Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
-    CertidoesNegativas, Custos, tbComprovantePagamentoxPlanilhaAprovacao, \
-    tbComprovantePagamento, tbArquivo, tbPlanilhaAprovacao, tbPlanilhaItens, \
-    Nomes, Agentes, Internet
-
+from .resources.shared_models import *
 
 #
 # Populate a test db
@@ -231,6 +225,8 @@ def tbcomprovantepagamento_example():
 def tbarquivo_example():
     return [tbArquivo(
         idArquivo=1,
+        nmArquivo='arquivo',
+        dtEnvio=date(2000, 1, 1),
     )]
 
 
@@ -271,6 +267,30 @@ def internet_example():
     )]
 
 
+def arquivo_imagem_example():
+    return [tbArquivoImagem(
+        idArquivoImagem=1,
+        idArquivo=1,
+        imagem="This should be an image",
+        dsDocumento="dsDocumento",
+    )]
+
+
+def documento_example():
+    return [tbDocumento(
+        idDocumento=1,
+        idArquivo=1,
+    )]
+
+
+def documento_projeto_example():
+    return[tbDocumentoProjeto(
+        idDocumentoProjeto=1,
+        idDocumento=1,
+        idTipoDocumento=1,
+        idPronac=20001234,
+    )]
+
 #
 # Registe all factories
 #
@@ -284,4 +304,5 @@ FACTORIES = [
     tbcomprovantepagamento_example, tbarquivo_example,
     tbplanilhaaprovacao_example, tbPlanilhaItens_example,
     nomes_example, agentes_example, internet_example,
+    arquivo_imagem_example, documento_example, documento_projeto_example,
 ]

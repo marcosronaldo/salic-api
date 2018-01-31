@@ -2,6 +2,7 @@ SALIC_SCHEMAS = {
     'BDCORPORATIVO.scSAC',
     'BDCORPORATIVO.scCorp',
     'SAC.dbo',
+    'sac.dbo',
     'Agentes.dbo',
 }
 
