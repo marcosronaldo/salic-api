@@ -257,7 +257,7 @@ class ProjetoQuery(Query):
             query = text("""
                     SELECT
                         COUNT(b.idArquivo) AS total
-    
+
                         FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                         INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                         LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
@@ -273,7 +273,7 @@ class ProjetoQuery(Query):
             query = text("""
                     SELECT
                         COUNT(b.idArquivo) AS total
-        
+
                         FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                         INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
                         LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
@@ -302,17 +302,17 @@ class ProjetoQuery(Query):
                     g.Descricao AS unidade,
                     (c.qtItem*nrOcorrencia) AS qtd_programada,
                     (c.qtItem*nrOcorrencia*c.vlUnitario) AS valor_programado,
-    
+
                         CASE c.qtItem*nrOcorrencia*c.vlUnitario
                             WHEN 0 then NULL
                             ELSE ROUND(sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario) * 100, 2)
                         END AS perc_executado,
-    
+
                         CASE c.qtItem*nrOcorrencia*c.vlUnitario
                             WHEN 0 then NULL
                             ELSE ROUND(100 - (sum(b.vlComprovacao) / (c.qtItem*nrOcorrencia*c.vlUnitario) * 100), 2)
                         END AS perc_a_executar,
-    
+
                     (sum(b.vlComprovacao)) AS valor_executado
                 FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
                 INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
@@ -435,9 +435,7 @@ class DivulgacaoQuery(Query):
 
 class DescolamentoQuery(Query):
     def query(self, IdPRONAC):
-        return []  # FIXME
-
-        stmt = text("""
+        stmt = text(normalize_sql("""
             SELECT
                 idDeslocamento,
                 d.idProjeto,
@@ -448,18 +446,18 @@ class DescolamentoQuery(Query):
                 u2.Descricao as UFDestino,
                 m2.Descricao as MunicipioDestino,
                 Qtde
-                
+
             FROM
                    Sac.dbo.tbDeslocamento d
                 INNER JOIN Sac.dbo.Projetos y on (d.idProjeto = y.idProjeto)
-                INNER JOIN Agentes..Pais p on (d.idPaisOrigem = p.idPais)
-                INNER JOIN Agentes..uf u on (d.idUFOrigem = u.iduf)
-                INNER JOIN Agentes..Municipios m on (d.idMunicipioOrigem = m.idMunicipioIBGE)
-                INNER JOIN Agentes..Pais p2 on (d.idPaisDestino = p2.idPais)
-                INNER JOIN Agentes..uf u2 on (d.idUFDestino = u2.iduf)
-                INNER JOIN Agentes..Municipios m2 on (d.idMunicipioDestino = m2.idMunicipioIBGE)
+                INNER JOIN Agentes.dbo.Pais p on (d.idPaisOrigem = p.idPais)
+                INNER JOIN Agentes.dbo.uf u on (d.idUFOrigem = u.iduf)
+                INNER JOIN Agentes.dbo.Municipios m on (d.idMunicipioOrigem = m.idMunicipioIBGE)
+                INNER JOIN Agentes.dbo.Pais p2 on (d.idPaisDestino = p2.idPais)
+                INNER JOIN Agentes.dbo.uf u2 on (d.idUFDestino = u2.iduf)
+                INNER JOIN Agentes.dbo.Municipios m2 on (d.idMunicipioDestino = m2.idMunicipioIBGE)
                 WHERE y.idPRONAC = :IdPRONAC
-            """)
+            """))
         return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
 
 

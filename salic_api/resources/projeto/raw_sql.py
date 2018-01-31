@@ -4,6 +4,7 @@ SALIC_SCHEMAS = {
     'SAC.dbo',
     'sac.dbo',
     'Agentes.dbo',
+    'Sac.dbo',
 }
 
 USE_SQLITE = True
@@ -95,7 +96,7 @@ SELECT
     a.vlComprovado as valor_pagamento,
     b.idArquivo as id_arquivo,
     b.dsJustificativa as justificativa,
-    f.nmArquivo as nm_arquivo 
+    f.nmArquivo as nm_arquivo
     FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
     INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
     LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao

@@ -378,3 +378,40 @@ class tbDocumentoProjeto(Base):
     idTipoDocumento = Column(Integer)
     idPronac = Column(Integer)
 
+
+class Pais(Base):
+    __tablename__ = 'Pais'
+    _full_name = 'Agentes.dbo.Pais'
+
+    idPais = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class uf(Base):
+    __tablename__ = 'uf'
+    _full_name = 'Agentes.dbo.uf'
+
+    iduf = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class Municipios(Base):
+    __tablename__ = 'Municipios'
+    _full_name = 'Agentes.dbo.Municipios'
+
+    idMunicipioIBGE = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class tbDeslocamento(Base):
+    __tablename__ = 'tbDeslocamento'
+
+    idDeslocamento = Column(Integer, primary_key=True)
+    Qtde = Column(Integer)
+    idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
+    idPaisOrigem = Column(Integer, ForeignKey('Pais.idPais'))
+    idUFOrigem = Column(Integer, ForeignKey('uf.iduf'))
+    idMunicipioOrigem = Column(Integer, ForeignKey('Municipios.idMunicipioIBGE'))
+    idPaisDestino = Column(Integer, ForeignKey('Pais.idPais'))
+    idUFDestino = Column(Integer, ForeignKey('uf.iduf'))
+    idMunicipioDestino = Column(Integer, ForeignKey('Municipios.idMunicipioIBGE'))

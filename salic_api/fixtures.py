@@ -291,6 +291,41 @@ def documento_projeto_example():
         idPronac=20001234,
     )]
 
+
+def pais_example():
+    return [Pais(
+        idPais=1,
+        Descricao="Brasil",
+    )]
+
+
+def uf_example():
+    return [uf(
+        iduf=1,
+        Descricao="Distrito Federal",
+    )]
+
+
+def municipio_example():
+    return [Municipios(
+        idMunicipioIBGE=1,
+        Descricao="Cocais de Bambu",
+    )]
+
+
+def tbDeslocamento_example():
+    return [tbDeslocamento(
+        idDeslocamento = 1,
+        Qtde = 2,
+        idProjeto = 1,
+        idPaisOrigem = 1,
+        idUFOrigem = 1,
+        idMunicipioOrigem = 1,
+        idPaisDestino = 1,
+        idUFDestino = 1,
+        idMunicipioDestino = 1,
+    )]
+
 #
 # Registe all factories
 #
@@ -305,4 +340,5 @@ FACTORIES = [
     tbplanilhaaprovacao_example, tbPlanilhaItens_example,
     nomes_example, agentes_example, internet_example,
     arquivo_imagem_example, documento_example, documento_projeto_example,
+    pais_example, uf_example, municipio_example, tbDeslocamento_example,
 ]
