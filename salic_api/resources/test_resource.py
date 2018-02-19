@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from .resource_base import ListResource
-from flask import current_app
 
 
 class TestResource(ListResource):

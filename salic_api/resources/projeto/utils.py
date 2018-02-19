@@ -1,10 +1,12 @@
 from flask import current_app
 
-#FIXME descobrir como faremos para retornar esses links do salic.
+
 def build_brand_link(document):
+    # FIXME descobrir como faremos para retornar esses links do salic.
     doc_id = document['id_arquivo']
     base_url = current_app.config.get('SALIC_BASE_URL')
-    if base_url is None: return ''
+    if base_url is None:
+        return ''
     link_file = base_url + \
         'verprojetos/abrir?id=%d' % (doc_id)
     return link_file

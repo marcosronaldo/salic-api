@@ -261,6 +261,7 @@ class tbComprovantePagamentoxPlanilhaAprovacao(Base):
     vlComprovado = Column(String)
     nrOcorrencia = Column(Integer)
 
+
 class tbComprovantePagamento(Base):
     # planilha "b"
     _full_name = 'BDCORPORATIVO.scSAC.tbComprovantePagamento'
@@ -300,6 +301,7 @@ class tbPlanilhaAprovacao(Base):
     idUnidade = Column(Integer)
     qtItem = Column(Integer)
     vlUnitario = Column(Float)
+
 
 class tbPlanilhaItens(Base):
     _full_name = 'SAC.dbo.tbPlanilhaItens'
@@ -430,7 +432,7 @@ class Usuarios(Base):
 
 
 # FIXME put right columns when given access to this table.
-#for now using made up primary key
+# for now using made up primary key
 class prorrogacao(Base):
     __tablename__ = 'prorrogacao'
 
@@ -443,10 +445,12 @@ class prorrogacao(Base):
     Atendimento = Column(String)
     idPronac = Column(Integer)
 
+
 class tbPlanilhaEtapa(Base):
     __tablename__ = 'tbPlanilhaEtapa'
     idPlanilhaEtapa = Column(Integer, primary_key=True)
     Descricao = Column(String)
+
 
 class tbPlanilhaUnidade(Base):
     __tablename__ = 'tbPlanilhaUnidade'

@@ -49,15 +49,15 @@ class ProjetoDetail(DetailResource):
     resource_path = 'projeto'
     query_class = ProjetoQuery
     csv_columns = ['objetivos', 'cgccpf', 'valor_captado', 'situacao',
-                    'data_termino', 'PRONAC', 'valor_solicitado', 'etapa',
-                    'segmento', 'acessibilidade', 'especificacao_tecnica',
-                    'sinopse', 'valor_projeto', 'enquadramento', 'UF',
-                    'justificativa', 'providencia', 'proponente',
-                    'democratizacao', 'data_inicio', 'ficha_tecnica',
-                    'mecanismo', 'impacto_ambiental', 'nome', 'estrategia_execucao',
-                    'resumo', 'outras_fontes', 'municipio', 'valor_aprovado',
-                    'valor_proposta', 'ano_projeto', 'area', 'code', 'message',
-                    ]
+                   'data_termino', 'PRONAC', 'valor_solicitado', 'etapa',
+                   'segmento', 'acessibilidade', 'especificacao_tecnica',
+                   'sinopse', 'valor_projeto', 'enquadramento', 'UF',
+                   'justificativa', 'providencia', 'proponente',
+                   'democratizacao', 'data_inicio', 'ficha_tecnica',
+                   'mecanismo', 'impacto_ambiental', 'nome', 'estrategia_execucao',
+                   'resumo', 'outras_fontes', 'municipio', 'valor_aprovado',
+                   'valor_proposta', 'ano_projeto', 'area', 'code', 'message',
+                   ]
 
     pronac = property(lambda self: self.args['PRONAC'])
 

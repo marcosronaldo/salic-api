@@ -1,11 +1,12 @@
 from ...utils import decrypt
 from .models import ProductQuery
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import *
+from ..resource_base import ListResource, request, current_app
 from ..serialization import listify_queryset
 
 
 class Produto(ListResource):
+
     def build_links(self, args={}):
         query_args = '&'
         fornecedor_id = args['fornecedor_id']

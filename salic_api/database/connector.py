@@ -39,7 +39,7 @@ class SqlConnector:
         try:
             self.session = session_class()
             log.info('Connection Openned')
-        except:
+        except Exception:
             log.error('Can\'t create database session')
             raise
 

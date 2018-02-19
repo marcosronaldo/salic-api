@@ -1,5 +1,5 @@
 from .models import SegmentoQuery
-from ..resource_base import *
+from ..resource_base import ListResource
 
 
 class Segmento(ListResource):

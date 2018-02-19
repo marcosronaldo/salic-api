@@ -20,7 +20,7 @@ def validate_input(input, schema):
 def testPRONAC(form, field):
     try:
         int(field.data)
-    except:
+    except ValueError:
         raise ValidationError('PRONAC must be integer')
 
 

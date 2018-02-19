@@ -1,14 +1,28 @@
 import contextlib
 from datetime import date
 
-from sqlalchemy import MetaData
 
 from .database.connector import get_session, get_engine
-from .resources.shared_models import *
+from .resources.shared_models import (Projeto, Area, PreProjeto,
+                                      Segmento, Enquadramento, Mecanismo,
+                                      Situacao, Interessado, Captacao,
+                                      CertidoesNegativas, Verificacao,
+                                      PlanoDivulgacao, Produto,
+                                      PlanoDistribuicao, Custos,
+                                      tbComprovantePagamentoxPlanilhaAprovacao,
+                                      tbComprovantePagamento, tbArquivo,
+                                      tbPlanilhaAprovacao, tbPlanilhaItens,
+                                      Nomes, Agentes, Internet,
+                                      tbArquivoImagem, tbDocumento, Pais,
+                                      uf, Municipios, tbDeslocamento, Usuarios,
+                                      prorrogacao, tbPlanilhaEtapa,
+                                      tbPlanilhaUnidade, tbDocumentoProjeto)
 
 #
 # Populate a test db
 #
+
+
 def make_tables(session=None, app=None):
     """
     Create tables from schema.
@@ -47,8 +61,9 @@ def clear_tables():
 
         for table in reversed(meta.sorted_tables):
             con.execute(table.delete())
-            #table.query().delete()
+            # table.query().delete()
         trans.commit()
+
 
 #
 # Global constants
@@ -347,15 +362,15 @@ def municipio_example():
 
 def tbDeslocamento_example():
     return [tbDeslocamento(
-        idDeslocamento = 1,
-        Qtde = 2,
-        idProjeto = 1,
-        idPaisOrigem = 1,
-        idUFOrigem = 1,
-        idMunicipioOrigem = 1,
-        idPaisDestino = 1,
-        idUFDestino = 1,
-        idMunicipioDestino = 1,
+        idDeslocamento=1,
+        Qtde=2,
+        idProjeto=1,
+        idPaisOrigem=1,
+        idUFOrigem=1,
+        idMunicipioOrigem=1,
+        idPaisDestino=1,
+        idUFDestino=1,
+        idMunicipioDestino=1,
     )]
 
 
@@ -368,29 +383,30 @@ def usuarios_example():
 
 def prorrogacao_example():
     return[prorrogacao(
-        idProrrogacao = 1,
-        Logon = 1,
-        DtPedido = date(2000, 1, 1),
-        DtInicio = date(2000, 1, 1),
-        DtFinal = date(2000, 3, 1),
-        Observacao = 'Observacao',
-        Atendimento = 'A',
-        idPronac = 20001234,
+        idProrrogacao=1,
+        Logon=1,
+        DtPedido=date(2000, 1, 1),
+        DtInicio=date(2000, 1, 1),
+        DtFinal=date(2000, 3, 1),
+        Observacao='Observacao',
+        Atendimento='A',
+        idPronac=20001234,
     )]
 
 
 def tbPlanilhaEtapa_example():
     return[tbPlanilhaEtapa(
-        idPlanilhaEtapa = 1,
-        Descricao = 'Planilha Etapa',
+        idPlanilhaEtapa=1,
+        Descricao='Planilha Etapa',
     )]
 
 
 def tbPlanilhaUnidade_example():
     return[tbPlanilhaUnidade(
-        idUnidade = 1,
-        Descricao = 'Planilha Unidade',
+        idUnidade=1,
+        Descricao='Planilha Unidade',
     )]
+
 
 #
 # Registe all factories
@@ -407,6 +423,6 @@ FACTORIES = [
     nomes_example, agentes_example, internet_example,
     arquivo_imagem_example, documento_example, documento_projeto_example,
     pais_example, uf_example, municipio_example, tbDeslocamento_example,
-    usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example, 
+    usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example,
     tbPlanilhaUnidade_example,
 ]

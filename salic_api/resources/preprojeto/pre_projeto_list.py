@@ -1,8 +1,6 @@
 from .models import PreProjetoQuery
 from .pre_projeto_detail import PreProjetoDetail
-from ..resource_base import *
-from ..sanitization import sanitize
-from ..serialization import listify_queryset
+from ..resource_base import ListResource
 
 
 class PreProjetoList(ListResource):

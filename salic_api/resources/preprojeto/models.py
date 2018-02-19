@@ -1,3 +1,4 @@
+from sqlalchemy import desc
 from ..query import Query, filter_query_like, filter_query
 from ..shared_models import PreProjeto, Mecanismo
 

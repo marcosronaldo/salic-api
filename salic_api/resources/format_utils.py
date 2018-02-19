@@ -4,8 +4,8 @@ import cgi
 
 
 def validate_cpf(cpf):
-    """ 
-    Method to validate a brazilian CPF number 
+    """
+    Method to validate a brazilian CPF number
     Based on Pedro Werneck source avaiable at
     www.PythonBrasil.com.br
 

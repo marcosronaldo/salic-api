@@ -50,7 +50,7 @@ class FornecedorQuery(Query):
         # FIXME: move this to a separarte function
         if cgccpf is not None:
             query = text(FORNECEDOR_CGCCPF)
-            return self.session.execute(querys, {
+            return self.session.execute(query, {
                 'cgccpf': '%{}%'.format(cgccpf),
                 'offset': offset,
                 'limit': limit,
