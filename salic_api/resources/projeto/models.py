@@ -324,7 +324,6 @@ class ProjetoQuery(Query):
                     c.vlUnitario,
                     f.idPlanilhaEtapa
                 """))
-                print(idPronac)
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
     def goods_capital_listing(self, idPronac):
