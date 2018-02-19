@@ -12,7 +12,7 @@ from ..serialization import listify_queryset
 from ..shared_models import (
     Projeto, Interessado, Situacao, Enquadramento, PreProjeto,
     Captacao, CertidoesNegativas, Verificacao, PlanoDistribuicao, Produto, Area,
-    Segmento, Custos, Mecanismo)
+    Segmento, Custos, Mecanismo, PlanoDivulgacao)
 from ...utils import timer
 
 #
@@ -414,19 +414,21 @@ class CertidoesNegativasQuery(Query):
 
 
 class DivulgacaoQuery(Query):
-    # V1 = aliased(Verificacao)
-    # V2 = aliased(Verificacao)
 
     def query(self, IdPRONAC):
-        stmt = text(normalize_sql("""
-            SELECT v1.Descricao as peca,v2.Descricao as veiculo
-                FROM sac.dbo.PlanoDeDivulgacao d
-                INNEr JOIN sac.dbo.Projetos p on (d.idProjeto = p.idProjeto)
-                INNER JOIN sac.dbo.Verificacao v1 on (d.idPeca = v1.idVerificacao)
-                INNER JOIN sac.dbo.Verificacao v2 on (d.idVeiculo = v2.idVerificacao)
-                WHERE p.IdPRONAC=:IdPRONAC AND d.stPlanoDivulgacao = 1
-            """))
-        return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
+        query = (self.raw_query(
+            Verificacao.Descricao.label('peca'),
+            Verificacao.Descricao.label('veiculo'),
+        ).select_from(PlanoDivulgacao)
+         .join(Projeto, Projeto.idProjeto == PlanoDivulgacao.idProjeto)
+         .join(Verificacao,
+               Verificacao.idVerificacao == PlanoDivulgacao.idPeca
+               or Verificacao.idVerificacao == PlanoDivulgacao.idVeiculo)
+         .filter(and_(Projeto.IdPRONAC == IdPRONAC,
+                     PlanoDivulgacao.stPlanoDivulgacao == 1))
+        )
+
+        return query
 
 
 class DescolamentoQuery(Query):
@@ -476,13 +478,13 @@ class DistribuicaoQuery(Query):
                 Verificacao.Descricao.label('posicao_logo'),
                 Projeto.Localizacao,
             )
-            .join(Projeto)
-            .join(Produto)
-            .join(Area, Area.Codigo == PlanoDistribuicao.Area)
-            .join(Segmento, Segmento.Codigo == PlanoDistribuicao.Segmento)
-            .join(Verificacao)
-            .filter(and_(Projeto.IdPRONAC == IdPRONAC,
-                         PlanoDistribuicao.stPlanoDistribuicaoProduto == 1))
+                .join(Projeto)
+                .join(Produto)
+                .join(Area, Area.Codigo == PlanoDistribuicao.Area)
+                .join(Segmento, Segmento.Codigo == PlanoDistribuicao.Segmento)
+                .join(Verificacao)
+                .filter(and_(Projeto.IdPRONAC == IdPRONAC,
+                             PlanoDistribuicao.stPlanoDistribuicaoProduto == 0))
         )
 
 
