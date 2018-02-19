@@ -399,9 +399,7 @@ class tbPlanilhaItens(Base):  # noqa: N801
     Descricao = Column(String)
 
 
-#
-# This table describes city names
-#
+# This table actually describes city names
 class Nomes(Base):
     """
     Agentes.dbo.Nomes
@@ -432,6 +430,39 @@ class Internet(Base):
     idInternet = Column(Integer, primary_key=True)
     idAgente = Column(Integer, ForeignKey('Agentes.idAgente'))
     Descricao = Column(String)
+
+
+# TODO: manually check those tables!
+class tbArquivoImagem(Base):
+    """
+    BDCORPORATIVO.scCorp.tbArquivoImagem
+    """
+    __tablename__ = 'tbArquivoImagem'
+
+    idArquivoImagem = Column(Integer, primary_key=True)
+    idArquivo = Column(Integer, ForeignKey('tbArquivo.idArquivo'))
+
+
+class tbDocumento(Base):
+    """
+    BDCORPORATIVO.scCorp.tbDocumento
+    """
+    __tablename__ = 'tbDocumento'
+
+    idDocumento = Column(Integer, primary_key=True)
+    idArquivo = Column(Integer, ForeignKey('tbArquivo.idArquivo'))
+
+
+class tbDocumentoProjeto(Base):
+    """
+    BDCORPORATIVO.scCorp.tbDocumentoProjeto
+    """
+    __tablename__ = 'tbDocumentoProjeto'
+
+    idDocumentoProjeto = Column(Integer, primary_key=True)
+    idDocumento = Column(Integer, ForeignKey('tbDocumento.idDocumento'))
+    idTipoDocumento = Column(Integer)
+    idPronac = Column(Integer)
 
 
 #
