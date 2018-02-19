@@ -1,7 +1,7 @@
 import contextlib
-from datetime import date
+from datetime import datetime
 
-from .database.connector import get_session
+from .database.connector import get_session, get_engine
 from .resources.shared_models import Area, Projeto, PreProjeto, \
     PlanoDistribuicao, Produto, PlanoDivulgacao, Verificacao, Segmento, \
     Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
@@ -13,31 +13,15 @@ from .resources.shared_models import Area, Projeto, PreProjeto, \
 #
 # Populate a test db
 #
-
-
-def make_tables(session=None, app=None):
+def make_tables(*, app=None, driver=None, session=None):
     """
     Create tables from schema.
     """
-    session = get_session(app=app) if session is None else session
+    if session is None:
+        session = get_session(driver=driver, app=app)
 
     # Create tables
     Projeto.metadata.create_all(session.bind)
-    session.commit()
-
-
-def populate(session=None, app=None):
-    """
-    Populate database with some examples.
-    """
-
-    session = get_session(app=app) if session is None else session
-
-    # Create entities
-
-    for factory in FACTORIES:
-        for obj in factory():
-            session.add(obj)
     session.commit()
 
 
@@ -54,8 +38,22 @@ def clear_tables():
 
         for table in reversed(meta.sorted_tables):
             con.execute(table.delete())
-            # table.query().delete()
         trans.commit()
+
+
+def populate(*, session=None, app=None, driver=None):
+    """
+    Populate database with some examples.
+    """
+
+    if session is None:
+        session = get_session(driver=driver, app=app)
+
+    # Create entities
+    for factory in FACTORIES:
+        for obj in factory():
+            session.add(obj)
+    session.commit()
 
 
 #
@@ -129,7 +127,8 @@ def pre_projeto_example():
 def segmento_example():
     return [
         Segmento(Codigo='11', Descricao='Teatro', tpEnquadramento='2'),
-        Segmento(Codigo='21', Descricao='Jogos Eletrônicos', tpEnquadramento='1'),
+        Segmento(Codigo='21', Descricao='Jogos Eletrônicos',
+                 tpEnquadramento='1'),
     ]
 
 

@@ -18,24 +18,12 @@ class SqlConnector:
     def __init__(self, driver=None, app=None):
         if app is None:
             app = current_app
-
         if driver is None:
             driver = app.config['SQL_DRIVER']
 
-        try:
-            if driver == 'sqlite':
-                engine = sqlite_engine({})
-            else:
-                engine = ENGINE_MAPPER[driver](app.config)
-        except KeyError:
-            msg = 'Unknown SQL driver: %r' % driver
-            log.error(msg)
-            raise RuntimeError(msg)
-
-        self.engine = engine
-
         # Start session
-        session_class = sessionmaker(bind=engine)
+        self.engine = load_engine(driver=driver, app=app)
+        session_class = sessionmaker(bind=self.engine)
         try:
             self.session = session_class()
             log.info('Connection Openned')
@@ -53,14 +41,35 @@ def get_session(driver=None, app=None):
     """
     Return a session for the current SQL connector.
     """
-    return SqlConnector(driver, app=app).session
+    return SqlConnector(driver=driver, app=app).session
 
 
 def get_engine(driver=None, app=None):
     """
     Return the engine object for the current SQL connector.
     """
-    return SqlConnector(driver, app=app).engine
+    return SqlConnector(driver=driver, app=app).engine
+
+
+def load_engine(driver, app=None):
+    """
+    Return engine for the given driver and config mapping.
+    """
+    try:
+        if driver == 'sqlite':
+            engine = sqlite_engine({})
+        elif driver == 'memory':
+            engine = memory_engine({})
+        else:
+            if app is None:
+                app = current_app
+            config = app.config
+            engine = ENGINE_MAPPER[driver](config)
+    except KeyError:
+        msg = 'Unknown SQL driver: %r' % driver
+        log.error(msg)
+        raise RuntimeError(msg)
+    return engine
 
 
 #

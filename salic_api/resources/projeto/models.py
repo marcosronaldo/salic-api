@@ -5,13 +5,13 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
 
-from .raw_sql import payments_listing_sql
+from .raw_sql import payments_listing_sql, normalize_sql
 from ..query import Query, filter_query, filter_query_like
 from ..serialization import listify_queryset
 from ..shared_models import (
     Projeto, Interessado, Situacao, Enquadramento, PreProjeto,
     Captacao, CertidoesNegativas, Verificacao, PlanoDistribuicao, Produto, Area,
-    Segmento, Custos, Mecanismo, PlanoDivulgacao)
+    Segmento, Custos, Mecanismo)
 from ...utils import timer
 
 #
@@ -121,9 +121,11 @@ class ProjetoQuery(Query):
     #
     # Queries
     #
-    def query(self, limit=1, offset=0, PRONAC=None, nome=None, proponente=None,
+    def query(self, limit=1, offset=0,
+              PRONAC=None, UF=None,  # noqa: N803
+              proponente=None, nome=None,
               cgccpf=None, area=None, segmento=None,
-              UF=None, municipio=None, data_inicio=None,
+              municipio=None, data_inicio=None,
               data_inicio_min=None, data_inicio_max=None,
               data_termino=None, data_termino_min=None,
               data_termino_max=None, year=None, sort_field=None,
@@ -209,7 +211,7 @@ class ProjetoQuery(Query):
             return []
 
     # FIXME: ???
-    def attached_brands(self, idPronac):
+    def attached_brands(self, idPronac):  # noqa: N803
         query = text(normalize_sql("""
                 SELECT a.idArquivo as id_arquivo
                     FROM BDCORPORATIVO.scCorp.tbArquivoImagem AS ai
@@ -220,7 +222,7 @@ class ProjetoQuery(Query):
             """))
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
-    def postpone_request(self, idPronac):
+    def postpone_request(self, idPronac):  # noqa: N803
         query = text(normalize_sql("""
                 SELECT a.DtPedido as data_pedido, a.DtInicio as data_inicio, a.DtFinal as data_final, a.Observacao as observacao, a.Atendimento as atendimento,
                     CASE
@@ -248,7 +250,7 @@ class ProjetoQuery(Query):
         query = payments_listing_sql(idPronac, limit is not None)
         return self.execute_query(query, params).fetchall()
 
-    def payments_listing_count(self, idPronac=None, cgccpf=None):
+    def payments_listing_count(self, idPronac=None, cgccpf=None):  # noqa: N803
         return []  # FIXME
 
         if idPronac is not None:
@@ -288,7 +290,7 @@ class ProjetoQuery(Query):
         n_records = listify_queryset(result)
         return n_records[0]['total']
 
-    def taxing_report(self, idPronac):
+    def taxing_report(self, idPronac):  # noqa: N803
         return []  # FIXME
 
         # Relatório fisco
@@ -328,7 +330,7 @@ class ProjetoQuery(Query):
                 """))
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
-    def goods_capital_listing(self, idPronac):
+    def goods_capital_listing(self, idPronac):  # noqa: N803
         return []  # FIXME
         # Relação de bens de capital
         query = text("""
@@ -360,7 +362,7 @@ class ProjetoQuery(Query):
 
 
 class CaptacaoQuery(Query):
-    def query(self, PRONAC):
+    def query(self, PRONAC):  # noqa: N803
         query = self.raw_query(
             Captacao.PRONAC,
             Captacao.CaptacaoReal.label('valor'),
@@ -405,7 +407,7 @@ class CertidoesNegativasQuery(Query):
             else_='Não Pendente'
         )
 
-    def query(self, PRONAC=None, CgcCpf=None):
+    def query(self, PRONAC=None, CgcCpf=None):  # noqa: N803
         query = self.raw_query(
             CertidoesNegativas.data_emissao.label('data_emissao'),
             CertidoesNegativas.data_validade.label('data_validade'),
@@ -416,10 +418,7 @@ class CertidoesNegativasQuery(Query):
 
 
 class DivulgacaoQuery(Query):
-    # V1 = aliased(Verificacao)
-    # V2 = aliased(Verificacao)
-
-    def query(self, IdPRONAC):
+    def query(self, IdPRONAC):  # noqa: N803
         return []  # FIXME
 
         stmt = text("""
@@ -434,7 +433,7 @@ class DivulgacaoQuery(Query):
 
 
 class DescolamentoQuery(Query):
-    def query(self, IdPRONAC):
+    def query(self, IdPRONAC):  # noqa: N803
         stmt = text(normalize_sql("""
             SELECT
                 idDeslocamento,
@@ -462,7 +461,7 @@ class DescolamentoQuery(Query):
 
 
 class DistribuicaoQuery(Query):
-    def query(self, IdPRONAC):
+    def query(self, IdPRONAC):  # noqa: N803
         return (
             self.raw_query(
                 PlanoDistribuicao.idPlanoDistribuicao,
@@ -491,7 +490,7 @@ class DistribuicaoQuery(Query):
 
 
 class ReadequacaoQuery(Query):
-    def query(self, IdPRONAC):
+    def query(self, IdPRONAC):  # noqa: N803
         return []  # FIXME
 
         stmt = text("""
@@ -521,7 +520,7 @@ class ReadequacaoQuery(Query):
 
 
 class AdequacoesPedidoQuery(Query):
-    def query(self, IdPRONAC):
+    def query(self, IdPRONAC):  # noqa: N803
         return []  # FIXME
 
         stmt = text("""
@@ -552,7 +551,7 @@ class AdequacoesPedidoQuery(Query):
 
 
 class AdequacoesParecerQuery(Query):
-    def query(self, IdPRONAC):
+    def query(self, IdPRONAC):  # noqa: N803
         return []  # FIXME
 
         stmt = text("""

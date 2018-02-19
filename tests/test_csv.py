@@ -9,10 +9,9 @@ class TestCsv:
         check_csv(client, url, expected)
 
     def test_proponente_csv(self, client):
-    	url = '/v1/proponentes/30313233343536373839616263646566e0797636'
-    	expected = PROPONENTE_CSV
-    	check_csv(client, url, expected)
-
+        url = '/v1/proponentes/30313233343536373839616263646566e0797636'
+        expected = PROPONENTE_CSV
+        check_csv(client, url, expected)
     def test_preprojeto_csv(self, client):
         url = '/v1/propostas/1'
         expected = PROPOSTA_CSV
@@ -53,7 +52,7 @@ PROPOSTA_CSV = (
     "estrategia_execucao,especificacao_tecnica,acessibilidade,objetivos,etapa,"
     "resumo,justificativa\r\n"
 
-    "ImpactoAmbiental,FichaTecnica,2000-02-01,1,Descricao,2000-03-01,2000-01-01,"
+    "ImpactoAmbiental,FichaTecnica,2000-02-01,1,Mecenato,2000-03-01,2000-01-01,"
     "DemocratizacaoDeAcesso,2000-01-01,Sinopse,Test,EstrategiadeExecucao,"
     "EspecificacaoTecnica,Acessibilidade,cultural,"
     "EtapaDeTrabalho,ResumoDoProjeto,Justificativa\r\n")

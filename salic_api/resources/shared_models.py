@@ -329,7 +329,7 @@ class PlanoDistribuicao(Base):
 #
 # Additional tables from other databases
 #
-class tbComprovantePagamentoxPlanilhaAprovacao(Base):
+class tbComprovantePagamentoxPlanilhaAprovacao(Base):  # noqa: N801
     """
     BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao
     """
@@ -343,7 +343,7 @@ class tbComprovantePagamentoxPlanilhaAprovacao(Base):
     vlComprovado = Column(String)
 
 
-class tbComprovantePagamento(Base):
+class tbComprovantePagamento(Base):  # noqa: N801
     """
     BDCORPORATIVO.scSAC.tbComprovantePagamento
     """
@@ -360,7 +360,7 @@ class tbComprovantePagamento(Base):
     dsJustificativa = Column(String)
 
 
-class tbArquivo(Base):
+class tbArquivo(Base):  # noqa: N801
     """
     BDCORPORATIVO.scCorp.tbArquivo
     """
@@ -370,7 +370,7 @@ class tbArquivo(Base):
     nmArquivo = Column(String)
 
 
-class tbPlanilhaAprovacao(Base):
+class tbPlanilhaAprovacao(Base):  # noqa: N801
     """
     SAC.dbo.tbPlanilhaAprovacao
     """
@@ -382,7 +382,7 @@ class tbPlanilhaAprovacao(Base):
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
 
 
-class tbPlanilhaItens(Base):
+class tbPlanilhaItens(Base):  # noqa: N801
     """
     SAC.dbo.tbPlanilhaItens
     """

@@ -63,6 +63,6 @@ def db(ctx, force=False):
 
     if force:
         ctx.run('rm db.sqlite3 -f')
-    make_tables()
-    populate()
+    make_tables(driver='sqlite')
+    populate(driver='sqlite')
     print('Db created successfully!')
