@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, Integer, String, ForeignKey, Text, case
+from sqlalchemy import Column, Date, Integer, String, ForeignKey, Text, case, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import column_property
 from sqlalchemy.orm import relationship
@@ -259,7 +259,7 @@ class tbComprovantePagamentoxPlanilhaAprovacao(Base):
         ForeignKey('tbComprovantePagamento.idComprovantePagamento'))
     tpDocumento = Column(Integer)
     vlComprovado = Column(String)
-
+    nrOcorrencia = Column(Integer)
 
 class tbComprovantePagamento(Base):
     # planilha "b"
@@ -275,6 +275,7 @@ class tbComprovantePagamento(Base):
     nrDocumentoDePagamento = Column(String)
     nrComprovante = Column(String)
     dsJustificativa = Column(String)
+    vlComprovacao = Column(Float)
 
 
 class tbArquivo(Base):
@@ -295,7 +296,10 @@ class tbPlanilhaAprovacao(Base):
     idPlanilhaAprovacao = Column(Integer, primary_key=True)
     idPlanilhaItem = Column(Integer)
     idPronac = Column(Integer)
-
+    idEtapa = Column(Integer)
+    idUnidade = Column(Integer)
+    qtItem = Column(Integer)
+    vlUnitario = Column(Float)
 
 class tbPlanilhaItens(Base):
     _full_name = 'SAC.dbo.tbPlanilhaItens'
@@ -438,3 +442,13 @@ class prorrogacao(Base):
     Observacao = Column(String)
     Atendimento = Column(String)
     idPronac = Column(Integer)
+
+class tbPlanilhaEtapa(Base):
+    __tablename__ = 'tbPlanilhaEtapa'
+    idPlanilhaEtapa = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+class tbPlanilhaUnidade(Base):
+    __tablename__ = 'tbPlanilhaUnidade'
+    idUnidade = Column(Integer, primary_key=True)
+    Descricao = Column(String)

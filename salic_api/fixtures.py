@@ -211,6 +211,7 @@ def tbcomprovantepagamentoxplanilhaaprovacao_example():
     return [tbComprovantePagamentoxPlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idComprovantePagamento=1,
+        nrOcorrencia=15,
     )]
 
 
@@ -219,6 +220,7 @@ def tbcomprovantepagamento_example():
         idComprovantePagamento=1,
         idFornecedor=1,
         idArquivo=1,
+        vlComprovacao=3.1415,
     )]
 
 
@@ -234,6 +236,11 @@ def tbplanilhaaprovacao_example():
     return [tbPlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idPlanilhaItem=1,
+        qtItem=99,
+        vlUnitario=3.1415,
+        idEtapa=1,
+        idUnidade=1,
+        idPronac=20001234,
     )]
 
 
@@ -346,6 +353,20 @@ def prorrogacao_example():
         idPronac = 20001234,
     )]
 
+
+def tbPlanilhaEtapa_example():
+    return[tbPlanilhaEtapa(
+        idPlanilhaEtapa = 1,
+        Descricao = 'Planilha Etapa',
+    )]
+
+
+def tbPlanilhaUnidade_example():
+    return[tbPlanilhaUnidade(
+        idUnidade = 1,
+        Descricao = 'Planilha Unidade',
+    )]
+
 #
 # Registe all factories
 #
@@ -361,5 +382,6 @@ FACTORIES = [
     nomes_example, agentes_example, internet_example,
     arquivo_imagem_example, documento_example, documento_projeto_example,
     pais_example, uf_example, municipio_example, tbDeslocamento_example,
-    usuarios_example, prorrogacao_example,
+    usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example, 
+    tbPlanilhaUnidade_example,
 ]

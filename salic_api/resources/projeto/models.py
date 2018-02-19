@@ -289,10 +289,8 @@ class ProjetoQuery(Query):
         return n_records[0]['total']
 
     def taxing_report(self, idPronac):
-        return []  # FIXME
-
         # Relatório fisco
-        query = text("""
+        query = text(normalize_sql("""
                 SELECT
                     f.idPlanilhaEtapa as id_planilha_etapa,
                     f.Descricao AS etapa,
@@ -325,8 +323,9 @@ class ProjetoQuery(Query):
                     nrOcorrencia,
                     c.vlUnitario,
                     f.idPlanilhaEtapa
-                """)
-        return self.fetch(query, {'IdPRONAC': idPronac})
+                """))
+                print(idPronac)
+        return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
     def goods_capital_listing(self, idPronac):
         return []  # FIXME
