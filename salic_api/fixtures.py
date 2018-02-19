@@ -262,9 +262,9 @@ def tbcomprovantepagamento_example():
         idFornecedor=1,
         idArquivo=1,
         dsJustificativa='Uma justificativa',
-        dtEmissao=date(2000, 1, 1),
+        dtEmissao=datetime(2000, 1, 1),
         tpFormaDePagamento='Dinheiro',
-        DtPagamento=date(2000, 2, 2),
+        DtPagamento=datetime(2000, 2, 2),
         nrComprovante='1',
         nrDocumentoDePagamento='1',
     )]
