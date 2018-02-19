@@ -59,9 +59,10 @@ def db(ctx, force=False):
     Populate test db.
     """
 
-    from salic_api.fixtures import populate
+    from salic_api.fixtures import populate, make_tables
 
     if force:
         ctx.run('rm db.sqlite3 -f')
+    make_tables()
     populate()
     print('Db created successfully!')

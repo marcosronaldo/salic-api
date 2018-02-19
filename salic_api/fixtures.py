@@ -1,29 +1,54 @@
+import contextlib
 from datetime import date
 
-from .database.connector import get_session
+from sqlalchemy import MetaData
+
+from .database.connector import get_session, get_engine
 from .resources.shared_models import *
 
 #
 # Populate a test db
 #
-def populate():
+def make_tables(session=None, app=None):
     """
-    Populate database with some examples.
+    Create tables from schema.
     """
-
-    session = get_session('sqlite')
+    session = get_session(app=app) if session is None else session
 
     # Create tables
     Projeto.metadata.create_all(session.bind)
     session.commit()
 
-    # Create entities
 
+def populate(session=None, app=None):
+    """
+    Populate database with some examples.
+    """
+
+    session = get_session(app=app) if session is None else session
+
+    # Create entities
     for factory in FACTORIES:
         for obj in factory():
             session.add(obj)
     session.commit()
 
+
+def clear_tables():
+    """
+    Clear all data in tables for the current session.
+
+    Works only with the "memory" connector used in tests.
+    """
+    meta = Projeto.metadata
+
+    with contextlib.closing(get_engine('memory').connect()) as con:
+        trans = con.begin()
+
+        for table in reversed(meta.sorted_tables):
+            con.execute(table.delete())
+            #table.query().delete()
+        trans.commit()
 
 #
 # Global constants

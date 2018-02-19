@@ -1,3 +1,7 @@
+import pytest
+
+
+@pytest.mark.usefixtures('db_data')
 class TestCsv:
     def test_incentivador_csv(self, client):
         url = '/v1/incentivadores/30313233343536373839616263646566e0797636'
@@ -23,6 +27,7 @@ class TestCsv:
         url = '/v1/projetos/20001234'
         expected = PROJETO_CSV
         check_csv(client, url, expected)
+
 
 def check_csv(client, url, expected):
     response = client.get(url + '?format=csv')

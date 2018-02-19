@@ -9,24 +9,30 @@ from sqlalchemy.orm import sessionmaker
 
 log = logging.getLogger(__file__)
 
+MEMORY_ENGINE = None
 ENGINE_MAPPER = {}
 register_engine = (lambda name: lambda f: ENGINE_MAPPER.setdefault(name, f))
 
 
 class SqlConnector:
-    def __init__(self, driver=None):
+    def __init__(self, driver=None, app=None):
+        if app is None:
+            app = current_app
+
         if driver is None:
-            driver = current_app.config['SQL_DRIVER']
+            driver = app.config['SQL_DRIVER']
 
         try:
             if driver == 'sqlite':
                 engine = sqlite_engine({})
             else:
-                engine = ENGINE_MAPPER[driver](current_app.config)
+                engine = ENGINE_MAPPER[driver](app.config)
         except KeyError:
             msg = 'Unknown SQL driver: %r' % driver
             log.error(msg)
             raise RuntimeError(msg)
+
+        self.engine = engine
 
         # Start session
         session_class = sessionmaker(bind=engine)
@@ -37,17 +43,24 @@ class SqlConnector:
             log.error('Can\'t create database session')
             raise
 
-        def __del__(self):
-            # Close session after query executes
-            self.session.close()
-            log.info('Database connection closed')
+    def __del__(self):
+        # Close session after query executes
+        self.session.close()
+        log.info('Database connection closed')
 
 
-def get_session(driver=None):
+def get_session(driver=None, app=None):
     """
     Return a session for the current SQL connector.
     """
-    return SqlConnector(driver).session
+    return SqlConnector(driver, app=app).session
+
+
+def get_engine(driver=None, app=None):
+    """
+    Return the engine object for the current SQL connector.
+    """
+    return SqlConnector(driver, app=app).engine
 
 
 #
@@ -72,7 +85,11 @@ def sqlite_engine(config):
 
 @register_engine('memory')
 def memory_engine(config):
-    return create_engine('sqlite://')
+    global MEMORY_ENGINE
+
+    if MEMORY_ENGINE is None:
+        MEMORY_ENGINE = create_engine('sqlite://')
+    return MEMORY_ENGINE
 
 
 @register_engine('pyodbc')

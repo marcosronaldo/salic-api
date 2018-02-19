@@ -1,11 +1,14 @@
 import copy
 import json
 
+import pytest
+
 from tests.examples import PROJETOS_AREAS, PROJETO_RESPONSE, \
     INCENTIVADOR_RESPONSE, FORNECEDOR_RESPONSE, PROPONENTE_RESPONSE, \
     PREPROJETO_RESPONSE, CAPTACOES_RESPONSE
 
 
+@pytest.mark.usefixtures('db_data')
 class TestCoreUrls:
     valid_core_urls = [
         '/test',
