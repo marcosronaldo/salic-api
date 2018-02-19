@@ -29,6 +29,8 @@ class FornecedorQuery(Query):
                  .outerjoin(tbPlanilhaAprovacao,
                             ComprovanteAprovacao.idPlanilhaAprovacao ==
                             tbPlanilhaAprovacao.idPlanilhaAprovacao)
+                 # FIXME: check if the explicit equality test is necessary
+                 # now that we have a FK constraint
                  .outerjoin(tbPlanilhaItens,
                             tbPlanilhaAprovacao.idPlanilhaItem ==
                             tbPlanilhaItens.idPlanilhaItens)

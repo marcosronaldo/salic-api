@@ -1,22 +1,14 @@
 import contextlib
 from datetime import date
 
+from .database.connector import get_session
+from .resources.shared_models import Area, Projeto, PreProjeto, \
+    PlanoDistribuicao, Produto, PlanoDivulgacao, Verificacao, Segmento, \
+    Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
+    CertidoesNegativas, Custos, tbComprovantePagamentoxPlanilhaAprovacao, \
+    tbComprovantePagamento, tbArquivo, tbPlanilhaAprovacao, tbPlanilhaItens, \
+    Nomes, Agentes, Internet
 
-from .database.connector import get_session, get_engine
-from .resources.shared_models import (Projeto, Area, PreProjeto,
-                                      Segmento, Enquadramento, Mecanismo,
-                                      Situacao, Interessado, Captacao,
-                                      CertidoesNegativas, Verificacao,
-                                      PlanoDivulgacao, Produto,
-                                      PlanoDistribuicao, Custos,
-                                      tbComprovantePagamentoxPlanilhaAprovacao,
-                                      tbComprovantePagamento, tbArquivo,
-                                      tbPlanilhaAprovacao, tbPlanilhaItens,
-                                      Nomes, Agentes, Internet,
-                                      tbArquivoImagem, tbDocumento, Pais,
-                                      uf, Municipios, tbDeslocamento, Usuarios,
-                                      prorrogacao, tbPlanilhaEtapa,
-                                      tbPlanilhaUnidade, tbDocumentoProjeto)
 
 #
 # Populate a test db
@@ -42,6 +34,7 @@ def populate(session=None, app=None):
     session = get_session(app=app) if session is None else session
 
     # Create entities
+
     for factory in FACTORIES:
         for obj in factory():
             session.add(obj)
@@ -90,8 +83,8 @@ def projeto_example():
         Sequencial='1234',
         NomeProjeto='Test',
         Localizacao='Brazil',
-        DtInicioExecucao=date(2000, 1, 1),
-        DtFimExecucao=date(2000, 2, 1),
+        DtInicioExecucao=datetime(2000, 1, 1),
+        DtFimExecucao=datetime(2000, 2, 1),
         UfProjeto='DF',
         SolicitadoReal='R$1.000.000',
         SolicitadoUfir='R$1.000.000',
@@ -106,7 +99,7 @@ def projeto_example():
         Area='1',
         CgcCpf=CPF,
         idProjeto=1,
-        Mecanismo='mecenato',
+        Mecanismo='1',
     )]
 
 
@@ -114,11 +107,11 @@ def pre_projeto_example():
     return [PreProjeto(
         idPreProjeto=1,
         NomeProjeto='Test',
-        DtInicioDeExecucao=date(2000, 1, 1),
-        DtFinalDeExecucao=date(2000, 2, 1),
-        dtAceite=date(2000, 1, 1),
-        DtArquivamento=date(2000, 3, 1),
-        Mecanismo='mecenato',
+        DtInicioDeExecucao=datetime(2000, 1, 1),
+        DtFinalDeExecucao=datetime(2000, 2, 1),
+        dtAceite=datetime(2000, 1, 1),
+        DtArquivamento=datetime(2000, 3, 1),
+        Mecanismo=1,
         Objetivos='cultural',
         Justificativa='Justificativa',
         Acessibilidade='Acessibilidade',
@@ -134,20 +127,28 @@ def pre_projeto_example():
 
 
 def segmento_example():
-    return [Segmento(Codigo='1', Descricao='Descricao')]
+    return [
+        Segmento(Codigo='11', Descricao='Teatro', tpEnquadramento='2'),
+        Segmento(Codigo='21', Descricao='Jogos Eletrônicos', tpEnquadramento='1'),
+    ]
 
 
 def enquadramento_example():
-    return [Enquadramento(
-        Enquadramento=1,
-        AnoProjeto='2000',
-        Sequencial='1234',
-        IdPRONAC=20001234,
-    )]
+    return [
+        Enquadramento(
+            Enquadramento=1,
+            AnoProjeto='2000',
+            Sequencial='1234',
+            IdPRONAC=20001234,
+        ),
+    ]
 
 
 def mecanismo_example():
-    return [Mecanismo(Codigo='mecenato', Descricao='Descricao')]
+    return [
+        Mecanismo(Codigo='1', Descricao='Mecenato'),
+        Mecanismo(Codigo='2', Descricao='FNC'),
+    ]
 
 
 def situacao_example():
@@ -170,7 +171,7 @@ def captacao_example():
         AnoProjeto='2000',
         Sequencial='1234',
         CaptacaoReal='CaptacaoReal',
-        DtRecibo=date(2000, 1, 1),
+        DtRecibo=datetime(2000, 1, 1),
         CgcCpfMecena=CPF,
     )]
 
@@ -179,8 +180,8 @@ def certidoes_negativas_example():
     return [CertidoesNegativas(
         AnoProjeto='2000',
         Sequencial='1234',
-        DtEmissao=date(2000, 1, 1),
-        DtValidade=date(2000, 3, 1),
+        DtEmissao=datetime(2000, 1, 1),
+        DtValidade=datetime(2000, 3, 1),
         CodigoCertidao=1,
         cdSituacaoCertidao=1,
         CgcCpf=CPF,
@@ -188,14 +189,14 @@ def certidoes_negativas_example():
 
 
 def verificacao_example():
-    return [Verificacao(idTipo=1, Descricao='Descricao', stEstado=1)]
+    return [Verificacao(idTipo=1, Descricao='Descricao', stEstado=True)]
 
 
 def plano_divulgacao_example():
     return [PlanoDivulgacao(
         idPeca=1,
         idVeiculo=1,
-        stPlanoDivulgacao=1,
+        stPlanoDivulgacao=True,
         idProjeto=1,
     )]
 
@@ -206,7 +207,7 @@ def produto_example():
         Area='Area',
         Sintese='Sintese',
         Idorgao=1,
-        stEstado=1,
+        stEstado=True,
     )]
 
 
@@ -215,7 +216,7 @@ def plano_distribuicao_example():
         idPlanoDistribuicao=1,
         idProjeto=1,
         idProduto=1,
-        stPrincipal=1,
+        stPrincipal=True,
         Segmento='1',
         Area='1',
         idPosicaoDaLogo=1,
@@ -229,14 +230,14 @@ def plano_distribuicao_example():
         QtdeVendaPromocional=0,
         QtdeUnitarioNormal=0,
         QtdeUnitarioPromocional=0,
-        stPlanoDistribuicaoProduto=0,
+        stPlanoDistribuicaoProduto=False,
     )]
 
 
 def custos_example():
     return [Custos(
         idCustos=1,
-        IdPRONAC=20001234,
+        IdPRONAC='20001234',
         idInteressado=CPF,
         valor_proposta=1000,
         valor_solicitado=1000,
@@ -251,7 +252,6 @@ def tbcomprovantepagamentoxplanilhaaprovacao_example():
     return [tbComprovantePagamentoxPlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idComprovantePagamento=1,
-        nrOcorrencia=15,
     )]
 
 
@@ -260,15 +260,12 @@ def tbcomprovantepagamento_example():
         idComprovantePagamento=1,
         idFornecedor=1,
         idArquivo=1,
-        vlComprovacao=3.1415,
     )]
 
 
 def tbarquivo_example():
     return [tbArquivo(
         idArquivo=1,
-        nmArquivo='arquivo',
-        dtEnvio=date(2000, 1, 1),
     )]
 
 
@@ -276,18 +273,13 @@ def tbplanilhaaprovacao_example():
     return [tbPlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idPlanilhaItem=1,
-        qtItem=99,
-        vlUnitario=3.1415,
-        idEtapa=1,
-        idUnidade=1,
-        idPronac=20001234,
     )]
 
 
 def tbPlanilhaItens_example():
     return [tbPlanilhaItens(
         idPlanilhaItens=1,
-        idPlanilhaItem=1,
+        Descricao='Figurino',
     )]
 
 
@@ -314,100 +306,6 @@ def internet_example():
     )]
 
 
-def arquivo_imagem_example():
-    return [tbArquivoImagem(
-        idArquivoImagem=1,
-        idArquivo=1,
-        imagem="This should be an image",
-        dsDocumento="dsDocumento",
-    )]
-
-
-def documento_example():
-    return [tbDocumento(
-        idDocumento=1,
-        idArquivo=1,
-    )]
-
-
-def documento_projeto_example():
-    return[tbDocumentoProjeto(
-        idDocumentoProjeto=1,
-        idDocumento=1,
-        idTipoDocumento=1,
-        idPronac=20001234,
-    )]
-
-
-def pais_example():
-    return [Pais(
-        idPais=1,
-        Descricao="Brasil",
-    )]
-
-
-def uf_example():
-    return [uf(
-        iduf=1,
-        Descricao="Distrito Federal",
-    )]
-
-
-def municipio_example():
-    return [Municipios(
-        idMunicipioIBGE=1,
-        Descricao="Cocais de Bambu",
-    )]
-
-
-def tbDeslocamento_example():
-    return [tbDeslocamento(
-        idDeslocamento=1,
-        Qtde=2,
-        idProjeto=1,
-        idPaisOrigem=1,
-        idUFOrigem=1,
-        idMunicipioOrigem=1,
-        idPaisDestino=1,
-        idUFDestino=1,
-        idMunicipioDestino=1,
-    )]
-
-
-def usuarios_example():
-    return[Usuarios(
-        usu_codigo=1,
-        usu_nome='nome',
-    )]
-
-
-def prorrogacao_example():
-    return[prorrogacao(
-        idProrrogacao=1,
-        Logon=1,
-        DtPedido=date(2000, 1, 1),
-        DtInicio=date(2000, 1, 1),
-        DtFinal=date(2000, 3, 1),
-        Observacao='Observacao',
-        Atendimento='A',
-        idPronac=20001234,
-    )]
-
-
-def tbPlanilhaEtapa_example():
-    return[tbPlanilhaEtapa(
-        idPlanilhaEtapa=1,
-        Descricao='Planilha Etapa',
-    )]
-
-
-def tbPlanilhaUnidade_example():
-    return[tbPlanilhaUnidade(
-        idUnidade=1,
-        Descricao='Planilha Unidade',
-    )]
-
-
 #
 # Registe all factories
 #
@@ -421,8 +319,4 @@ FACTORIES = [
     tbcomprovantepagamento_example, tbarquivo_example,
     tbplanilhaaprovacao_example, tbPlanilhaItens_example,
     nomes_example, agentes_example, internet_example,
-    arquivo_imagem_example, documento_example, documento_projeto_example,
-    pais_example, uf_example, municipio_example, tbDeslocamento_example,
-    usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example,
-    tbPlanilhaUnidade_example,
 ]

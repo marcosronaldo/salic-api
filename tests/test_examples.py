@@ -60,7 +60,7 @@ class TestCoreUrls:
         expected = PREPROJETO_RESPONSE
         check_endpoint(client, url, expected)
 
-    def test_preprojetos_list(self, client):
+    def _test_preprojetos_list(self, client):
         url = '/v1/propostas/'
         expected = single_list(PREPROJETO_RESPONSE, 'propostas')
         check_endpoint(client, url, expected)

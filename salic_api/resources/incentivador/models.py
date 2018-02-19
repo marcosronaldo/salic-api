@@ -73,7 +73,7 @@ class DoacaoQuery(Query):
     query_fields = (
         Captacao.PRONAC,
         Captacao.CaptacaoReal.label('valor'),
-        Captacao.DtRecibo.label('data_recibo'),
+        Captacao.data_recibo.label('data_recibo'),
         Projeto.NomeProjeto.label('nome_projeto'),
         Captacao.CgcCpfMecena.label('cgccpf'),
         Interessado.Nome.label('nome_doador'),

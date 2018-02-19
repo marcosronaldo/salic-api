@@ -5,9 +5,8 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
 
-from salic_api.resources.projeto.raw_sql import payments_listing_sql, normalize_sql
-from salic_api.resources.query import filter_query, filter_query_like
-from ..query import Query
+from .raw_sql import payments_listing_sql
+from ..query import Query, filter_query, filter_query_like
 from ..serialization import listify_queryset
 from ..shared_models import (
     Projeto, Interessado, Situacao, Enquadramento, PreProjeto,
@@ -80,8 +79,8 @@ class ProjetoQuery(Query):
         Projeto.NomeProjeto.label('nome'),
         Projeto.PRONAC.label('PRONAC'),
         Projeto.UfProjeto.label('UF'),
-        Projeto.DtInicioExecucao.label('data_inicio'),
-        Projeto.DtFimExecucao.label('data_termino'),
+        Projeto.data_inicio_execucao.label('data_inicio'),
+        Projeto.data_inicio_execucao.label('data_termino'),
         Projeto.IdPRONAC,
         Projeto.AnoProjeto.label('ano_projeto'),
 
@@ -135,15 +134,15 @@ class ProjetoQuery(Query):
             query = self.raw_query(*self.query_fields)
             query = (
                 query
-                .join(PreProjeto)
-                .join(Interessado)
-                .join(Area)
-                .join(Segmento)
-                .join(Situacao)
-                .join(Mecanismo,
-                      Mecanismo.Codigo == Projeto.Mecanismo)
-                .outerjoin(Enquadramento,
-                           Enquadramento.IdPRONAC == Projeto.IdPRONAC)
+                    .join(PreProjeto)
+                    .join(Interessado)
+                    .join(Area)
+                    .join(Segmento)
+                    .join(Situacao)
+                    .join(Mecanismo,
+                          Mecanismo.Codigo == Projeto.Mecanismo)
+                    .outerjoin(Enquadramento,
+                               Enquadramento.IdPRONAC == Projeto.IdPRONAC)
             )
             if not use_sql_procedures:
                 query = query.join(Custos,
@@ -167,15 +166,15 @@ class ProjetoQuery(Query):
             # Filter query by dates
             end_of_day = (lambda x: None if x is None else x + '23:59:59')
             query = filter_query(query, {
-                Projeto.DtInicioExecucao: data_inicio or data_inicio_min,
-                Projeto.DtFimExecucao: data_termino or data_termino_min,
+                Projeto.data_inicio_execucao: data_inicio or data_inicio_min,
+                Projeto.data_fim_execucao: data_termino or data_termino_min,
             }, op=operator.ge)
 
             query = filter_query(query, [
-                (Projeto.DtInicioExecucao, end_of_day(data_inicio)),
-                (Projeto.DtInicioExecucao, end_of_day(data_inicio_max)),
-                (Projeto.DtFimExecucao, end_of_day(data_termino)),
-                (Projeto.DtFimExecucao, end_of_day(data_termino_max)),
+                (Projeto.data_inicio_execucao, end_of_day(data_inicio)),
+                (Projeto.data_inicio_execucao, end_of_day(data_inicio_max)),
+                (Projeto.data_inicio_execucao, end_of_day(data_termino)),
+                (Projeto.data_fim_execucao, end_of_day(data_termino_max)),
             ], op=operator.le)
 
             # Sort result
@@ -209,6 +208,7 @@ class ProjetoQuery(Query):
         else:
             return []
 
+    # FIXME: ???
     def attached_brands(self, idPronac):
         query = text(normalize_sql("""
                 SELECT a.idArquivo as id_arquivo
@@ -289,6 +289,8 @@ class ProjetoQuery(Query):
         return n_records[0]['total']
 
     def taxing_report(self, idPronac):
+        return []  # FIXME
+
         # Relatório fisco
         query = text(normalize_sql("""
                 SELECT
@@ -362,15 +364,15 @@ class CaptacaoQuery(Query):
         query = self.raw_query(
             Captacao.PRONAC,
             Captacao.CaptacaoReal.label('valor'),
-            Captacao.DtRecibo.label('data_recibo'),
+            Captacao.data_recibo.label('data_recibo'),
             Captacao.CgcCpfMecena.label('cgccpf'),
             Projeto.NomeProjeto.label('nome_projeto'),
             Interessado.Nome.label('nome_doador'),
         )
         query = (
             query
-            .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
-            .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
+                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
         return filter_query(query, {Captacao.PRONAC: PRONAC})
 
@@ -405,8 +407,8 @@ class CertidoesNegativasQuery(Query):
 
     def query(self, PRONAC=None, CgcCpf=None):
         query = self.raw_query(
-            CertidoesNegativas.DtEmissao.label('data_emissao'),
-            CertidoesNegativas.DtValidade.label('data_validade'),
+            CertidoesNegativas.data_emissao.label('data_emissao'),
+            CertidoesNegativas.data_validade.label('data_validade'),
             self.descricao.label('descricao'),
             self.situacao.label('situacao'),
         )
@@ -414,21 +416,21 @@ class CertidoesNegativasQuery(Query):
 
 
 class DivulgacaoQuery(Query):
+    # V1 = aliased(Verificacao)
+    # V2 = aliased(Verificacao)
 
     def query(self, IdPRONAC):
-        query = (self.raw_query(
-            Verificacao.Descricao.label('peca'),
-            Verificacao.Descricao.label('veiculo'),
-        ).select_from(PlanoDivulgacao)
-         .join(Projeto, Projeto.idProjeto == PlanoDivulgacao.idProjeto)
-         .join(Verificacao,
-               Verificacao.idVerificacao == PlanoDivulgacao.idPeca
-               or Verificacao.idVerificacao == PlanoDivulgacao.idVeiculo)
-         .filter(and_(Projeto.IdPRONAC == IdPRONAC,
-                     PlanoDivulgacao.stPlanoDivulgacao == 1))
-        )
+        return []  # FIXME
 
-        return query
+        stmt = text("""
+            SELECT v1.Descricao as peca,v2.Descricao as veiculo
+                FROM sac.dbo.PlanoDeDivulgacao d
+                INNEr JOIN sac.dbo.Projetos p on (d.idProjeto = p.idProjeto)
+                INNER JOIN sac.dbo.Verificacao v1 on (d.idPeca = v1.idVerificacao)
+                INNER JOIN sac.dbo.Verificacao v2 on (d.idVeiculo = v2.idVerificacao)
+                WHERE p.IdPRONAC=:IdPRONAC AND d.stPlanoDivulgacao = 1
+            """)
+        return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
 
 
 class DescolamentoQuery(Query):
