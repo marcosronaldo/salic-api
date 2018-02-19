@@ -330,10 +330,9 @@ class ProjetoQuery(Query):
                 """))
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
-    def goods_capital_listing(self, idPronac):  # noqa: N803
-        return []  # FIXME
-        # Relação de bens de capital
-        query = text("""
+    def goods_capital_listing(self, idPronac):
+        # Relacao de bens de capital
+        query = text(normalize_sql("""
                 SELECT
                     CASE
                         WHEN tpDocumento = 1 THEN 'Boleto Bancario'
@@ -344,10 +343,10 @@ class ProjetoQuery(Query):
                     END as Titulo,
                     b.nrComprovante,
                     d.Descricao as Item,
-                    DtEmissao as dtPagamento,
-                    dsItemDeCusto Especificacao,
-                    dsMarca as Marca,
-                    dsFabricante as Fabricante,
+                    a.DtEmissao as dtPagamento,
+                    a.dsItemDeCusto Especificacao,
+                    a.dsMarca as Marca,
+                    a.dsFabricante as Fabricante,
                     (c.qtItem*nrOcorrencia) as Qtde,
                     c.vlUnitario,
                     (c.qtItem*nrOcorrencia*c.vlUnitario) as vlTotal
@@ -357,7 +356,7 @@ class ProjetoQuery(Query):
                  INNER JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
                  INNER JOIN BDCORPORATIVO.scSAC.tbItemCusto AS e ON e.idPlanilhaAprovacao = c.idPlanilhaAprovacao
                  WHERE (c.idPronac = :IdPRONAC)
-                """)
+                """))
         return self.fetch(query, {'IdPRONAC': idPronac})
 
 

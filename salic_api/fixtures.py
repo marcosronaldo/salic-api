@@ -2,12 +2,7 @@ import contextlib
 from datetime import datetime
 
 from .database.connector import get_session, get_engine
-from .resources.shared_models import Area, Projeto, PreProjeto, \
-    PlanoDistribuicao, Produto, PlanoDivulgacao, Verificacao, Segmento, \
-    Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
-    CertidoesNegativas, Custos, tbComprovantePagamentoxPlanilhaAprovacao, \
-    tbComprovantePagamento, tbArquivo, tbPlanilhaAprovacao, tbPlanilhaItens, \
-    Nomes, Agentes, Internet
+from .resources.shared_models import *
 
 
 #
@@ -251,8 +246,13 @@ def tbcomprovantepagamentoxplanilhaaprovacao_example():
     return [tbComprovantePagamentoxPlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idComprovantePagamento=1,
-        tpDocumento='Boleto Bancario',
-        vlComprovado='2890',
+        nrOcorrencia=15,
+        DtEmissao = datetime(2000, 1, 1),
+        dsItemDeCusto = 'Descricao item',
+        dsMarca = 'Descricao marca',
+        dsFabricante = 'Descricao fabricante',
+        tpDocumento = 1,
+        vlComprovado = 2000.0,
     )]
 
 
@@ -261,12 +261,13 @@ def tbcomprovantepagamento_example():
         idComprovantePagamento=1,
         idFornecedor=1,
         idArquivo=1,
-        dsJustificativa='Uma justificativa',
-        dtEmissao=datetime(2000, 1, 1),
         tpFormaDePagamento='Dinheiro',
-        DtPagamento=datetime(2000, 2, 2),
         nrComprovante='1',
         nrDocumentoDePagamento='1',
+        vlComprovacao=3.1415,
+        DtPagamento=datetime(2000, 2, 2),
+        dtEmissao = datetime(2000, 1, 1),
+        dsJustificativa = 'Descricao Justificativa',
     )]
 
 
@@ -317,6 +318,106 @@ def internet_example():
 #
 # Registe all factories
 #
+def arquivo_imagem_example():
+    return [tbArquivoImagem(
+        idArquivoImagem=1,
+        idArquivo=1,
+        imagem="This should be an image",
+        dsDocumento="dsDocumento",
+    )]
+
+
+def documento_example():
+    return [tbDocumento(
+        idDocumento=1,
+        idArquivo=1,
+    )]
+
+
+def documento_projeto_example():
+    return[tbDocumentoProjeto(
+        idDocumentoProjeto=1,
+        idDocumento=1,
+        idTipoDocumento=1,
+        idPronac=20001234,
+    )]
+
+
+def pais_example():
+    return [Pais(
+        idPais=1,
+        Descricao="Brasil",
+    )]
+
+
+def uf_example():
+    return [uf(
+        iduf=1,
+        Descricao="Distrito Federal",
+    )]
+
+
+def municipio_example():
+    return [Municipios(
+        idMunicipioIBGE=1,
+        Descricao="Cocais de Bambu",
+    )]
+
+
+def tbDeslocamento_example():
+    return [tbDeslocamento(
+        idDeslocamento=1,
+        Qtde=2,
+        idProjeto=1,
+        idPaisOrigem=1,
+        idUFOrigem=1,
+        idMunicipioOrigem=1,
+        idPaisDestino=1,
+        idUFDestino=1,
+        idMunicipioDestino=1,
+    )]
+
+
+def usuarios_example():
+    return[Usuarios(
+        usu_codigo=1,
+        usu_nome='nome',
+    )]
+
+
+def prorrogacao_example():
+    return[prorrogacao(
+        idProrrogacao=1,
+        Logon=1,
+        DtPedido=datetime(2000, 1, 1),
+        DtInicio=datetime(2000, 1, 1),
+        DtFinal=datetime(2000, 3, 1),
+        Observacao='Observacao',
+        Atendimento='A',
+        idPronac=20001234,
+    )]
+
+
+def tbPlanilhaEtapa_example():
+    return[tbPlanilhaEtapa(
+        idPlanilhaEtapa=1,
+        Descricao='Planilha Etapa',
+    )]
+
+
+def tbPlanilhaUnidade_example():
+    return[tbPlanilhaUnidade(
+        idUnidade=1,
+        Descricao='Planilha Unidade',
+    )]
+
+
+def tbItemCusto_example():
+    return [tbItemCusto(
+        idItem = 1,
+        idPlanilhaAprovacao = 1,
+    )]
+
 FACTORIES = [
     areas_example, projeto_example, pre_projeto_example, segmento_example,
     enquadramento_example, mecanismo_example, situacao_example,
@@ -327,4 +428,8 @@ FACTORIES = [
     tbcomprovantepagamento_example, tbarquivo_example,
     tbplanilhaaprovacao_example, tbPlanilhaItens_example,
     nomes_example, agentes_example, internet_example,
+    arquivo_imagem_example, documento_example, documento_projeto_example,
+    pais_example, uf_example, municipio_example, tbDeslocamento_example,
+    usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example,
+    tbPlanilhaUnidade_example, tbItemCusto_example,
 ]

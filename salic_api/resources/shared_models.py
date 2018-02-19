@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Date, DateTime, Integer, String, ForeignKey, \
-    Text, Boolean, case, CHAR, DATE, func, VARCHAR
+    Text, Boolean, case, CHAR, DATE, func, VARCHAR, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import column_property
 from sqlalchemy.orm import relationship
@@ -340,7 +340,12 @@ class tbComprovantePagamentoxPlanilhaAprovacao(Base):  # noqa: N801
         Integer,
         ForeignKey('tbComprovantePagamento.idComprovantePagamento'))
     tpDocumento = Column(Integer)
-    vlComprovado = Column(String)
+    vlComprovado = Column(Float)
+    nrOcorrencia = Column(Integer)
+    DtEmissao = Column(Date)
+    dsItemDeCusto = Column(String)
+    dsMarca = Column(String)
+    dsFabricante = Column(String)
 
 
 class tbComprovantePagamento(Base):  # noqa: N801
@@ -358,6 +363,8 @@ class tbComprovantePagamento(Base):  # noqa: N801
     nrDocumentoDePagamento = Column(String)
     nrComprovante = Column(String)
     dsJustificativa = Column(String)
+    vlComprovacao = Column(Float)
+
 
 
 class tbArquivo(Base):  # noqa: N801
@@ -443,3 +450,113 @@ class Custos(Base):
     valor_aprovado_convenio = Column(Integer)
     custo_projeto = Column(Integer)
     outras_fontes = Column(Integer)
+
+
+# FIXME put right columns when given access to this table
+class tbArquivoImagem(Base):
+    _full_name = 'BDCORPORATIVO.scCorp.tbArquivoImagem'
+    __tablename__ = 'tbArquivoImagem'
+
+    idArquivoImagem = Column(Integer, primary_key=True)
+    idArquivo = Column(Integer, ForeignKey("tbArquivo.idArquivo"))
+    imagem = Column(String)
+    dsDocumento = Column(String)
+
+
+class tbDocumento(Base):
+    _full_name = 'BDCORPORATIVO.scCorp.tbDocumento'
+    __tablename__ = 'tbDocumento'
+
+    idDocumento = Column(Integer, primary_key=True)
+    idArquivo = Column(Integer, ForeignKey("tbArquivo.idArquivo"))
+
+
+class tbDocumentoProjeto(Base):
+    _full_name = 'BDCORPORATIVO.scCorp.tbDocumentoProjeto'
+    __tablename__ = 'tbDocumentoProjeto'
+
+    idDocumentoProjeto = Column(Integer, primary_key=True)
+    idDocumento = Column(Integer, ForeignKey("tbDocumento.idDocumento"))
+    idTipoDocumento = Column(Integer)
+    idPronac = Column(Integer)
+
+
+class Pais(Base):
+    __tablename__ = 'Pais'
+    _full_name = 'Agentes.dbo.Pais'
+
+    idPais = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class uf(Base):
+    __tablename__ = 'uf'
+    _full_name = 'Agentes.dbo.uf'
+
+    iduf = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class Municipios(Base):
+    __tablename__ = 'Municipios'
+    _full_name = 'Agentes.dbo.Municipios'
+
+    idMunicipioIBGE = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class tbDeslocamento(Base):
+    __tablename__ = 'tbDeslocamento'
+
+    idDeslocamento = Column(Integer, primary_key=True)
+    Qtde = Column(Integer)
+    idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
+    idPaisOrigem = Column(Integer, ForeignKey('Pais.idPais'))
+    idUFOrigem = Column(Integer, ForeignKey('uf.iduf'))
+    idMunicipioOrigem = Column(Integer, ForeignKey('Municipios.idMunicipioIBGE'))
+    idPaisDestino = Column(Integer, ForeignKey('Pais.idPais'))
+    idUFDestino = Column(Integer, ForeignKey('uf.iduf'))
+    idMunicipioDestino = Column(Integer, ForeignKey('Municipios.idMunicipioIBGE'))
+
+
+class Usuarios(Base):
+    _full_name = 'TABELAS.dbo.Usuarios'
+    __tablename__ = 'Usuarios'
+
+    usu_codigo = Column(Integer, primary_key=True)
+    usu_nome = Column(String)
+
+
+# FIXME put right columns when given access to this table.
+# for now using made up primary key
+class prorrogacao(Base):
+    __tablename__ = 'prorrogacao'
+
+    idProrrogacao = Column(Integer, primary_key=True)
+    Logon = Column(Integer)
+    DtPedido = Column(Date)
+    DtInicio = Column(Date)
+    DtFinal = Column(Date)
+    Observacao = Column(String)
+    Atendimento = Column(String)
+    idPronac = Column(Integer)
+
+
+class tbPlanilhaEtapa(Base):
+    __tablename__ = 'tbPlanilhaEtapa'
+    idPlanilhaEtapa = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class tbPlanilhaUnidade(Base):
+    __tablename__ = 'tbPlanilhaUnidade'
+
+    idUnidade = Column(Integer, primary_key=True)
+    Descricao = Column(String)
+
+
+class tbItemCusto(Base):
+    __tablename__ = 'tbItemCusto'
+
+    idItem = Column(Integer, primary_key=True)
+    idPlanilhaAprovacao = Column(Integer, ForeignKey('tbPlanilhaAprovacao.idPlanilhaAprovacao'))
