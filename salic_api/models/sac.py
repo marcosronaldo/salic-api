@@ -398,22 +398,24 @@ class Readequacao(Base):
     stAtendimento = Column(String)
     siEncaminhamento = Column(Integer)
     dsEncaminhamento = Column(String)
-
+    dsSolicitacao = Column(String)
+    stEstado = Column(String)
+    idDocumento = Column(Integer, ForeignKey('tbDocumento.idDocumento'))
 
 class TipoReadequacao(Base):
     """
     SAC.dbo.tbTipoReadequacao
     """
-    __tablename__ = 'TipoReadequacao'
+    __tablename__ = 'tbTipoReadequacao'
 
     idTipoReadequacao = Column(Integer, primary_key=True)
-
-
+    dsReadequacao = Column(String)
 
 class TipoEncaminhamento(Base):
     """
     SAC.dbo.tbTipoEncaminhamento
     """
-    __tablename__ = 'TipoEncaminhamento'
+    __tablename__ = 'tbTipoEncaminhamento'
 
     idTipoEncaminhamento = Column(Integer, primary_key=True)
+    dsEncaminhamento = Column(String)
