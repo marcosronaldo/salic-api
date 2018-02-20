@@ -12,6 +12,7 @@ class TestCsv:
         url = '/v1/proponentes/30313233343536373839616263646566e0797636'
         expected = PROPONENTE_CSV
         check_csv(client, url, expected)
+
     def test_preprojeto_csv(self, client):
         url = '/v1/propostas/1'
         expected = PROPOSTA_CSV
@@ -31,9 +32,6 @@ class TestCsv:
 def check_csv(client, url, expected):
     response = client.get(url + '?format=csv')
     result = response.get_data(as_text=True)
-    print('RESULT')
-    print(result)
-    print(expected)
     assert result == expected
 
 
@@ -62,15 +60,15 @@ email,Name,1234
 """.replace('\n', '\r\n')
 
 PROJETO_CSV = (
-"objetivos,cgccpf,valor_captado,situacao,data_termino,PRONAC,valor_solicitado,"
-"etapa,segmento,acessibilidade,especificacao_tecnica,sinopse,valor_projeto,"
-"enquadramento,UF,justificativa,providencia,proponente,democratizacao,"
-"data_inicio,ficha_tecnica,mecanismo,impacto_ambiental,nome,"
-"estrategia_execucao,resumo,outras_fontes,municipio,valor_aprovado,"
-"valor_proposta,ano_projeto,area,code,message\r\n"
+    "objetivos,cgccpf,valor_captado,situacao,data_termino,PRONAC,valor_solicitado,"
+    "etapa,segmento,acessibilidade,especificacao_tecnica,sinopse,valor_projeto,"
+    "enquadramento,UF,justificativa,providencia,proponente,democratizacao,"
+    "data_inicio,ficha_tecnica,mecanismo,impacto_ambiental,nome,"
+    "estrategia_execucao,resumo,outras_fontes,municipio,valor_aprovado,"
+    "valor_proposta,ano_projeto,area,code,message\r\n"
 
-"cultural,1234,1000,Descricao,2000-02-01,20001234,1000,EtapaDeTrabalho,"
-"Descricao,Acessibilidade,EspecificacaoTecnica,Sinopse,1000,Artigo 26,DF,"
-"Justificativa,nenhuma,Nome,DemocratizacaoDeAcesso,2000-01-01,FichaTecnica,"
-"Descricao,ImpactoAmbiental,Test,EstrategiadeExecucao,ResumoDoProjeto,0,"
-"Cidade,1000,1000,2000,Artes Cênicas,,\r\n")
+    "cultural,1234,1000,Descricao,2000-02-01,20001234,1000,EtapaDeTrabalho,"
+    "Teatro,Acessibilidade,EspecificacaoTecnica,Sinopse,1000,Artigo 26,DF,"
+    "Justificativa,nenhuma,Nome,DemocratizacaoDeAcesso,2000-01-01,FichaTecnica,"
+    "Mecenato,ImpactoAmbiental,Test,EstrategiadeExecucao,ResumoDoProjeto,0,"
+    "Cidade,1000,1000,2000,Artes Cênicas,,\r\n")
