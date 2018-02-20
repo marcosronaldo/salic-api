@@ -1,6 +1,6 @@
-from .models import ProponenteQuery
+from .query import ProponenteQuery
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import DetailResource
+from ..resource import DetailResource
 from ...utils import decrypt
 
 

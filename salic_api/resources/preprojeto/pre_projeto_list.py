@@ -1,6 +1,6 @@
-from .models import PreProjetoQuery
+from .query import PreProjetoQuery
 from .pre_projeto_detail import PreProjetoDetail
-from ..resource_base import ListResource
+from ..resource import ListResource
 
 
 class PreProjetoList(ListResource):

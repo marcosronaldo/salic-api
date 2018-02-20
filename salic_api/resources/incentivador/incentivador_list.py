@@ -1,6 +1,6 @@
 from .incentivador_detail import IncentivadorDetail
-from .models import IncentivadorQuery
-from ..resource_base import ListResource
+from .query import IncentivadorQuery
+from ..resource import ListResource
 from ...utils import encrypt
 
 

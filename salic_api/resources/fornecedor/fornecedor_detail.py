@@ -1,5 +1,5 @@
-from .models import FornecedorQuery
-from ..resource_base import DetailResource
+from .query import FornecedorQuery
+from ..resource import DetailResource
 from ...utils import decrypt
 
 

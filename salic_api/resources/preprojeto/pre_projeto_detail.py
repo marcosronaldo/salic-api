@@ -1,5 +1,5 @@
-from .models import PreProjetoQuery
-from ..resource_base import DetailResource
+from .query import PreProjetoQuery
+from ..resource import DetailResource
 
 
 class PreProjetoDetail(DetailResource):

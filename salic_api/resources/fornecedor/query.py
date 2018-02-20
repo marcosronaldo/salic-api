@@ -1,13 +1,11 @@
 from sqlalchemy.sql import text
 
-from ..projeto.models import ProjetoQuery
 from ..query import Query, filter_query
 from ..serialization import listify_queryset
-from ..shared_models import Agentes, Nomes, Internet, \
-    tbComprovantePagamento as Comprovante, \
-    tbComprovantePagamentoxPlanilhaAprovacao as ComprovanteAprovacao, \
-    tbPlanilhaAprovacao, tbPlanilhaItens, tbArquivo, Produto, Enquadramento, \
-    Projeto
+from ...models import Agentes, Nomes, Internet, \
+    ComprovantePagamento as Comprovante, \
+    ComprovantePagamentoxPlanilhaAprovacao as ComprovanteAprovacao, \
+    PlanilhaAprovacao, PlanilhaItens, Arquivo, Produto, Projeto
 
 
 class FornecedorQuery(Query):
@@ -27,18 +25,18 @@ class FornecedorQuery(Query):
                        Comprovante.idComprovantePagamento)
                  .outerjoin(Internet,
                             Comprovante.idFornecedor == Internet.idAgente)
-                 .outerjoin(tbPlanilhaAprovacao,
+                 .outerjoin(PlanilhaAprovacao,
                             ComprovanteAprovacao.idPlanilhaAprovacao ==
-                            tbPlanilhaAprovacao.idPlanilhaAprovacao)
+                            PlanilhaAprovacao.idPlanilhaAprovacao)
                  # FIXME: check if the explicit equality test is necessary
                  # now that we have a FK constraint
-                 .outerjoin(tbPlanilhaItens,
-                            tbPlanilhaAprovacao.idPlanilhaItem ==
-                            tbPlanilhaItens.idPlanilhaItens)
+                 .outerjoin(PlanilhaItens,
+                            PlanilhaAprovacao.idPlanilhaItem ==
+                            PlanilhaItens.idPlanilhaItens)
                  .outerjoin(Nomes,
                             Comprovante.idFornecedor == Nomes.idAgente)
-                 .outerjoin(tbArquivo,
-                            Comprovante.idArquivo == tbArquivo.idArquivo)
+                 .outerjoin(Arquivo,
+                            Comprovante.idArquivo == Arquivo.idArquivo)
                  .outerjoin(Agentes,
                             Comprovante.idFornecedor == Agentes.idAgente)
 
@@ -122,7 +120,7 @@ class ProductQuery(Query):
         Comprovante.idComprovantePagamento.label("id_comprovante_pagamento"),
         ComprovanteAprovacao.tpDocumento.label("tipo_documento"),
         Comprovante.nrDocumentoDePagamento.label("nr_documento_pagamento"),
-        tbArquivo.nmArquivo.label("nm_arquivo"),
+        Arquivo.nmArquivo.label("nm_arquivo"),
         Projeto.PRONAC.label("PRONAC"),
     )
 

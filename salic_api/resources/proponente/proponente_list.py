@@ -1,6 +1,6 @@
-from .models import ProponenteQuery
+from .query import ProponenteQuery
 from .proponente_detail import ProponenteDetail
-from ..resource_base import ListResource
+from ..resource import ListResource
 from ...utils import encrypt
 
 

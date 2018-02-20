@@ -1,8 +1,15 @@
 import contextlib
 from datetime import datetime
 
-from .database.connector import get_session, get_engine
-from .resources.shared_models import *
+from salic_api.connector import get_session, get_engine
+from .models import Produto, Projeto, PreProjeto, Area, Agentes, Usuarios, \
+    Custos, PlanoDivulgacao, PlanoDistribuicao, Pais, Verificacao, \
+    CertidoesNegativas, Captacao, Situacao, Segmento, Municipios, Nomes, \
+    Interessado, Mecanismo, Enquadramento, Internet, PlanilhaUnidade, \
+    PlanilhaItens, PlanilhaEtapa, PlanilhaAprovacao, Deslocamento, \
+    ItemCusto, DocumentoProjeto, Documento, \
+    ComprovantePagamentoxPlanilhaAprovacao, ComprovantePagamento, \
+    ArquivoImagem, Arquivo, UF, Prorrogacao
 
 
 #
@@ -243,21 +250,21 @@ def custos_example():
 
 
 def tbcomprovantepagamentoxplanilhaaprovacao_example():
-    return [tbComprovantePagamentoxPlanilhaAprovacao(
+    return [ComprovantePagamentoxPlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idComprovantePagamento=1,
         nrOcorrencia=15,
-        DtEmissao = datetime(2000, 1, 1),
-        dsItemDeCusto = 'Descricao item',
-        dsMarca = 'Descricao marca',
-        dsFabricante = 'Descricao fabricante',
-        tpDocumento = 1,
-        vlComprovado = 2000.0,
+        DtEmissao=datetime(2000, 1, 1),
+        dsItemDeCusto='Descricao item',
+        dsMarca='Descricao marca',
+        dsFabricante='Descricao fabricante',
+        tpDocumento=1,
+        vlComprovado=2000.0,
     )]
 
 
 def tbcomprovantepagamento_example():
-    return [tbComprovantePagamento(
+    return [ComprovantePagamento(
         idComprovantePagamento=1,
         idFornecedor=1,
         idArquivo=1,
@@ -266,27 +273,28 @@ def tbcomprovantepagamento_example():
         nrDocumentoDePagamento='1',
         vlComprovacao=3.1415,
         DtPagamento=datetime(2000, 2, 2),
-        dtEmissao = datetime(2000, 1, 1),
-        dsJustificativa = 'Descricao Justificativa',
+        dtEmissao=datetime(2000, 1, 1),
+        dsJustificativa='Descricao Justificativa',
     )]
 
 
 def tbarquivo_example():
-    return [tbArquivo(
+    return [Arquivo(
         idArquivo=1,
         nmArquivo='1',
     )]
 
 
 def tbplanilhaaprovacao_example():
-    return [tbPlanilhaAprovacao(
+    return [PlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idPlanilhaItem=1,
+        qtItem=1,
     )]
 
 
 def tbPlanilhaItens_example():
-    return [tbPlanilhaItens(
+    return [PlanilhaItens(
         idPlanilhaItens=1,
         Descricao='Figurino',
     )]
@@ -319,7 +327,7 @@ def internet_example():
 # Registe all factories
 #
 def arquivo_imagem_example():
-    return [tbArquivoImagem(
+    return [ArquivoImagem(
         idArquivoImagem=1,
         idArquivo=1,
         imagem="This should be an image",
@@ -328,14 +336,14 @@ def arquivo_imagem_example():
 
 
 def documento_example():
-    return [tbDocumento(
+    return [Documento(
         idDocumento=1,
         idArquivo=1,
     )]
 
 
 def documento_projeto_example():
-    return[tbDocumentoProjeto(
+    return [DocumentoProjeto(
         idDocumentoProjeto=1,
         idDocumento=1,
         idTipoDocumento=1,
@@ -351,7 +359,7 @@ def pais_example():
 
 
 def uf_example():
-    return [uf(
+    return [UF(
         iduf=1,
         Descricao="Distrito Federal",
     )]
@@ -365,7 +373,7 @@ def municipio_example():
 
 
 def tbDeslocamento_example():
-    return [tbDeslocamento(
+    return [Deslocamento(
         idDeslocamento=1,
         Qtde=2,
         idProjeto=1,
@@ -379,14 +387,14 @@ def tbDeslocamento_example():
 
 
 def usuarios_example():
-    return[Usuarios(
+    return [Usuarios(
         usu_codigo=1,
         usu_nome='nome',
     )]
 
 
 def prorrogacao_example():
-    return[prorrogacao(
+    return [Prorrogacao(
         idProrrogacao=1,
         Logon=1,
         DtPedido=datetime(2000, 1, 1),
@@ -399,24 +407,25 @@ def prorrogacao_example():
 
 
 def tbPlanilhaEtapa_example():
-    return[tbPlanilhaEtapa(
+    return [PlanilhaEtapa(
         idPlanilhaEtapa=1,
         Descricao='Planilha Etapa',
     )]
 
 
 def tbPlanilhaUnidade_example():
-    return[tbPlanilhaUnidade(
+    return [PlanilhaUnidade(
         idUnidade=1,
         Descricao='Planilha Unidade',
     )]
 
 
 def tbItemCusto_example():
-    return [tbItemCusto(
-        idItem = 1,
-        idPlanilhaAprovacao = 1,
+    return [ItemCusto(
+        idItem=1,
+        idPlanilhaAprovacao=1,
     )]
+
 
 FACTORIES = [
     areas_example, projeto_example, pre_projeto_example, segmento_example,

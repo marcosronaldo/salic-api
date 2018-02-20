@@ -2,9 +2,9 @@ import logging
 
 from flask import current_app, request
 
-from .models import DoacaoQuery
+from .query import DoacaoQuery
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import ListResource
+from ..resource import ListResource
 from ..serialization import listify_queryset
 from ...utils import encrypt, decrypt
 

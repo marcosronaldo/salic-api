@@ -2,7 +2,7 @@ import logging
 
 from flask import current_app as app
 
-from ..resource_base import ListResource
+from ..resource import ListResource
 
 log = logging.getLogger('salic-api')
 

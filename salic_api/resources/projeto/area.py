@@ -1,5 +1,5 @@
-from .models import AreaQuery
-from ..resource_base import ListResource
+from .query import AreaQuery
+from ..resource import ListResource
 
 
 class Area(ListResource):

@@ -1,5 +1,5 @@
-from .models import FornecedorQuery
-from ..resource_base import ListResource
+from .query import FornecedorQuery
+from ..resource import ListResource
 from .fornecedor_detail import FornecedorDetail
 from ...utils import encrypt
 

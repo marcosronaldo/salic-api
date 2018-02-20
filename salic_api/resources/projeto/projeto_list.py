@@ -1,6 +1,6 @@
-from .models import ProjetoQuery
+from .query import ProjetoQuery
 from .projeto_detail import ProjetoDetail
-from ..resource_base import ListResource
+from ..resource import ListResource
 
 
 class ProjetoList(ListResource):

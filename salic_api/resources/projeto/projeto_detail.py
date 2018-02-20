@@ -1,10 +1,10 @@
 from . import utils
-from .models import (
+from .query import (
     ProjetoQuery, CertidoesNegativasQuery, DivulgacaoQuery, DescolamentoQuery,
     DistribuicaoQuery, ReadequacaoQuery, CaptacaoQuery
 )
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import DetailResource, InvalidResult
+from ..resource import DetailResource, InvalidResult
 from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...utils import encrypt

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from .resource_base import ListResource
+from .resource import ListResource
 
 
 class TestResource(ListResource):

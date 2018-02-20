@@ -1,15 +1,13 @@
 from sqlalchemy import func
 
+from ..projeto.query import custo_projeto
 from ..query import Query, filter_query, filter_query_like
-from ..shared_models import Interessado, Projeto, Custos
-from ..projeto.models import custo_projeto
-
+from ...models import Interessado, Projeto, Custos
 
 use_sql_procedures = False
 
 
 class ProponenteQuery(Query):
-
     query_fields = (
         custo_projeto.label('total_captado'),
         Interessado.Nome.label('nome'),

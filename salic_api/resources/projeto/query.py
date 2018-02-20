@@ -8,7 +8,7 @@ from sqlalchemy.sql.functions import coalesce
 from .raw_sql import payments_listing_sql, normalize_sql
 from ..query import Query, filter_query, filter_query_like
 from ..serialization import listify_queryset
-from ..shared_models import (
+from ...models import (
     Projeto, Interessado, Situacao, Enquadramento, PreProjeto,
     Captacao, CertidoesNegativas, Verificacao, PlanoDistribuicao, Produto, Area,
     Segmento, Custos, Mecanismo)
@@ -136,15 +136,15 @@ class ProjetoQuery(Query):
             query = self.raw_query(*self.query_fields)
             query = (
                 query
-                .join(PreProjeto)
-                .join(Interessado)
-                .join(Area)
-                .join(Segmento)
-                .join(Situacao)
-                .join(Mecanismo,
-                      Mecanismo.Codigo == Projeto.Mecanismo)
-                .outerjoin(Enquadramento,
-                           Enquadramento.IdPRONAC == Projeto.IdPRONAC)
+                    .join(PreProjeto)
+                    .join(Interessado)
+                    .join(Area)
+                    .join(Segmento)
+                    .join(Situacao)
+                    .join(Mecanismo,
+                          Mecanismo.Codigo == Projeto.Mecanismo)
+                    .outerjoin(Enquadramento,
+                               Enquadramento.IdPRONAC == Projeto.IdPRONAC)
             )
             if not use_sql_procedures:
                 query = query.join(Custos,
@@ -372,8 +372,8 @@ class CaptacaoQuery(Query):
         )
         query = (
             query
-            .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
-            .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
+                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
+                .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
         return filter_query(query, {Captacao.PRONAC: PRONAC})
 

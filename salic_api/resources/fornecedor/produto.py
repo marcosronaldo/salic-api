@@ -1,6 +1,6 @@
 from flask import current_app
-from .models import ProductQuery
-from ..resource_base import ListResource
+from .query import ProductQuery
+from ..resource import ListResource
 from ...utils import encrypt
 
 

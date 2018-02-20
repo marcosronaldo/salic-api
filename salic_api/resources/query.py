@@ -2,7 +2,7 @@ import operator
 
 from sqlalchemy import func
 
-from ..database.connector import SqlConnector
+from ..connector import SqlConnector
 
 
 class Query:

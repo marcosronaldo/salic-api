@@ -1,6 +1,6 @@
-from .models import IncentivadorQuery
+from .query import IncentivadorQuery
 from ..format_utils import remove_blanks, cgccpf_mask
-from ..resource_base import DetailResource
+from ..resource import DetailResource
 from ...utils import decrypt
 
 

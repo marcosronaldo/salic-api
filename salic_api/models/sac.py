@@ -1,20 +1,8 @@
-from sqlalchemy import Column, Date, DateTime, Integer, String, ForeignKey, \
-    Text, Boolean, case, CHAR, DATE, func, VARCHAR, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import column_property
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, CHAR, String, Text, ForeignKey, case, \
+    Boolean
+from sqlalchemy.orm import column_property, relationship
 
-Base = declarative_base()
-
-# TODO: can we support the money type in the SQL Server?
-Money = String
-use_sqlite = True
-
-if use_sqlite:
-    DateTime = Date
-    date_column = (lambda x: func.cast(x, VARCHAR))
-else:
-    date_column = (lambda x: func.cast(x, DATE))
+from .base import Base, DateTime, date_column, Money
 
 
 class Projeto(Base):
@@ -326,58 +314,7 @@ class PlanoDistribuicao(Base):
                                        foreign_keys=[idPosicaoDaLogo])
 
 
-#
-# Additional tables from other databases
-#
-class tbComprovantePagamentoxPlanilhaAprovacao(Base):  # noqa: N801
-    """
-    BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao
-    """
-    __tablename__ = 'tbComprovantePagamentoxPlanilhaAprovacao'
-
-    idPlanilhaAprovacao = Column(Integer, primary_key=True)
-    idComprovantePagamento = Column(
-        Integer,
-        ForeignKey('tbComprovantePagamento.idComprovantePagamento'))
-    tpDocumento = Column(Integer)
-    vlComprovado = Column(Float)
-    nrOcorrencia = Column(Integer)
-    DtEmissao = Column(Date)
-    dsItemDeCusto = Column(String)
-    dsMarca = Column(String)
-    dsFabricante = Column(String)
-
-
-class tbComprovantePagamento(Base):  # noqa: N801
-    """
-    BDCORPORATIVO.scSAC.tbComprovantePagamento
-    """
-    __tablename__ = 'tbComprovantePagamento'
-
-    idComprovantePagamento = Column(Integer, primary_key=True)
-    idFornecedor = Column(Integer)
-    idArquivo = Column(Integer, ForeignKey('tbArquivo.idArquivo'))
-    DtPagamento = Column(Date)
-    dtEmissao = Column(Date)
-    tpFormaDePagamento = Column(String)
-    nrDocumentoDePagamento = Column(String)
-    nrComprovante = Column(String)
-    dsJustificativa = Column(String)
-    vlComprovacao = Column(Float)
-
-
-
-class tbArquivo(Base):  # noqa: N801
-    """
-    BDCORPORATIVO.scCorp.tbArquivo
-    """
-    __tablename__ = 'tbArquivo'
-
-    idArquivo = Column(Integer, primary_key=True)
-    nmArquivo = Column(String)
-
-
-class tbPlanilhaAprovacao(Base):  # noqa: N801
+class PlanilhaAprovacao(Base):  # noqa: N801
     """
     SAC.dbo.tbPlanilhaAprovacao
     """
@@ -387,9 +324,10 @@ class tbPlanilhaAprovacao(Base):  # noqa: N801
     idPlanilhaItem = Column(Integer,
                             ForeignKey('tbPlanilhaItens.idPlanilhaItens'))
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
+    qtItem = Column(Integer)
 
 
-class tbPlanilhaItens(Base):  # noqa: N801
+class PlanilhaItens(Base):  # noqa: N801
     """
     SAC.dbo.tbPlanilhaItens
     """
@@ -399,144 +337,10 @@ class tbPlanilhaItens(Base):  # noqa: N801
     Descricao = Column(String)
 
 
-# This table actually describes city names
-class Nomes(Base):
+class Deslocamento(Base):
     """
-    Agentes.dbo.Nomes
+    SAC.dbo.tbDeslocamento
     """
-    __tablename__ = 'Nomes'
-
-    idNome = Column(Integer, primary_key=True)
-    idAgente = Column(Integer, ForeignKey('Agentes.idAgente'))
-    Descricao = Column(String)
-
-
-class Agentes(Base):
-    """
-    Agentes.dbo.Agentes
-    """
-    __tablename__ = 'Agentes'
-
-    idAgente = Column(Integer, primary_key=True)
-    CNPJCPF = Column(String)
-
-
-class Internet(Base):
-    """
-    Agentes.dbo.Internet
-    """
-    __tablename__ = 'Internet'
-
-    idInternet = Column(Integer, primary_key=True)
-    idAgente = Column(Integer, ForeignKey('Agentes.idAgente'))
-    Descricao = Column(String)
-
-
-# TODO: manually check those tables!
-class tbArquivoImagem(Base):
-    """
-    BDCORPORATIVO.scCorp.tbArquivoImagem
-    """
-    __tablename__ = 'tbArquivoImagem'
-
-    idArquivoImagem = Column(Integer, primary_key=True)
-    idArquivo = Column(Integer, ForeignKey('tbArquivo.idArquivo'))
-
-
-class tbDocumento(Base):
-    """
-    BDCORPORATIVO.scCorp.tbDocumento
-    """
-    __tablename__ = 'tbDocumento'
-
-    idDocumento = Column(Integer, primary_key=True)
-    idArquivo = Column(Integer, ForeignKey('tbArquivo.idArquivo'))
-
-
-class tbDocumentoProjeto(Base):
-    """
-    BDCORPORATIVO.scCorp.tbDocumentoProjeto
-    """
-    __tablename__ = 'tbDocumentoProjeto'
-
-    idDocumentoProjeto = Column(Integer, primary_key=True)
-    idDocumento = Column(Integer, ForeignKey('tbDocumento.idDocumento'))
-    idTipoDocumento = Column(Integer)
-    idPronac = Column(Integer)
-
-
-#
-# This data is stored as SQL procedures. We create a new table when working
-# with local Sqlite data
-#
-class Custos(Base):
-    __tablename__ = 'Custos'
-
-    idCustos = Column(Integer, primary_key=True)
-    IdPRONAC = Column(String, ForeignKey("Projetos.IdPRONAC"))
-    idInteressado = Column(String, ForeignKey("Interessado.CgcCpf"))
-    valor_proposta = Column(Integer)
-    valor_solicitado = Column(Integer)
-    valor_aprovado = Column(Integer)
-    valor_aprovado_convenio = Column(Integer)
-    custo_projeto = Column(Integer)
-    outras_fontes = Column(Integer)
-
-
-# FIXME put right columns when given access to this table
-class tbArquivoImagem(Base):
-    _full_name = 'BDCORPORATIVO.scCorp.tbArquivoImagem'
-    __tablename__ = 'tbArquivoImagem'
-
-    idArquivoImagem = Column(Integer, primary_key=True)
-    idArquivo = Column(Integer, ForeignKey("tbArquivo.idArquivo"))
-    imagem = Column(String)
-    dsDocumento = Column(String)
-
-
-class tbDocumento(Base):
-    _full_name = 'BDCORPORATIVO.scCorp.tbDocumento'
-    __tablename__ = 'tbDocumento'
-
-    idDocumento = Column(Integer, primary_key=True)
-    idArquivo = Column(Integer, ForeignKey("tbArquivo.idArquivo"))
-
-
-class tbDocumentoProjeto(Base):
-    _full_name = 'BDCORPORATIVO.scCorp.tbDocumentoProjeto'
-    __tablename__ = 'tbDocumentoProjeto'
-
-    idDocumentoProjeto = Column(Integer, primary_key=True)
-    idDocumento = Column(Integer, ForeignKey("tbDocumento.idDocumento"))
-    idTipoDocumento = Column(Integer)
-    idPronac = Column(Integer)
-
-
-class Pais(Base):
-    __tablename__ = 'Pais'
-    _full_name = 'Agentes.dbo.Pais'
-
-    idPais = Column(Integer, primary_key=True)
-    Descricao = Column(String)
-
-
-class uf(Base):
-    __tablename__ = 'uf'
-    _full_name = 'Agentes.dbo.uf'
-
-    iduf = Column(Integer, primary_key=True)
-    Descricao = Column(String)
-
-
-class Municipios(Base):
-    __tablename__ = 'Municipios'
-    _full_name = 'Agentes.dbo.Municipios'
-
-    idMunicipioIBGE = Column(Integer, primary_key=True)
-    Descricao = Column(String)
-
-
-class tbDeslocamento(Base):
     __tablename__ = 'tbDeslocamento'
 
     idDeslocamento = Column(Integer, primary_key=True)
@@ -544,50 +348,29 @@ class tbDeslocamento(Base):
     idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
     idPaisOrigem = Column(Integer, ForeignKey('Pais.idPais'))
     idUFOrigem = Column(Integer, ForeignKey('uf.iduf'))
-    idMunicipioOrigem = Column(Integer, ForeignKey('Municipios.idMunicipioIBGE'))
+    idMunicipioOrigem = Column(Integer,
+                               ForeignKey('Municipios.idMunicipioIBGE'))
     idPaisDestino = Column(Integer, ForeignKey('Pais.idPais'))
     idUFDestino = Column(Integer, ForeignKey('uf.iduf'))
-    idMunicipioDestino = Column(Integer, ForeignKey('Municipios.idMunicipioIBGE'))
+    idMunicipioDestino = Column(Integer,
+                                ForeignKey('Municipios.idMunicipioIBGE'))
 
 
-class Usuarios(Base):
-    _full_name = 'TABELAS.dbo.Usuarios'
-    __tablename__ = 'Usuarios'
-
-    usu_codigo = Column(Integer, primary_key=True)
-    usu_nome = Column(String)
-
-
-# FIXME put right columns when given access to this table.
-# for now using made up primary key
-class prorrogacao(Base):
-    __tablename__ = 'prorrogacao'
-
-    idProrrogacao = Column(Integer, primary_key=True)
-    Logon = Column(Integer)
-    DtPedido = Column(Date)
-    DtInicio = Column(Date)
-    DtFinal = Column(Date)
-    Observacao = Column(String)
-    Atendimento = Column(String)
-    idPronac = Column(Integer)
-
-
-class tbPlanilhaEtapa(Base):
+class PlanilhaEtapa(Base):
+    """
+    SAC.dbo.tbPlanilhaEtapa
+    """
     __tablename__ = 'tbPlanilhaEtapa'
+
     idPlanilhaEtapa = Column(Integer, primary_key=True)
     Descricao = Column(String)
 
 
-class tbPlanilhaUnidade(Base):
+class PlanilhaUnidade(Base):
+    """
+    SAC.dbo.tbPlanilhaUnidade
+    """
     __tablename__ = 'tbPlanilhaUnidade'
 
     idUnidade = Column(Integer, primary_key=True)
     Descricao = Column(String)
-
-
-class tbItemCusto(Base):
-    __tablename__ = 'tbItemCusto'
-
-    idItem = Column(Integer, primary_key=True)
-    idPlanilhaAprovacao = Column(Integer, ForeignKey('tbPlanilhaAprovacao.idPlanilhaAprovacao'))
