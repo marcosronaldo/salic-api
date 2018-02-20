@@ -80,7 +80,7 @@ class ProjetoQuery(Query):
         Projeto.PRONAC.label('PRONAC'),
         Projeto.UfProjeto.label('UF'),
         Projeto.data_inicio_execucao.label('data_inicio'),
-        Projeto.data_inicio_execucao.label('data_termino'),
+        Projeto.data_fim_execucao.label('data_termino'),
         Projeto.IdPRONAC,
         Projeto.AnoProjeto.label('ano_projeto'),
 

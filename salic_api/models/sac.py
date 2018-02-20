@@ -325,6 +325,7 @@ class PlanilhaAprovacao(Base):  # noqa: N801
                             ForeignKey('tbPlanilhaItens.idPlanilhaItens'))
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
     qtItem = Column(Integer)
+    vlUnitario = Column(Integer)
 
 
 class PlanilhaItens(Base):  # noqa: N801

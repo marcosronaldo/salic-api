@@ -86,7 +86,7 @@ PROJETO_RESPONSE = {
     'proponente': 'Nome',
     'providencia': 'nenhuma',
     'resumo': 'ResumoDoProjeto',
-    'segmento': 'Descricao',
+    'segmento': 'Teatro',
     'sinopse': 'Sinopse',
     'situacao': 'Descricao',
     'valor_aprovado': 1000,
