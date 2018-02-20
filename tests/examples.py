@@ -237,7 +237,7 @@ PRODUTOS_RESPONSE = {
                 "nr_comprovante": '1',
                 "nome_fornecedor": "Name",
                 "id_comprovante_pagamento": 1,
-                "tipo_documento": 1,
+                "tipo_documento": 'Boleto Bancario',
                 "nr_documento_pagamento": '1',
                 "nm_arquivo": '1',
                 "PRONAC": "20001234",
