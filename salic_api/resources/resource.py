@@ -343,6 +343,7 @@ class ListResource(SalicResource):
     has_pagination = True
     detail_resource = None
     detail_pk = None
+    request_args = set(['limit', 'offset'])
 
     @property
     def _embedding_field(self):
