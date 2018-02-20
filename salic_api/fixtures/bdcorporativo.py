@@ -4,62 +4,67 @@ from salic_api.models import ComprovantePagamentoxPlanilhaAprovacao, Comprovante
     DocumentoProjeto, ItemCusto
 
 
-def tbcomprovantepagamentoxplanilhaaprovacao_example():
+def tbcomprovantepagamentoxplanilhaaprovacao_example(size=1):
     return [ComprovantePagamentoxPlanilhaAprovacao(
-        idPlanilhaAprovacao=1,
-        idComprovantePagamento=1,
+        idPlanilhaAprovacao=i,
+        idComprovantePagamento=i,
         nrOcorrencia=15,
         DtEmissao=datetime(2000, 1, 1),
         dsItemDeCusto='Descricao item',
         dsMarca='Descricao marca',
         dsFabricante='Descricao fabricante',
-        tpDocumento=1,
-        vlComprovado=2000.0,
-    )]
+        tpDocumento=i,
+        vlComprovado=2000.0,)
+        for i in range(1, size+1)
+    ]
 
 
-def tbcomprovantepagamento_example():
+def tbcomprovantepagamento_example(size=1):
     return [ComprovantePagamento(
-        idComprovantePagamento=1,
-        idFornecedor=1,
-        idArquivo=1,
+        idComprovantePagamento=i,
+        idFornecedor=i,
+        idArquivo=i,
         tpFormaDePagamento='Dinheiro',
-        nrComprovante='1',
-        nrDocumentoDePagamento='1',
+        nrComprovante='%s' %i,
+        nrDocumentoDePagamento='%s' %i,
         vlComprovacao=3.1415,
         DtPagamento=datetime(2000, 2, 2),
         dtEmissao=datetime(2000, 1, 1),
-        dsJustificativa='Descricao Justificativa',
-    )]
+        dsJustificativa='Descricao Justificativa',)
+        for i in range(1, size+1)]
 
 
-def arquivo_imagem_example():
+def arquivo_imagem_example(size=1):
     return [ArquivoImagem(
-        idArquivoImagem=1,
-        idArquivo=1,
+        idArquivoImagem=i,
+        idArquivo=i,
         imagem="This should be an image",
-        dsDocumento="dsDocumento",
-    )]
+        dsDocumento="dsDocumento",)
+        for i in range(1, size+1)
+    ]
 
 
-def documento_example():
+def documento_example(size=1):
     return [Documento(
-        idDocumento=1,
-        idArquivo=1,
-    )]
+        idDocumento=i,
+        idArquivo=i,)
+        for i in range(1, size+1)
+    ]
 
 
-def documento_projeto_example():
+def documento_projeto_example(size=1):
     return [DocumentoProjeto(
-        idDocumentoProjeto=1,
-        idDocumento=1,
-        idTipoDocumento=1,
-        idPronac=20001234,
-    )]
+        idDocumentoProjeto=i,
+        idDocumento=i,
+        idTipoDocumento=i,
+        idPronac=20001234,)
+        for i in range(1, size+1)
+    ]
 
 
-def tbItemCusto_example():
+def tbItemCusto_example(size=1):
     return [ItemCusto(
-        idItem=1,
-        idPlanilhaAprovacao=1,
-    )]
+        idItem=i,
+        idPlanilhaAprovacao=i)
+        for i in range(1, size+1)
+    ]
