@@ -1,6 +1,6 @@
 from . import utils
 from .query import (
-    ProjetoQuery, CertidoesNegativasQuery, DivulgacaoQuery, DescolamentoQuery,
+    ProjetoQuery, CertidoesNegativasQuery, DivulgacaoQuery, DeslocamentoQuery,
     DistribuicaoQuery, ReadequacaoQuery, CaptacaoQuery
 )
 from ..format_utils import remove_blanks, cgccpf_mask
@@ -162,7 +162,7 @@ class ProjetoDetail(DetailResource):
         projeto['divulgacao'] = listify_queryset(divulgacao)
 
         # Deslocamentos
-        deslocamentos = DescolamentoQuery().query(pronac)
+        deslocamentos = DeslocamentoQuery().query(pronac)
         projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
 
         # Distribuições

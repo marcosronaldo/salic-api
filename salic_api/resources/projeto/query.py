@@ -431,7 +431,7 @@ class DivulgacaoQuery(Query):
         return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
 
 
-class DescolamentoQuery(Query):
+class DeslocamentoQuery(Query):
     def query(self, IdPRONAC):  # noqa: N803
         stmt = text(normalize_sql("""
             SELECT
