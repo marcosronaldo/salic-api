@@ -23,3 +23,5 @@ ratings:
   - "salic-api/**.py"
 exclude_paths:
   - "__init__.py"
+  - "**/*.js"
+  - "**/*.css"
