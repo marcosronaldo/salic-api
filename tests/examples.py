@@ -24,8 +24,23 @@ PROJETO_RESPONSE = {
     # Embedded data
     '_embedded': {
         'relacao_bens_captal': [],
-        'marcas_anexadas': [],
-        'deslocamento': [],
+        'marcas_anexadas': [
+            {
+                'id_arquivo': 1,
+                'link': ''
+            }
+        ],
+        'deslocamento': [
+            {
+                'uf_origem': 'Distrito Federal',
+                'uf_destino': 'Distrito Federal',
+                'pais_destino': 'Brasil',
+                'pais_origem': 'Brasil',
+                'municipio_destino': 'Cocais de Bambu',
+                'municipio_origem': 'Cocais de Bambu',
+                'quantidade': 2
+            }
+        ],
         'divulgacao': [],
         'relatorio_fisco': [],
         'certidoes_negativas': [
@@ -39,8 +54,37 @@ PROJETO_RESPONSE = {
         'relacao_pagamentos': [],
         'readequacoes': [],
         'documentos_anexados': [],
-        'distribuicao': [],
-        'prorrogacao': [],
+        'distribuicao': [
+            {
+                'produto': 'Um Produto',
+                'qtd_patrocinador': 0,
+                'qtd_outros': 0,
+                'receita_prevista': '',
+                'posicao_logo': 'Descricao',
+                'localizacao': 'Brazil',
+                'segmento': 'Teatro',
+                'preco_unitario_promocional': 'R$10',
+                'qtd_venda_promocional': 0,
+                'qtd_venda_normal': 0,
+                'qtd_produzida': 0,
+                'receita_promocional': '',
+                'receita_normal': '',
+                'area': 'Artes Cênicas',
+                'preco_unitario_normal': 'R$100',
+                'qtd_proponente': 0
+            }
+        ],
+        'prorrogacao': [
+            {
+                'data_inicio': '2000-01-01',
+                'usuario': 'nome',
+                'observacao': 'Observacao',
+                'estado': 'Em analise',
+                'data_final': '2000-03-01',
+                'data_pedido': '2000-01-01',
+                'atendimento': 'A'
+            }
+        ],
         'captacoes': [
             {
                 'PRONAC': '20001234',
