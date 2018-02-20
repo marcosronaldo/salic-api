@@ -374,3 +374,45 @@ class PlanilhaUnidade(Base):
 
     idUnidade = Column(Integer, primary_key=True)
     Descricao = Column(String)
+
+
+class Readequacao(Base):
+    """
+    SAC.dbo.tbReadequacao
+    """
+    __tablename__ = 'Readequacao'
+
+    idReadequacao = Column(Integer)
+    IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
+    dtSolicitacao = Column(String)
+    dsJustificativa = Column(String)
+    idSolicitante = Column(Integer)
+    idAvaliador = Column(Integer)
+    dtAvaliador = Column(String)
+    dsAvaliacao = Column(String)
+    idTipoReadequacao = Column(Integer)
+    dsReadequacao = Column(String)
+    stAtendimento = Column(String)
+    siEncaminhamento = Column(String)
+    dsEncaminhamento = Column(String)
+
+
+class TipoReadequacao(Base):
+    """
+    SAC.dbo.tbTipoReadequacao
+    """
+    __tablename__ = 'TipoReadequacao'
+
+    idTipoReadequacao = Column(Integer)
+
+
+
+class TipoEncaminhamento(Base):
+    """
+    SAC.dbo.tbTipoEncaminhamento
+    """
+    __tablename__ = 'TipoEncaminhamento'
+
+    idTipoEncaminhamento = Column(Integer)
+  
+
