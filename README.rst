@@ -1,3 +1,23 @@
+.. image:: https://travis-ci.org/lappis-unb/salic-api.svg?branch=master
+   :target: https://travis-ci.org/lappis-unb/salic-api
+   :alt: Build status
+
+.. image:: https://codecov.io/gh/lappis-unb/salic-api/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/lappis-unb/salic-api
+   :alt: Code coverage
+
+.. image:: https://media.readthedocs.org/static/projects/badges/passing.svg
+   :target: http://salic-api.readthedocs.io/pt/latest/
+   :alt: Documentation
+
+.. image:: https://api.codeclimate.com/v1/badges/864270a3891b6750927e/maintainability
+   :target: https://codeclimate.com/github/lappis-unb/salic-api/maintainability
+   :alt: Maintainability
+
+.. image:: https://api.codeclimate.com/v1/badges/864270a3891b6750927e/test_coverage
+   :target: https://codeclimate.com/github/lappis-unb/salic-api/test_coverage
+   :alt: Test Coverage
+
 API aberta para o sistema
 `SALIC <http://salic.cultura.gov.br/cidadao/consultar>`_. Tem por
 objetivo expor os dados de projetos da lei Rouanet.

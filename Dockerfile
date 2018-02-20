@@ -26,4 +26,4 @@ ENV LANG=C.UTF-8
 # Expose host's port to run the web application
 EXPOSE 5000
 
-CMD ["inv", "run", "-h 0.0.0.0"]
+CMD ["inv", "run", "-h", "0.0.0.0"]
