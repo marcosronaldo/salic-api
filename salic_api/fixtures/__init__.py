@@ -13,7 +13,9 @@ from salic_api.fixtures import tbcomprovantepagamentoxplanilhaaprovacao_example,
 from .sac import areas_example, projeto_example, pre_projeto_example, segmento_example, enquadramento_example, \
     mecanismo_example, situacao_example, interessado_example, captacao_example, certidoes_negativas_example, \
     verificacao_example, plano_divulgacao_example, produto_example, plano_distribuicao_example, tbarquivo_example, \
-    tbplanilhaaprovacao_example, tbPlanilhaEtapa_example, tbPlanilhaItens_example, tbPlanilhaUnidade_example
+    tbplanilhaaprovacao_example, tbPlanilhaEtapa_example, tbPlanilhaItens_example, tbPlanilhaUnidade_example, \
+    readequacao_example, tipo_readequacao_example, tipo_encaminhamento_example
+
 from .tabelas import usuarios_example
 
 FACTORIES.extend([
@@ -29,5 +31,6 @@ FACTORIES.extend([
     arquivo_imagem_example, documento_example, documento_projeto_example,
     pais_example, uf_example, municipio_example, tbDeslocamento_example,
     usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example,
-    tbPlanilhaUnidade_example, tbItemCusto_example
+    tbPlanilhaUnidade_example, tbItemCusto_example,readequacao_example,
+    tipo_encaminhamento_example, tipo_readequacao_example
 ])
