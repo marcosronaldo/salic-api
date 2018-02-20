@@ -9,6 +9,7 @@ class ProdutoDetail(DetailResource):
     def hal_links(self, result):
         fornecedor_id = self.args['fornecedor_id']
         return {
+            'projeto': self.url('/projetos/%s' % result['PRONAC']),
             'fornecedor': self.url('/fornecedores/%s' % fornecedor_id),
         }
 

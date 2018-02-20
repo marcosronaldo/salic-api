@@ -282,7 +282,7 @@ PRODUTOS_RESPONSE = {
                 "data_aprovacao": '2000-02-02',
                 "valor_pagamento": 2000.0,
                 "_links": {
-                #     "projeto": "http://api.salic.cultura.gov.br/v1/projetos/148794",
+                    "projeto": "v1/projetos/20001234",
                     "fornecedor": "v1/fornecedores/30313233343536373839616263646566e0797636"
                 },
                 "id_arquivo": 1,
