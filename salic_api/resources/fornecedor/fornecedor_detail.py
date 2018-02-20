@@ -7,6 +7,7 @@ class FornecedorDetail(DetailResource):
     query_class = FornecedorQuery
     resource_path = 'fornecedores'
     csv_columns = ['email', 'nome', 'cgccpf']
+    request_args = {'fornecedor_id', 'format'}
 
     def build_query_args(self):
         args = super().build_query_args()

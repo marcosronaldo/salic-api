@@ -1,6 +1,6 @@
+from .fornecedor_detail import FornecedorDetail
 from .query import FornecedorQuery
 from ..resource import ListResource
-from .fornecedor_detail import FornecedorDetail
 from ...utils import encrypt
 
 
@@ -10,13 +10,15 @@ class FornecedorList(ListResource):
     embedding_field = 'fornecedores'
     detail_resource_class = FornecedorDetail
     detail_pk = 'cgccpf'
-
     sort_fields = {
         'cgccpf'
     }
-
     filter_fields = {
         'nome', 'email', 'cgccpf'
+    }
+    request_args = {
+        'nome', 'fornecedor_id', 'cgccpf', 'PRONAC', 'limit', 'offset',
+        'format'
     }
 
     def prepared_detail_object(self, item):

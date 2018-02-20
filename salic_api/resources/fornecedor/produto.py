@@ -1,11 +1,9 @@
-from flask import current_app
 from .query import ProductQuery
 from ..resource import DetailResource, ListResource
-from ...utils import encrypt, decrypt
+from ...utils import decrypt
 
 
 class ProdutoDetail(DetailResource):
-
     def hal_links(self, result):
         fornecedor_id = self.args['fornecedor_id']
         return {
@@ -13,11 +11,13 @@ class ProdutoDetail(DetailResource):
             'fornecedor': self.url('/fornecedores/%s' % fornecedor_id),
         }
 
+
 class Produto(ListResource):
     query_class = ProductQuery
     embedding_field = 'produtos'
     detail_resource_class = ProdutoDetail
     detail_pk = 'cgccpf'
+    request_args = {'fornecedor_id', 'limit', 'offset', 'format'}
 
     def build_query_args(self):
         args = super().build_query_args()
@@ -27,4 +27,5 @@ class Produto(ListResource):
 
     @property
     def resource_path(self):
-        return "%s/%s/%s" % ("fornecedores", self.args['fornecedor_id'], 'produtos')
+        return "%s/%s/%s" % (
+            "fornecedores", self.args['fornecedor_id'], 'produtos')
