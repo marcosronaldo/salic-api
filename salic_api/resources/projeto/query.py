@@ -251,10 +251,8 @@ class ProjetoQuery(Query):
         return self.execute_query(query, params).fetchall()
 
     def payments_listing_count(self, idPronac=None, cgccpf=None):  # noqa: N803
-        return []  # FIXME
-
         if idPronac is not None:
-            query = text("""
+            query = text(normalize_sql("""
                     SELECT
                         COUNT(b.idArquivo) AS total
 
@@ -265,12 +263,12 @@ class ProjetoQuery(Query):
                         LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
                         LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
                         LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
-                    """)
+                    """))
             params = {'idPronac': idPronac}
             result = self.execute_query(query, params).fetchall()
 
         else:
-            query = text("""
+            query = text(normalize_sql("""
                     SELECT
                         COUNT(b.idArquivo) AS total
 
@@ -282,7 +280,7 @@ class ProjetoQuery(Query):
                         LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
                         JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
                         LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
-                    """)
+                    """))
 
             params = {'cgccpf': '%' + cgccpf + '%'}
             result = self.execute_query(query, params).fetchall()
@@ -291,8 +289,6 @@ class ProjetoQuery(Query):
         return n_records[0]['total']
 
     def taxing_report(self, idPronac):  # noqa: N803
-        return []  # FIXME
-
         # Relatório fisco
         query = text(normalize_sql("""
                 SELECT
@@ -418,24 +414,22 @@ class CertidoesNegativasQuery(Query):
 
 class DivulgacaoQuery(Query):
     def query(self, IdPRONAC):  # noqa: N803
-        return []  # FIXME
-
-        stmt = text("""
+        stmt = text(normalize_sql("""
             SELECT v1.Descricao as peca,v2.Descricao as veiculo
                 FROM sac.dbo.PlanoDeDivulgacao d
                 INNEr JOIN sac.dbo.Projetos p on (d.idProjeto = p.idProjeto)
                 INNER JOIN sac.dbo.Verificacao v1 on (d.idPeca = v1.idVerificacao)
                 INNER JOIN sac.dbo.Verificacao v2 on (d.idVeiculo = v2.idVerificacao)
                 WHERE p.IdPRONAC=:IdPRONAC AND d.stPlanoDivulgacao = 1
-            """)
-        return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
+            """))
+        return self.execute_query(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
 
 
 class DeslocamentoQuery(Query):
     def query(self, IdPRONAC):  # noqa: N803
         stmt = text(normalize_sql("""
             SELECT
-                idDeslocamento,
+                d.idDeslocamento,
                 d.idProjeto,
                 p.Descricao as PaisOrigem,
                 u.Descricao as UFOrigem,
@@ -443,10 +437,10 @@ class DeslocamentoQuery(Query):
                 p2.Descricao as PaisDestino,
                 u2.Descricao as UFDestino,
                 m2.Descricao as MunicipioDestino,
-                Qtde
+                d.Qtde
 
             FROM
-                   Sac.dbo.tbDeslocamento d
+                Sac.dbo.tbDeslocamento as d
                 INNER JOIN Sac.dbo.Projetos y on (d.idProjeto = y.idProjeto)
                 INNER JOIN Agentes.dbo.Pais p on (d.idPaisOrigem = p.idPais)
                 INNER JOIN Agentes.dbo.uf u on (d.idUFOrigem = u.iduf)
@@ -456,7 +450,7 @@ class DeslocamentoQuery(Query):
                 INNER JOIN Agentes.dbo.Municipios m2 on (d.idMunicipioDestino = m2.idMunicipioIBGE)
                 WHERE y.idPRONAC = :IdPRONAC
             """))
-        return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
+        return self.execute_query(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
 
 
 class DistribuicaoQuery(Query):

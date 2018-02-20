@@ -326,6 +326,8 @@ class PlanilhaAprovacao(Base):  # noqa: N801
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
     qtItem = Column(Integer)
     vlUnitario = Column(Integer)
+    idEtapa = Column(Integer, ForeignKey('tbPlanilhaEtapa.idPlanilhaEtapa'))
+    idUnidade = Column(Integer, ForeignKey('tbPlanilhaUnidade.idUnidade'))
 
 
 class PlanilhaItens(Base):  # noqa: N801
@@ -415,5 +417,3 @@ class TipoEncaminhamento(Base):
     __tablename__ = 'TipoEncaminhamento'
 
     idTipoEncaminhamento = Column(Integer, primary_key=True)
-
-

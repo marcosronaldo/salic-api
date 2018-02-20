@@ -189,7 +189,11 @@ def tbplanilhaaprovacao_example():
     return [PlanilhaAprovacao(
         idPlanilhaAprovacao=1,
         idPlanilhaItem=1,
-        qtItem=1,
+        qtItem=99,
+        vlUnitario=3.1415,
+        idEtapa=1,
+        idUnidade=1,
+        IdPRONAC=20001234,
     )]
 
 

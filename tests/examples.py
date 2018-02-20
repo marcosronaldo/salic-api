@@ -23,7 +23,20 @@ PROJETOS_AREAS = {
 PROJETO_RESPONSE = {
     # Embedded data
     '_embedded': {
-        'relacao_bens_captal': [],
+        'relacao_bens_captal': [
+            {
+                "Titulo": "Boleto Bancario",
+                "vlTotal": 4665.1275000000005,
+                "vlUnitario": 3.1415,
+                "nrComprovante": "1",
+                "Marca": "Descricao marca",
+                "Especificacao": "Descricao item",
+                "Fabricante": "Descricao fabricante",
+                "dtPagamento": "2000-01-01",
+                "Item": "Figurino",
+                "Qtde": 1485
+            }
+        ],
         'marcas_anexadas': [
             {
                 'id_arquivo': 1,
@@ -41,8 +54,25 @@ PROJETO_RESPONSE = {
                 'quantidade': 2
             }
         ],
-        'divulgacao': [],
-        'relatorio_fisco': [],
+        'divulgacao': [
+            {
+                "veiculo": "Descricao",
+                "peca": "Descricao"
+            }
+        ],
+        'relatorio_fisco': [
+            {
+                "item": "Figurino",
+                "perc_a_executar": 99.93,
+                "valor_executado": 3.1415,
+                "valor_programado": 4665.1275000000005,
+                "perc_executado": 0.07,
+                "id_planilha_etapa": 1,
+                "qtd_programada": 1485,
+                "unidade": "Planilha Unidade",
+                "etapa": "Planilha Etapa"
+            }
+        ],
         'certidoes_negativas': [
             {
                 'data_emissao': '2000-01-01',
@@ -51,7 +81,25 @@ PROJETO_RESPONSE = {
                 'situacao': 'Não Pendente'
             }
         ],
-        'relacao_pagamentos': [],
+        'relacao_pagamentos': [
+            {
+                'data_pagamento': '2000-01-01',
+                'nome_fornecedor': 'Name',
+                'nr_documento_pagamento': '1',
+                'cgccpf': '1234',
+                'data_aprovacao': '2000-02-02',
+                'valor_pagamento': 2000.0,
+                'nr_comprovante': '1',
+                'justificativa': 'Descricao Justificativa',
+                'tipo_documento': 'Boleto Bancario',
+                'tipo_forma_pagamento': '',
+                'id_comprovante_pagamento': 1,
+                'id_planilha_aprovacao': 1,
+                'nm_arquivo': '1',
+                'nome': 'Figurino',
+                'id_arquivo': 1
+            }
+        ],
         'readequacoes': [],
         'documentos_anexados': [],
         'distribuicao': [
