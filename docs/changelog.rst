@@ -18,6 +18,5 @@ versão do LAPPIS.
 * Suite de testes baseada no Pytest
 * Documentação no Sphinx
 * Integração contínua para monitoramento de testes (travis-ci.org), monitoramento de
-cobertura (codecov.io), métricas de qualidade de código (codeclimate.com) e
-geração automática de documentação (readthedocs.org)
-
+  cobertura (codecov.io), métricas de qualidade de código (codeclimate.com) e
+  geração automática de documentação (readthedocs.org)
