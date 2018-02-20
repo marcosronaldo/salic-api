@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, Float, String
+from sqlalchemy import Column, Integer, ForeignKey, Float, String, case
 
 from .base import Base, DateTime
 
@@ -31,6 +31,19 @@ class ComprovantePagamentoxPlanilhaAprovacao(Base):  # noqa: N801
     dsItemDeCusto = Column(String)
     dsMarca = Column(String)
     dsFabricante = Column(String)
+
+    # Computed properties
+    tpDocumentoLabel = case(
+        [
+            (tpDocumento == 1, 'Boleto Bancario'),
+            (tpDocumento == 2, 'Cupom Fiscal'),
+            (tpDocumento == 3, 'Nota Fiscal / Fatura'),
+            (tpDocumento == 4, 'Recibo de Pagamento'),
+            (tpDocumento == 5, 'RPA'),
+        ],
+        else_='Nao identificado',
+    ).label('tipo_documento')
+
 
 
 class ComprovantePagamento(Base):  # noqa: N801

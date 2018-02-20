@@ -181,13 +181,13 @@ PRODUTOS_RESPONSE = {
         "produtos": [
             {
                 "id_planilha_aprovacao": 1,
-                "justificativa": 'Uma justificativa',
+                "justificativa": 'Descricao Justificativa',
                 "data_pagamento": '2000-01-01',
                 "nome": "Um Produto",
                 "cgccpf": "1234",
                 "tipo_forma_pagamento": 'Dinheiro',
                 "data_aprovacao": '2000-02-02',
-                "valor_pagamento": '2890',
+                "valor_pagamento": 2000.0,
                 # "_links": {
                 #     "projeto": "v1/projetos/148794",
                 #     "fornecedor": "v1/fornecedores/1"
@@ -205,9 +205,9 @@ PRODUTOS_RESPONSE = {
     },
     "total": 1,
     "_links": {
-        "self": "v1/fornecedores/1/produtos/?limit=100&offset=0",
-        "first": "v1/fornecedores/1/produtos/?limit=100&offset=0",
-        "last": "v1/fornecedores/1/produtos/?limit=100&offset=0",
-        "next": "v1/fornecedores/1/produtos/?limit=100&offset=0"
+        "self": "v1/fornecedores/30313233343536373839616263646566e0797636/produtos/?limit=100&offset=0",
+        "first": "v1/fornecedores/30313233343536373839616263646566e0797636/produtos/?limit=100&offset=0",
+        "last": "v1/fornecedores/30313233343536373839616263646566e0797636/produtos/?limit=100&offset=0",
+        "next": "v1/fornecedores/30313233343536373839616263646566e0797636/produtos/?limit=100&offset=0"
     }
 }

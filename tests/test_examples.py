@@ -81,7 +81,7 @@ class TestCoreUrls:
         check_endpoint(client, url, expected)
 
     def test_fornecedor_produtos(self, client):
-        url = '/v1/fornecedores/1/produtos'
+        url = '/v1/fornecedores/30313233343536373839616263646566e0797636/produtos'
         expected = PRODUTOS_RESPONSE
         check_endpoint(client, url, expected)
 

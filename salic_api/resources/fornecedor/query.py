@@ -2,6 +2,7 @@ from sqlalchemy.sql import text
 
 from ..query import Query, filter_query
 from ..serialization import listify_queryset
+from ...utils import encrypt
 from ...models import Agentes, Nomes, Internet, \
     ComprovantePagamento as Comprovante, \
     ComprovantePagamentoxPlanilhaAprovacao as ComprovanteAprovacao, \
@@ -118,13 +119,13 @@ class ProductQuery(Query):
         Comprovante.nrComprovante.label("nr_comprovante"),
         Nomes.Descricao.label("nome_fornecedor"),
         Comprovante.idComprovantePagamento.label("id_comprovante_pagamento"),
-        ComprovanteAprovacao.tpDocumento.label("tipo_documento"),
+        ComprovanteAprovacao.tpDocumentoLabel,
         Comprovante.nrDocumentoDePagamento.label("nr_documento_pagamento"),
         Arquivo.nmArquivo.label("nm_arquivo"),
         Projeto.PRONAC.label("PRONAC"),
     )
 
-    def query(self, fornecedor_id, limit=100, offset=0):
+    def query(self, cgccpf, limit=100, offset=0):
         query = self.raw_query(*self.query_fields)
 
         query = query.select_from(Comprovante)
@@ -136,11 +137,8 @@ class ProductQuery(Query):
                             Comprovante.idFornecedor == Agentes.idAgente)
                  .outerjoin(Projeto,
                             Comprovante.idFornecedor == Agentes.idAgente)
+                 .filter(Agentes.CNPJCPF.like(cgccpf))
                 )
-
-        query = filter_query(query, {
-            Comprovante.idFornecedor: fornecedor_id,
-        })
 
         return query
 
