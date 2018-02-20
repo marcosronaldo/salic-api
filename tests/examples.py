@@ -220,6 +220,7 @@ CAPTACOES_RESPONSE = {
     'total': 1,
 }
 PRODUTOS_RESPONSE = {
+    "total": 1,
     "count": 1,
     "_embedded": {
         "produtos": [
@@ -232,15 +233,11 @@ PRODUTOS_RESPONSE = {
                 "tipo_forma_pagamento": 'Dinheiro',
                 "data_aprovacao": '2000-02-02',
                 "valor_pagamento": 2000.0,
-                # "_links": {
-                #     "projeto": "v1/projetos/148794",
-                #     "fornecedor": "v1/fornecedores/1"
-                # },
                 "id_arquivo": 1,
                 "nr_comprovante": '1',
                 "nome_fornecedor": "Name",
                 "id_comprovante_pagamento": 1,
-                "tipo_documento": "Boleto Bancario",
+                "tipo_documento": 1,
                 "nr_documento_pagamento": '1',
                 "nm_arquivo": '1',
                 "PRONAC": "20001234",
