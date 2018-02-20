@@ -6,6 +6,7 @@ from salic_api.models import Custos
 #
 CPF = '1234'
 
+
 def custos_example():
     return [Custos(
         idCustos=1,

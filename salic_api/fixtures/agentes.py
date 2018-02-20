@@ -6,6 +6,7 @@ from salic_api.models import Nomes, Agentes, Internet, Pais, UF, Municipios, Des
 #
 CPF = '1234'
 
+
 def nomes_example():
     return [Nomes(
         idNome=1,

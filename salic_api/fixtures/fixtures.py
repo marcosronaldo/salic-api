@@ -51,6 +51,4 @@ def populate(*, session=None, app=None, driver=None):
     session.commit()
 
 
-
 FACTORIES = []
-
