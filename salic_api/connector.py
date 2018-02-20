@@ -75,18 +75,6 @@ def load_engine(driver, app=None):
 #
 # Register SQL engines
 #
-@register_engine('pymssql')
-def pymssql_engine(config):
-    uri = "mssql+pymssql://{user}:{pasword}@{host}:{port}/{name}".format(
-        user=config['DATABASE_USER'],
-        password=config['DATABASE_PASSWORD'],
-        host=config['DATABASE_HOST'],
-        port=config['DATABASE_PORT'],
-        name=config['DATABASE_NAME'],
-    )
-    return create_engine(uri)
-
-
 @register_engine('sqlite')
 def sqlite_engine(config):
     return create_engine('sqlite:///db.sqlite3')
@@ -118,6 +106,18 @@ def pymssql_uri(config):
 @register_engine('postgres')
 def postgres_engine(config):
     uri = "postgresql://{user}:{pasword}@{host}:{port}/{name}".format(
+        user=config['DATABASE_USER'],
+        password=config['DATABASE_PASSWORD'],
+        host=config['DATABASE_HOST'],
+        port=config['DATABASE_PORT'],
+        name=config['DATABASE_NAME'],
+    )
+    return create_engine(uri)
+
+
+@register_engine('pymssql')
+def pymssql_engine(config):
+    uri = "mssql+pymssql://{user}:{pasword}@{host}:{port}/{name}".format(
         user=config['DATABASE_USER'],
         password=config['DATABASE_PASSWORD'],
         host=config['DATABASE_HOST'],

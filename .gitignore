@@ -8,6 +8,8 @@ db.sqlite3
 *$py.class
 
 # Distribution / packaging
+.pytest_cache/
+.tox/
 .Python
 env/
 build/

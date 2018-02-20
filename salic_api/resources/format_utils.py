@@ -3,58 +3,46 @@
 import cgi
 
 
-def validate_cpf(cpf):
+def validate_cpf(digits):
     """
     Method to validate a brazilian CPF number
     Based on Pedro Werneck source avaiable at
     www.PythonBrasil.com.br
 
     Tests:
-    >>> print Cpf().validate('91289037736')
+    >>> print(validate_cpf('91289037736'))
     True
-    >>> print Cpf().validate('91289037731')
+    >>> print(validate_cpf('91289037731'))
     False
     """
     cpf_invalidos = [11 * str(i) for i in range(10)]
-    if cpf in cpf_invalidos:
+
+    # Verifica se o CPF contem pontos e hifens
+    if digits in cpf_invalidos:
+        return False
+    elif not digits.isdigit():
+        digits = digits.replace(".", "").replace("-", "")
+    elif len(digits) != 11:
         return False
 
-    if not cpf.isdigit():
-        """ Verifica se o CPF contem pontos e hifens """
-        cpf = cpf.replace(".", "")
-        cpf = cpf.replace("-", "")
+    digits = [int(x) for x in digits]
+    data = digits[:9]
 
-    if len(cpf) < 11:
-        """ Verifica se o CPF tem 11 digitos """
-        return False
-
-    if len(cpf) > 11:
-        """ CPF tem que ter 11 digitos """
-        return False
-
-    selfcpf = [int(x) for x in cpf]
-
-    cpf = selfcpf[:9]
-
-    while len(cpf) < 11:
-
-        r = sum([(len(cpf) + 1 - i) * v for i, v in [(x, cpf[x])
-                                                     for x in
-                                                     range(len(cpf))]]) % 11
-
+    # Confirma dígito verificador
+    while len(data) < 11:
+        r = sum((len(data) + 1 - i) * d for i, d in enumerate(data)) % 11
         if r > 1:
             f = 11 - r
         else:
             f = 0
-        cpf.append(f)
+        digits.append(f)
 
-    return bool(cpf == selfcpf)
+    return bool(digits == data)
 
 
 def truncate(word, truncate_size=200):
     if word is None:
         return ""
-
     return word[:truncate_size]
 
 
@@ -75,7 +63,6 @@ def cgccpf_mask(cgccpf):
 def remove_html_tags(word):
     if word is None:
         return ""
-
     return word  # FIXME
     return strip_markup(word)
 

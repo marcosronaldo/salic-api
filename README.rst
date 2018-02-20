@@ -14,9 +14,6 @@
    :target: https://codeclimate.com/github/lappis-unb/salic-api/maintainability
    :alt: Maintainability
 
-.. image:: https://api.codeclimate.com/v1/badges/864270a3891b6750927e/test_coverage
-   :target: https://codeclimate.com/github/lappis-unb/salic-api/test_coverage
-   :alt: Test Coverage
 
 API aberta para o sistema
 `SALIC <http://salic.cultura.gov.br/cidadao/consultar>`_. Tem por
