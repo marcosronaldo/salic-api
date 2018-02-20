@@ -13,11 +13,11 @@ matrix:
 
 # Package installation
 install:
-  - pip run tox coveralls
+  - pip run tox codecov
 
 # Run the tests
 script:
   tox
 
 after_success:
-  coveralls
+  codecov
