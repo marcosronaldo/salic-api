@@ -380,9 +380,9 @@ class Readequacao(Base):
     """
     SAC.dbo.tbReadequacao
     """
-    __tablename__ = 'Readequacao'
+    __tablename__ = 'tbReadequacao'
 
-    idReadequacao = Column(Integer)
+    idReadequacao = Column(Integer, primary_key=True)
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
     dtSolicitacao = Column(String)
     dsJustificativa = Column(String)
@@ -393,7 +393,7 @@ class Readequacao(Base):
     idTipoReadequacao = Column(Integer)
     dsReadequacao = Column(String)
     stAtendimento = Column(String)
-    siEncaminhamento = Column(String)
+    siEncaminhamento = Column(Integer)
     dsEncaminhamento = Column(String)
 
 
@@ -403,7 +403,7 @@ class TipoReadequacao(Base):
     """
     __tablename__ = 'TipoReadequacao'
 
-    idTipoReadequacao = Column(Integer)
+    idTipoReadequacao = Column(Integer, primary_key=True)
 
 
 
@@ -413,6 +413,6 @@ class TipoEncaminhamento(Base):
     """
     __tablename__ = 'TipoEncaminhamento'
 
-    idTipoEncaminhamento = Column(Integer)
-  
+    idTipoEncaminhamento = Column(Integer, primary_key=True)
+
 

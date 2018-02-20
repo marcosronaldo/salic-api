@@ -2,6 +2,7 @@ import contextlib
 from datetime import datetime
 
 from salic_api.connector import get_session, get_engine
+from salic_api.models.sac import TipoEncaminhamento, TipoReadequacao, Readequacao
 from .models import Produto, Projeto, PreProjeto, Area, Agentes, Usuarios, \
     Custos, PlanoDivulgacao, PlanoDistribuicao, Pais, Verificacao, \
     CertidoesNegativas, Captacao, Situacao, Segmento, Municipios, Nomes, \
@@ -427,6 +428,36 @@ def tbItemCusto_example():
     )]
 
 
+def readequacao_example():
+    return [Readequacao(
+        idReadequacao=1,
+        IdPRONAC = 1,
+        dtSolicitacao = datetime(2000, 1, 1),
+        dsJustificativa = "Descricao Justificativa",
+        idSolicitante = 1,
+        idAvaliador = 1,
+        dtAvaliador = datetime(2000, 1, 1),
+        dsAvaliacao = "Descricao Avaliacao",
+        idTipoReadequacao = 1,
+        dsReadequacao ="Descricao Readequacao",
+        stAtendimento = "Atendido",
+        siEncaminhamento = 1,
+        dsEncaminhamento = "Descricao Encaminhamento",
+    )]
+
+
+def tipo_readequacao_example():
+    return [TipoReadequacao(
+        idTipoReadequacao = 1,
+    )]
+
+
+def tipo_encaminhamento_example  ():
+    return [TipoEncaminhamento(
+        idTipoEncaminhamento = 1,
+    )]
+
+
 FACTORIES = [
     areas_example, projeto_example, pre_projeto_example, segmento_example,
     enquadramento_example, mecanismo_example, situacao_example,
@@ -440,5 +471,6 @@ FACTORIES = [
     arquivo_imagem_example, documento_example, documento_projeto_example,
     pais_example, uf_example, municipio_example, tbDeslocamento_example,
     usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example,
-    tbPlanilhaUnidade_example, tbItemCusto_example,
+    tbPlanilhaUnidade_example, tbItemCusto_example,readequacao_example,
+    tipo_encaminhamento_example, tipo_readequacao_example
 ]
