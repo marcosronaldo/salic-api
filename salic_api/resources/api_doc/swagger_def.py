@@ -1,26 +1,19 @@
-import logging
-
-from flask import current_app as app
+import os
 
 from ..resource import ListResource
 
-log = logging.getLogger('salic-api')
+dirname = os.path.dirname
+SWAGGER_FILE = 'swagger_specification_PT-BR.json'
+SWAGGER_DEF_PATH = os.path.join(dirname(dirname(__file__)), SWAGGER_FILE)
+SWAGGER_DEF = None
 
 
 class SwaggerDef(ListResource):
     def get(self):
-        try:
-            swagger_file = open(app.config['SWAGGER_DEF_PATH'])
-        except Exception:
-            log.error(
-                'error trying to open swagger definition file under the path:  \"%s\"' %
-                app.config['SWAGGER_DEF_PATH'])
-            result = {
-                'message': 'internal error',
-                'message_code': 13,
-            }
-            return self.render(result, status_code=503)
+        global SWAGGER_DEF
 
-        def_data = swagger_file.read()
+        if SWAGGER_DEF is None:
+            with open(SWAGGER_DEF_PATH) as F:
+                SWAGGER_DEF = F.read()
 
-        return self.render(def_data, raw=True)
+        return self.render(SWAGGER_DEF, raw=True)

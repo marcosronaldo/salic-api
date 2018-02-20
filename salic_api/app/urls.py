@@ -1,4 +1,6 @@
-from flask import redirect
+import os
+
+from flask import redirect, send_from_directory
 from flask_cors import CORS
 from flask_restful import Api
 
@@ -19,6 +21,9 @@ from ..resources.projeto.segmento import Segmento
 from ..resources.proponente.proponente_detail import ProponenteDetail
 from ..resources.proponente.proponente_list import ProponenteList
 from ..resources.test_resource import TestResource
+
+dirname = os.path.join
+STATIC_URL_PATH = dirname(os.path.dirname(os.path.dirname(__file__)), 'static')
 
 
 def make_urls(app=None):
@@ -58,5 +63,13 @@ def make_urls(app=None):
     register(SwaggerDef, 'swagger-def/')
 
     @app.route('/')
+    def index():
+        return redirect("/doc/", code=302)
+
+    @app.route('/doc/')
     def documentation():
-        return redirect("/doc", code=302)
+        return send_from_directory(STATIC_URL_PATH, 'index.html')
+
+    @app.route('/doc/<path:path>')
+    def documentation_data(path):
+        return send_from_directory(STATIC_URL_PATH, path)
