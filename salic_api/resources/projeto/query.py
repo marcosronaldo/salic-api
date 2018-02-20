@@ -5,6 +5,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.functions import coalesce
 
+from salic_api.models import PlanoDivulgacao
 from .raw_sql import payments_listing_sql, normalize_sql
 from ..query import Query, filter_query, filter_query_like
 from ..serialization import listify_queryset
@@ -413,16 +414,20 @@ class CertidoesNegativasQuery(Query):
 
 
 class DivulgacaoQuery(Query):
-    def query(self, IdPRONAC):  # noqa: N803
-        stmt = text(normalize_sql("""
-            SELECT v1.Descricao as peca,v2.Descricao as veiculo
-                FROM sac.dbo.PlanoDeDivulgacao d
-                INNEr JOIN sac.dbo.Projetos p on (d.idProjeto = p.idProjeto)
-                INNER JOIN sac.dbo.Verificacao v1 on (d.idPeca = v1.idVerificacao)
-                INNER JOIN sac.dbo.Verificacao v2 on (d.idVeiculo = v2.idVerificacao)
-                WHERE p.IdPRONAC=:IdPRONAC AND d.stPlanoDivulgacao = 1
-            """))
-        return self.execute_query(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
+    def query(self, IdPRONAC):
+        query = (self.raw_query(
+            Verificacao.Descricao.label('peca'),
+            Verificacao.Descricao.label('veiculo'),
+        ).select_from(PlanoDivulgacao)
+         .join(Projeto, Projeto.idProjeto == PlanoDivulgacao.idProjeto)
+         .join(Verificacao,
+               Verificacao.idVerificacao == PlanoDivulgacao.idPeca
+               or Verificacao.idVerificacao == PlanoDivulgacao.idVeiculo)
+         .filter(and_(Projeto.IdPRONAC == IdPRONAC,
+                     PlanoDivulgacao.stPlanoDivulgacao == 1))
+        )
+
+        return query
 
 
 class DeslocamentoQuery(Query):
