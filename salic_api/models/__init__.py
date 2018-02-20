@@ -7,5 +7,5 @@ from .fake import Custos
 from .sac import Projeto, PreProjeto, Area, Segmento, Enquadramento, Mecanismo, \
     Situacao, Interessado, Captacao, CertidoesNegativas, Verificacao, \
     PlanoDistribuicao, PlanoDivulgacao, Produto, Deslocamento, \
-    PlanilhaAprovacao, PlanilhaEtapa, PlanilhaItens, PlanilhaUnidade
+    PlanilhaAprovacao, PlanilhaEtapa, PlanilhaItens, PlanilhaUnidade, Readequacao, TipoReadequacao, TipoEncaminhamento
 from .tabelas import Usuarios

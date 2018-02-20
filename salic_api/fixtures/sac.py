@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from salic_api.models import Area, Arquivo, Projeto, PreProjeto, Segmento, Enquadramento, Mecanismo, Situacao, Interessado, \
+from salic_api.models import Area, Arquivo, Projeto, PreProjeto, Segmento, Enquadramento, Mecanismo, Situacao, \
+    Interessado, \
     Captacao, CertidoesNegativas, Verificacao, PlanoDivulgacao, Produto, PlanoDistribuicao, PlanilhaAprovacao, \
-    PlanilhaItens, PlanilhaEtapa, PlanilhaUnidade
+    PlanilhaItens, PlanilhaEtapa, PlanilhaUnidade, Readequacao, TipoReadequacao, TipoEncaminhamento
 
 #
 # Global constants
@@ -210,4 +211,33 @@ def tbPlanilhaUnidade_example():
     return [PlanilhaUnidade(
         idUnidade=1,
         Descricao='Planilha Unidade',
+    )]
+
+def readequacao_example():
+    return [Readequacao(
+        idReadequacao=1,
+        IdPRONAC = 1,
+        dtSolicitacao = datetime(2000, 1, 1),
+        dsJustificativa = "Descricao Justificativa",
+        idSolicitante = 1,
+        idAvaliador = 1,
+        dtAvaliador = datetime(2000, 1, 1),
+        dsAvaliacao = "Descricao Avaliacao",
+        idTipoReadequacao = 1,
+        dsReadequacao ="Descricao Readequacao",
+        stAtendimento = "Atendido",
+        siEncaminhamento = 1,
+        dsEncaminhamento = "Descricao Encaminhamento",
+    )]
+
+
+def tipo_readequacao_example():
+    return [TipoReadequacao(
+        idTipoReadequacao = 1,
+    )]
+
+
+def tipo_encaminhamento_example  ():
+    return [TipoEncaminhamento(
+        idTipoEncaminhamento = 1,
     )]
