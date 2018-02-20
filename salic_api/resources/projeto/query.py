@@ -80,7 +80,7 @@ class ProjetoQuery(Query):
         Projeto.PRONAC.label('PRONAC'),
         Projeto.UfProjeto.label('UF'),
         Projeto.data_inicio_execucao.label('data_inicio'),
-        Projeto.data_inicio_execucao.label('data_termino'),
+        Projeto.data_fim_execucao.label('data_termino'),
         Projeto.IdPRONAC,
         Projeto.AnoProjeto.label('ano_projeto'),
 
@@ -431,7 +431,7 @@ class DivulgacaoQuery(Query):
         return self.execute_query(stmt, {'IdPRONAC': IdPRONAC})
 
 
-class DescolamentoQuery(Query):
+class DeslocamentoQuery(Query):
     def query(self, IdPRONAC):  # noqa: N803
         stmt = text(normalize_sql("""
             SELECT
