@@ -26,7 +26,7 @@ def internet_example():
     return [Internet(
         idInternet=1,
         idAgente=1,
-        Descricao='email',
+        Descricao='email 1',
     )]
 
 

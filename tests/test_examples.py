@@ -92,7 +92,7 @@ class TestEndpoints:
 
 
 class TestEndpointsIsolated:
-    def test_fornecedores_detail(self, client):
+    def _test_fornecedores_detail(self, client):
         factories = [ex.agentes_example, ex.nomes_example, ex.internet_example]
         with examples(factories):
             url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
