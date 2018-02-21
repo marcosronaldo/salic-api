@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from salic_api.models import Area, Arquivo, Projeto, PreProjeto, Segmento, Enquadramento, Mecanismo, Situacao, \
-    Interessado, \
-    Captacao, CertidoesNegativas, Verificacao, PlanoDivulgacao, Produto, PlanoDistribuicao, PlanilhaAprovacao, \
-    PlanilhaItens, PlanilhaEtapa, PlanilhaUnidade, Readequacao, TipoReadequacao, TipoEncaminhamento
+from ..models import Area, Arquivo, Projeto, PreProjeto, Segmento, \
+    Enquadramento, Mecanismo, Situacao, Interessado, Captacao, \
+    CertidoesNegativas, Verificacao, PlanoDivulgacao, Produto, \
+    PlanoDistribuicao, PlanilhaAprovacao, PlanilhaItens, PlanilhaEtapa, \
+    PlanilhaUnidade, Readequacao, TipoReadequacao, TipoEncaminhamento
 
 #
 # Global constants
@@ -217,36 +218,37 @@ def tbPlanilhaUnidade_example():
         Descricao='Planilha Unidade',
     )]
 
+
 def readequacao_example():
     return [Readequacao(
         idReadequacao=1,
-        IdPRONAC = 20001234,
-        dtSolicitacao = datetime(2000, 1, 1),
-        dsJustificativa = "Descricao Justificativa",
-        idSolicitante = 1,
-        idAvaliador = 1,
-        dtAvaliador = datetime(2000, 1, 1),
-        dsAvaliacao = "Descricao Avaliacao",
-        idTipoReadequacao = 1,
-        dsReadequacao ="Descricao Readequacao",
-        stAtendimento = "Atendido",
-        siEncaminhamento = 1,
-        dsEncaminhamento = "Descricao Encaminhamento",
-        dsSolicitacao = 'Solicitacao',
-        stEstado = 'Estado',
-        idDocumento = 1,
+        IdPRONAC=20001234,
+        dtSolicitacao=datetime(2000, 1, 1),
+        dsJustificativa="Descricao Justificativa",
+        idSolicitante=1,
+        idAvaliador=1,
+        dtAvaliador=datetime(2000, 1, 1),
+        dsAvaliacao="Descricao Avaliacao",
+        idTipoReadequacao=1,
+        dsReadequacao="Descricao Readequacao",
+        stAtendimento="Atendido",
+        siEncaminhamento=1,
+        dsEncaminhamento="Descricao Encaminhamento",
+        dsSolicitacao='Solicitacao',
+        stEstado='Estado',
+        idDocumento=1,
     )]
 
 
 def tipo_readequacao_example():
     return [TipoReadequacao(
-        idTipoReadequacao = 1,
+        idTipoReadequacao=1,
         dsReadequacao='Readequacao'
     )]
 
 
-def tipo_encaminhamento_example  ():
+def tipo_encaminhamento_example():
     return [TipoEncaminhamento(
-        idTipoEncaminhamento = 1,
-        dsEncaminhamento = 'Encaminhamento',
+        idTipoEncaminhamento=1,
+        dsEncaminhamento='Encaminhamento',
     )]

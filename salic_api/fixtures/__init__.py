@@ -31,6 +31,6 @@ FACTORIES.extend([
     arquivo_imagem_example, documento_example, documento_projeto_example,
     pais_example, uf_example, municipio_example, deslocamento_example,
     usuarios_example, prorrogacao_example, tbPlanilhaEtapa_example,
-    tbPlanilhaUnidade_example, tbItemCusto_example,readequacao_example,
+    tbPlanilhaUnidade_example, tbItemCusto_example, readequacao_example,
     tipo_encaminhamento_example, tipo_readequacao_example
 ])

@@ -324,10 +324,10 @@ class PlanilhaAprovacao(Base):  # noqa: N801
     idPlanilhaItem = Column(Integer,
                             ForeignKey('tbPlanilhaItens.idPlanilhaItens'))
     IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
-    qtItem = Column(Integer)
-    vlUnitario = Column(Integer)
     idEtapa = Column(Integer, ForeignKey('tbPlanilhaEtapa.idPlanilhaEtapa'))
     idUnidade = Column(Integer, ForeignKey('tbPlanilhaUnidade.idUnidade'))
+    qtItem = Column(Integer)
+    vlUnitario = Column(Integer)
 
 
 class PlanilhaItens(Base):  # noqa: N801
@@ -402,6 +402,7 @@ class Readequacao(Base):
     stEstado = Column(String)
     idDocumento = Column(Integer, ForeignKey('tbDocumento.idDocumento'))
 
+
 class TipoReadequacao(Base):
     """
     SAC.dbo.tbTipoReadequacao
@@ -410,6 +411,7 @@ class TipoReadequacao(Base):
 
     idTipoReadequacao = Column(Integer, primary_key=True)
     dsReadequacao = Column(String)
+
 
 class TipoEncaminhamento(Base):
     """

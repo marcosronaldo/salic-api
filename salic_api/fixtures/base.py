@@ -4,6 +4,7 @@ from datetime import datetime
 
 from salic_api.models import Prorrogacao
 
+
 def prorrogacao_example(size=1):
     return [Prorrogacao(
         idProrrogacao=i,
@@ -14,7 +15,5 @@ def prorrogacao_example(size=1):
         Observacao='Observacao',
         Atendimento='A',
         idPronac=20001234)
-        for i in range(1,size+1)
+        for i in range(1, size + 1)
     ]
-
-
