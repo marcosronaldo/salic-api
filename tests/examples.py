@@ -45,12 +45,12 @@ PROJETO_RESPONSE = {
         ],
         'deslocamento': [
             {
-                'uf_origem': 'Distrito Federal',
-                'uf_destino': 'Distrito Federal',
-                'pais_destino': 'Brasil',
-                'pais_origem': 'Brasil',
-                'municipio_destino': 'Cocais de Bambu',
-                'municipio_origem': 'Cocais de Bambu',
+                'uf_origem': 'UF 1',
+                'uf_destino': 'UF 1',
+                'pais_destino': 'Pais 1',
+                'pais_origem': 'Pais 1',
+                'municipio_destino': 'Municipio 1',
+                'municipio_origem': 'Municipio 1',
                 'quantidade': 2
             }
         ],
@@ -84,7 +84,7 @@ PROJETO_RESPONSE = {
         'relacao_pagamentos': [
             {
                 'data_pagamento': '2000-01-01',
-                'nome_fornecedor': 'Name',
+                'nome_fornecedor': 'Name 1',
                 'nr_documento_pagamento': '1',
                 'cgccpf': '1234',
                 'data_aprovacao': '2000-02-02',
@@ -225,8 +225,8 @@ FORNECEDOR_RESPONSE = {
         "self": "v1/fornecedores/30313233343536373839616263646566e0797636",
         "produtos": "v1/fornecedores/30313233343536373839616263646566e0797636/produtos"
     },
-    "email": "email",
-    "nome": "Name"
+    "email": "email 1",
+    "nome": "Name 1"
 }
 PROPONENTE_RESPONSE = {
     'nome': 'Nome',
@@ -306,7 +306,7 @@ PRODUTOS_RESPONSE = {
                 },
                 "id_arquivo": 1,
                 "nr_comprovante": '1',
-                "nome_fornecedor": "Name",
+                "nome_fornecedor": "Name 1",
                 "id_comprovante_pagamento": 1,
                 "tipo_documento": 'Boleto Bancario',
                 "nr_documento_pagamento": '1',

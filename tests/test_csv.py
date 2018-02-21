@@ -56,7 +56,7 @@ PROPOSTA_CSV = (
     "EtapaDeTrabalho,ResumoDoProjeto,Justificativa\r\n")
 
 FORNECEDOR_CSV = """email,nome,cgccpf
-email,Name,1234
+email 1,Name 1,1234
 """.replace('\n', '\r\n')
 
 PROJETO_CSV = (
