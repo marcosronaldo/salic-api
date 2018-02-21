@@ -47,7 +47,7 @@ class SalicResource(Resource):
     resource_path = None
     query_class = None
     csv_columns = None
-    request_args = set()
+    request_args = {'format'}
 
     # Pre-defined error messages
     INTERNAL_ERROR = {
@@ -172,15 +172,11 @@ class SalicResource(Resource):
         """
         Inject all request arguments to the dictionary of arguments.
         """
-        args = set(self.request_args)
-        args.add('format')
-        if not args.issuperset(request.args):
-            diff = args.symmetric_difference(request.args)
+        argset = self.request_args
+        if not self.request_args.issuperset(argset):
+            diff = self.request_args.symmetric_difference(argset)
             raise self.invalid_request_args_error(diff)
-
-        arg_getter = request.args.get
-        extra = {arg: arg_getter(arg) for arg in args}
-        return dict(kwargs, **extra)
+        return dict(kwargs, **request.args)
 
     #
     # Creating response
@@ -347,7 +343,7 @@ class ListResource(SalicResource):
     has_pagination = True
     detail_resource = None
     detail_pk = None
-    request_args = set(['limit', 'offset'])
+    request_args = {'format', 'limit', 'offset'}
 
     @property
     def _embedding_field(self):
