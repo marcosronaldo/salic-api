@@ -51,7 +51,7 @@ PROPOSTA_CSV = (
     "resumo,justificativa\r\n"
 
     "ImpactoAmbiental,FichaTecnica,2000-02-01,1,Mecenato,2000-03-01,2000-01-01,"
-    "DemocratizacaoDeAcesso,2000-01-01,Sinopse,Test,EstrategiadeExecucao,"
+    "DemocratizacaoDeAcesso,2000-01-01,Sinopse,Test 1,EstrategiadeExecucao,"
     "EspecificacaoTecnica,Acessibilidade,cultural,"
     "EtapaDeTrabalho,ResumoDoProjeto,Justificativa\r\n")
 

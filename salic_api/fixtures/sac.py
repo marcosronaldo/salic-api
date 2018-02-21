@@ -74,7 +74,7 @@ def pre_projeto_example():
     pre_projetos = []
 
     for i in range(1, 5):
-        pprojeto = pre_projeto_factoty(i, 1 if i % 2 == 0 else 2)
+        pprojeto = pre_projeto_factoty(i, 1 if i % 2 != 0 else 2)
         pre_projetos.append(pprojeto)
 
     return pre_projetos
