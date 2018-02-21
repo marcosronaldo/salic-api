@@ -11,7 +11,7 @@ services:
       dockerfile: ./docker/Dockerfile_nginx
 
     ports:
-      - "5001:80"
+      - "80:80"
     
     depends_on:
       - gunicorn

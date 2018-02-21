@@ -17,9 +17,6 @@ http {
     server {
         listen 80;
 
-
-
-
         location /v1/swagger-def {
             alias   /static_swagger;
             index swagger_specification_PT-BR.json;
@@ -29,7 +26,10 @@ http {
             alias   /static_swagger;
             index index.html;
         }
-        
+
+        location ~ ^/$ {
+            rewrite  ^ /doc;
+        }
 
         location / {
 
