@@ -1,8 +1,9 @@
-from flask import redirect
+import os
+
+from flask import redirect, send_from_directory
 from flask_cors import CORS
 from flask_restful import Api
 
-from ..resources.api_doc.swagger_def import SwaggerDef
 from ..resources.fornecedor.fornecedor_detail import FornecedorDetail
 from ..resources.fornecedor.fornecedor_list import FornecedorList
 from ..resources.fornecedor.produto import Produto
@@ -19,6 +20,11 @@ from ..resources.projeto.segmento import Segmento
 from ..resources.proponente.proponente_detail import ProponenteDetail
 from ..resources.proponente.proponente_list import ProponenteList
 from ..resources.test_resource import TestResource
+
+dirname = os.path.dirname
+BASE_PATH = dirname(dirname(__file__))
+STATIC_URL_PATH = os.path.join(BASE_PATH, 'static')
+SWAGGER_DEF = 'swagger_specification_PT-BR.json'
 
 
 def make_urls(app=None):
@@ -55,8 +61,19 @@ def make_urls(app=None):
     register(FornecedorList, 'fornecedores/')
     register(FornecedorDetail, 'fornecedores/<string:fornecedor_id>/')
     register(Produto, 'fornecedores/<string:fornecedor_id>/produtos/')
-    register(SwaggerDef, 'swagger-def/')
 
     @app.route('/')
+    def index():
+        return redirect("/doc/", code=302)
+
+    @app.route('/v1/swagger-def/')
+    def swagger_def():
+        return send_from_directory(BASE_PATH, SWAGGER_DEF)
+
+    @app.route('/doc/')
     def documentation():
-        return redirect("/doc", code=302)
+        return send_from_directory(STATIC_URL_PATH, 'index.html')
+
+    @app.route('/doc/<path:path>')
+    def documentation_data(path):
+        return send_from_directory(STATIC_URL_PATH, path)

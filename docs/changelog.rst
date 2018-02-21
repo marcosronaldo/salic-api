@@ -20,3 +20,4 @@ versão do LAPPIS.
 * Integração contínua para monitoramento de testes (travis-ci.org), monitoramento de
   cobertura (codecov.io), métricas de qualidade de código (codeclimate.com) e
   geração automática de documentação (readthedocs.org)
+* Converteu parte das strings de SQL para o ORM do Sql Alchemy

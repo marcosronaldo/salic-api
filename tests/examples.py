@@ -100,7 +100,26 @@ PROJETO_RESPONSE = {
                 'id_arquivo': 1
             }
         ],
-        'readequacoes': [],
+        'readequacoes': [
+            {
+                'data_avaliador': '2000-01-01 00:00:00',
+                'data_solicitacao': '2000-01-01 00:00:00',
+                'descricao_avaliacao': 'Descricao Avaliacao',
+                'descricao_encaminhamento': 'Encaminhamento',
+                'descricao_justificativa': 'Descricao Justificativa',
+                'descricao_readequacao': 'Readequacao',
+                'descricao_solicitacao': 'Solicitacao',
+                'id_avaliador': 1,
+                'id_readequacao': 1,
+                'id_solicitante': 1,
+                'id_tipo_readequacao': 1,
+                'is_arquivo': 1,
+                'nome_arquivo': '1',
+                'si_encaminhamento': 1,
+                'st_atendimento': 'Atendido',
+                'st_estado': 'Estado'
+            }
+        ],
         'documentos_anexados': [],
         'distribuicao': [
             {

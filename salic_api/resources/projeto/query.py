@@ -489,9 +489,7 @@ class DistribuicaoQuery(Query):
 
 class ReadequacaoQuery(Query):
     def query(self, IdPRONAC):  # noqa: N803
-        return []  # FIXME
-
-        stmt = text("""
+        stmt = text(normalize_sql("""
             SELECT
                 a.idReadequacao as id_readequacao,
                 a.dtSolicitacao as data_solicitacao,
@@ -513,7 +511,7 @@ class ReadequacaoQuery(Query):
              INNER JOIN SAC.dbo.tbTipoEncaminhamento AS b ON a.siEncaminhamento = b.idTipoEncaminhamento INNER JOIN SAC.dbo.tbTipoReadequacao AS c ON c.idTipoReadequacao = a.idTipoReadequacao
              LEFT JOIN BDCORPORATIVO.scCorp.tbDocumento AS d ON d.idDocumento = a.idDocumento
              LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS e ON e.idArquivo = d.idArquivo WHERE (a.idPronac = :IdPRONAC) AND (a.siEncaminhamento <> 12)
-            """)
+            """))
         return self.execute_query(stmt, {'IdPRONAC': IdPRONAC}).fetchall()
 
 

@@ -220,7 +220,7 @@ def tbPlanilhaUnidade_example():
 def readequacao_example():
     return [Readequacao(
         idReadequacao=1,
-        IdPRONAC = 1,
+        IdPRONAC = 20001234,
         dtSolicitacao = datetime(2000, 1, 1),
         dsJustificativa = "Descricao Justificativa",
         idSolicitante = 1,
@@ -232,16 +232,21 @@ def readequacao_example():
         stAtendimento = "Atendido",
         siEncaminhamento = 1,
         dsEncaminhamento = "Descricao Encaminhamento",
+        dsSolicitacao = 'Solicitacao',
+        stEstado = 'Estado',
+        idDocumento = 1,
     )]
 
 
 def tipo_readequacao_example():
     return [TipoReadequacao(
         idTipoReadequacao = 1,
+        dsReadequacao='Readequacao'
     )]
 
 
 def tipo_encaminhamento_example  ():
     return [TipoEncaminhamento(
         idTipoEncaminhamento = 1,
+        dsEncaminhamento = 'Encaminhamento',
     )]
