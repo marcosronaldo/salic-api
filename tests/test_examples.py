@@ -70,23 +70,6 @@ class TestEndpoints:
         expected = single_list(PREPROJETO_RESPONSE, 'propostas')
         check_endpoint(client, url, expected)
 
-    def test_preprojetos_list_pagination(self, client):
-        def get_data(offset):
-            url = '/v1/propostas/?limit=2&offset=%s' % offset
-            data = client.get(url).get_data(as_text=True)
-            return json.loads(data)
-
-        data = get_data(0)
-        propostas = data.get('_embedded').get('propostas')
-
-        assert data.get('total') == 4
-        assert data.get('count') == 2
-        assert propostas[0]['id'] == 1
-
-        data = get_data(2)
-        propostas = data.get('_embedded').get('propostas')
-        assert propostas[0]['id'] == 3
-
     def test_proponentes_detail(self, client):
         url = '/v1/proponentes/30313233343536373839616263646566e0797636'
         expected = PROPONENTE_RESPONSE
@@ -119,6 +102,26 @@ class TestEndpointsIsolated:
             url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
             expected = FORNECEDOR_RESPONSE
             check_endpoint(client, url, expected)
+
+
+@pytest.mark.usefixtures('db_data')
+class TestEndpointPagination:
+    def _test_preprojetos_list_pagination(self, client):
+        def get_data(offset):
+            url = '/v1/propostas/?limit=2&offset=%s' % offset
+            data = client.get(url).get_data(as_text=True)
+            return json.loads(data)
+
+        data = get_data(0)
+        propostas = data.get('_embedded').get('propostas')
+
+        assert data.get('total') == 4
+        assert data.get('count') == 2
+        assert propostas[0]['id'] == 1
+
+        data = get_data(2)
+        propostas = data.get('_embedded').get('propostas')
+        assert propostas[0]['id'] == 3
 
 
 def check_endpoint(client, url, expected):
