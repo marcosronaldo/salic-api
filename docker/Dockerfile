@@ -1,0 +1,32 @@
+FROM debian:buster-slim
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+ADD . /app
+
+# Install any needed packages 
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    sqlite3 \
+    ufw
+
+# apt-get upgrade iptables
+
+# Install project's dependencies
+RUN python3 setup.py develop
+RUN pip3 install -e .[prod] 
+
+# Create database
+RUN inv db -f
+
+# Set enviroment variables to prevent encode related issues
+ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+
+EXPOSE 5000
+
+CMD ["inv", "run-gunicorn", "-h 0.0.0.0:5000", "-w 4"]
