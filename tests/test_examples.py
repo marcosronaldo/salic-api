@@ -92,8 +92,12 @@ class TestEndpoints:
 
 
 class TestEndpointsIsolated:
-    def _test_fornecedores_detail(self, client):
-        factories = [ex.agentes_example, ex.nomes_example, ex.internet_example]
+    def test_fornecedores_detail(self, client):
+        factories = [ex.tbcomprovantepagamento_example, ex.agentes_example,
+                     ex.tbplanilhaaprovacao_example, ex.nomes_example,
+                     ex.tbPlanilhaItens_example, ex.internet_example,
+                     ex.tbcomprovantepagamentoxplanilhaaprovacao_example]
+
         with examples(factories):
             url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
             expected = FORNECEDOR_RESPONSE
