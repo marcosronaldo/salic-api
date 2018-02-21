@@ -47,15 +47,15 @@ def projeto_example():
     )]
 
 
-def pre_projeto_example():
-    return [PreProjeto(
-        idPreProjeto=1,
-        NomeProjeto='Test',
+def pre_projeto_factoty(id, id_menanismo=1):
+    return PreProjeto(
+        idPreProjeto=id,
+        NomeProjeto='Test %d' % id,
         DtInicioDeExecucao=datetime(2000, 1, 1),
         DtFinalDeExecucao=datetime(2000, 2, 1),
         dtAceite=datetime(2000, 1, 1),
         DtArquivamento=datetime(2000, 3, 1),
-        Mecanismo=1,
+        Mecanismo=id_menanismo,
         Objetivos='cultural',
         Justificativa='Justificativa',
         Acessibilidade='Acessibilidade',
@@ -67,7 +67,17 @@ def pre_projeto_example():
         ImpactoAmbiental='ImpactoAmbiental',
         EspecificacaoTecnica='EspecificacaoTecnica',
         EstrategiadeExecucao='EstrategiadeExecucao',
-    )]
+    )
+
+
+def pre_projeto_example():
+    pre_projetos = []
+
+    for i in range(1, 5):
+        pprojeto = pre_projeto_factoty(i, 1 if i % 2 == 0 else 2)
+        pre_projetos.append(pprojeto)
+
+    return pre_projetos
 
 
 def segmento_example():
