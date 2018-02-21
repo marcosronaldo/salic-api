@@ -67,3 +67,9 @@ SAC
 .. autoclass:: salic_api.models.Readequacao
 .. autoclass:: salic_api.models.TipoReadequacao
 .. autoclass:: salic_api.models.TipoEncaminhamento
+
+
+Tabelas
+~~~~~~~
+
+.. autoclass:: salic_api.models.Usuarios
