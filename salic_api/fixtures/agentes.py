@@ -7,38 +7,59 @@ from salic_api.models import Nomes, Agentes, Internet, Pais, UF, Municipios, Des
 CPF = '1234'
 
 
-def nomes_example(size=1):
-    return [Nomes(idNome=i, idAgente=i, Descricao='Name %s' % i)
-            for i in range(1, size + 1)]
+def nomes_example():
+    return [Nomes(
+        idNome=1,
+        idAgente=1,
+        Descricao='Name',
+    )]
 
 
-def agentes_example(size=1):
-    return [Agentes(idAgente=i, CNPJCPF=CPF)
-            for i in range(1, size + 1)]
+def agentes_example():
+    return [Agentes(
+        idAgente=1,
+        CNPJCPF=CPF,
+    )]
 
 
-def internet_example(size=1):
-    return [Internet(idInternet=i, idAgente=i, Descricao='email %s' % i)
-            for i in range(1, size + 1)]
+def internet_example():
+    return [Internet(
+        idInternet=1,
+        idAgente=1,
+        Descricao='email',
+    )]
 
 
-def pais_example(size=1):
-    return [Pais(idPais=i, Descricao='Pais %s' % i)
-            for i in range(1, size + 1)]
+def pais_example():
+    return [Pais(
+        idPais=1,
+        Descricao="Brasil",
+    )]
 
 
-def uf_example(size=1):
-    return [UF(iduf=i, Descricao="UF %s" % i)
-            for i in range(1, size + 1)]
+def uf_example():
+    return [UF(
+        iduf=1,
+        Descricao="Distrito Federal",
+    )]
 
 
-def municipio_example(size=1):
-    return [Municipios(idMunicipioIBGE=i, Descricao="Municipio %s" % i)
-            for i in range(1, size + 1)]
+def municipio_example():
+    return [Municipios(
+        idMunicipioIBGE=1,
+        Descricao="Cocais de Bambu",
+    )]
 
 
-def deslocamento_example(size=1):
-    return [Deslocamento(idDeslocamento=i, Qtde=i*2, idProjeto=i, idPaisOrigem=i,
-                        idUFOrigem=i, idMunicipioOrigem=i, idPaisDestino=i,
-                        idUFDestino=i, idMunicipioDestino=i)
-            for i in range(1, size + 1)]
+def deslocamento_example():
+    return [Deslocamento(
+        idDeslocamento=1,
+        Qtde=2,
+        idProjeto=1,
+        idPaisOrigem=1,
+        idUFOrigem=1,
+        idMunicipioOrigem=1,
+        idPaisDestino=1,
+        idUFDestino=1,
+        idMunicipioDestino=1,
+    )]

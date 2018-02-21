@@ -3,6 +3,8 @@ import json
 
 import pytest
 
+from salic_api import fixtures as ex
+from salic_api.fixtures import examples
 from tests.examples import PROJETOS_AREAS, PROJETO_RESPONSE, \
     INCENTIVADOR_RESPONSE, FORNECEDOR_RESPONSE, PROPONENTE_RESPONSE, \
     PREPROJETO_RESPONSE, CAPTACOES_RESPONSE, PRODUTOS_RESPONSE
@@ -20,6 +22,9 @@ class TestCoreUrls:
         for url in self.valid_core_urls:
             assert client.get(url).status_code == 200, url
 
+
+@pytest.mark.usefixtures('db_data')
+class TestEndpoints:
     def test_projetos_areas(self, client):
         url = '/v1/projetos/areas'
         expected = PROJETOS_AREAS
@@ -84,6 +89,15 @@ class TestCoreUrls:
         url = '/v1/fornecedores/30313233343536373839616263646566e0797636/produtos'
         expected = PRODUTOS_RESPONSE
         check_endpoint(client, url, expected)
+
+
+class TestEndpointsIsolated:
+    def test_fornecedores_detail(self, client):
+        factories = [ex.agentes_example, ex.nomes_example, ex.internet_example]
+        with examples(factories):
+            url = '/v1/fornecedores/30313233343536373839616263646566e0797636'
+            expected = FORNECEDOR_RESPONSE
+            check_endpoint(client, url, expected)
 
 
 def check_endpoint(client, url, expected):
