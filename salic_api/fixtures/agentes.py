@@ -11,7 +11,7 @@ def nomes_example():
     return [Nomes(
         idNome=1,
         idAgente=1,
-        Descricao='Name',
+        Descricao='Name 1',
     )]
 
 
@@ -33,21 +33,21 @@ def internet_example():
 def pais_example():
     return [Pais(
         idPais=1,
-        Descricao="Brasil",
+        Descricao="Pais 1",
     )]
 
 
 def uf_example():
     return [UF(
         iduf=1,
-        Descricao="Distrito Federal",
+        Descricao="UF 1",
     )]
 
 
 def municipio_example():
     return [Municipios(
         idMunicipioIBGE=1,
-        Descricao="Cocais de Bambu",
+        Descricao="Municipio 1",
     )]
 
 
