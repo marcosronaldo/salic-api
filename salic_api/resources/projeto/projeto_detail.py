@@ -1,11 +1,11 @@
+from salic_api.resources.format_utils import sanitize
 from . import utils
 from .query import (
     ProjetoQuery, CertidoesNegativasQuery, DivulgacaoQuery, DeslocamentoQuery,
     DistribuicaoQuery, ReadequacaoQuery, CaptacaoQuery
 )
-from ..format_utils import remove_blanks, cgccpf_mask
+from ..format_utils import cgccpf_mask
 from ..resource import DetailResource, InvalidResult
-from ..sanitization import sanitize
 from ..serialization import listify_queryset
 from ...utils import encrypt
 
@@ -54,7 +54,8 @@ class ProjetoDetail(DetailResource):
                    'sinopse', 'valor_projeto', 'enquadramento', 'UF',
                    'justificativa', 'providencia', 'proponente',
                    'democratizacao', 'data_inicio', 'ficha_tecnica',
-                   'mecanismo', 'impacto_ambiental', 'nome', 'estrategia_execucao',
+                   'mecanismo', 'impacto_ambiental', 'nome',
+                   'estrategia_execucao',
                    'resumo', 'outras_fontes', 'municipio', 'valor_aprovado',
                    'valor_proposta', 'ano_projeto', 'area', 'code', 'message',
                    ]
@@ -129,12 +130,9 @@ class ProjetoDetail(DetailResource):
             'resumo',
         )
         for field in sanitize_fields:
-            result[field] = sanitize(result[field], truncated=False)
+            result[field] = sanitize(result[field])
 
-        # Clean cgccpf
-        result['cgccpf'] = result['cgccpf'] or '00000000000000'
-        result["cgccpf"] = remove_blanks(str(result["cgccpf"]))
-        result['cgccpf'] = cgccpf_mask(result['cgccpf'])
+        result['cgccpf'] = cgccpf_mask(result['cgccpf'] or '00000000000000')
 
         for section in ['captacoes', 'relacao_pagamentos']:
             for item in result.get(section, ()):
@@ -221,7 +219,7 @@ class ProjetoDetail(DetailResource):
         )
         for item in readequacoes:
             for field in fields:
-                item[field] = sanitize(item[field], truncated=False)
+                item[field] = sanitize(item[field])
         return readequacoes
 
     def cleaned_distribuicoes(self, distribuicoes):

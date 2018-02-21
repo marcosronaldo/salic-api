@@ -155,10 +155,10 @@ class SalicResource(Resource):
             path = '%s?%s' % (path, query_args)
         return '%s/%s' % (base, path.lstrip('/'))
 
-    def unique_cgccpf(self, cgccpf, elements):
+    def filter_cgccpf(self, cgccpf, elements):
         """
-        Given a cgc/cpf/cnpj, makes sure it return only elements with exact match
-        Used to correct the use of SQL LIKE statement
+        Given a cgc/cpf/cnpj, makes sure it return only elements with exact
+        match. Used to correct the use of SQL LIKE statement
         """
         return [e for e in elements if e['cgcpf'] == cgccpf]
 

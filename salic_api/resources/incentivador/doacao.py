@@ -3,7 +3,7 @@ import logging
 from flask import current_app, request
 
 from .query import DoacaoQuery
-from ..format_utils import remove_blanks, cgccpf_mask
+from ..format_utils import cgccpf_mask
 from ..resource import ListResource
 from ..serialization import listify_queryset
 from ...utils import encrypt, decrypt
@@ -12,8 +12,8 @@ log = logging.getLogger('salic-api')
 
 
 class Doacao(ListResource):
-    def build_links(self, args={}):
-
+    def build_links(self, args=None):
+        args = args or {}
         query_args = '&'
         incentivador_id = args['incentivador_id']
         last_offset = self.last_offset(args['n_records'], args['limit'])
@@ -32,11 +32,11 @@ class Doacao(ListResource):
                 args['limit'], args['offset'] + args['limit']) + query_args
 
         self.links["first"] = self.links["self"] + \
-            '?limit=%d&offset=0' % (
-            args['limit']) + query_args
+                              '?limit=%d&offset=0' % (
+                                  args['limit']) + query_args
         self.links["last"] = self.links["self"] + \
-            '?limit=%d&offset=%d' % (
-            args['limit'], last_offset) + query_args
+                             '?limit=%d&offset=%d' % (
+                                 args['limit'], last_offset) + query_args
         self.links["self"] += '?limit=%d&offset=%d' % (
             args['limit'], args['offset']) + query_args
 
@@ -45,10 +45,10 @@ class Doacao(ListResource):
         for doacao in args['doacoes']:
             doacao_links = {}
             doacao_links['projeto'] = current_app.config['API_ROOT_URL'] + \
-                'projetos/%s' % doacao['PRONAC']
+                                      'projetos/%s' % doacao['PRONAC']
             incentivador_id = encrypt(doacao['cgccpf'])
             doacao_links['incentivador'] = current_app.config['API_ROOT_URL'] + \
-                'incentivadores/%s' % incentivador_id
+                                           'incentivadores/%s' % incentivador_id
 
             self.doacoes_links.append(doacao_links)
 
@@ -116,11 +116,7 @@ class Doacao(ListResource):
         headers = {'X-Total-Count': n_records}
 
         data = listify_queryset(results)
-
-        for doacao in data:
-            doacao["cgccpf"] = remove_blanks(doacao['cgccpf'])
-
-        data = self.unique_cgccpf(cgccpf, data)
+        data = self.filter_cgccpf(cgccpf, data)
 
         self.build_links(args={
             'incentivador_id': incentivador_id, 'doacoes': data,
@@ -129,5 +125,4 @@ class Doacao(ListResource):
 
         for doacao in data:
             doacao["cgccpf"] = cgccpf_mask(doacao["cgccpf"])
-
         return self.render(data, headers)
