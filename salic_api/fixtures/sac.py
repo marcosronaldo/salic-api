@@ -54,7 +54,7 @@ def pre_projeto_example(size=1):
                         ImpactoAmbiental='ImpactoAmbiental %s' % i,
                         EspecificacaoTecnica='EspecificacaoTecnica %s' % i,
                         EstrategiadeExecucao='EstrategiadeExecucao %s' % i)
-            for i in range(1, 5)]
+            for i in range(1, 1+size)]
 
 
 def segmento_example():
