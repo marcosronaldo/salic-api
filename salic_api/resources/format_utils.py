@@ -7,7 +7,6 @@ def cgccpf_mask(cgccpf):
     """
     Create a CPF mask for valid CPFs.
     """
-
     if not cgccpf:
         return ''
     if validate_cpf(cgccpf):
@@ -19,7 +18,6 @@ def sanitize(value):
     """
     Remove unwanted whitespace from string.
     """
-
     if value is None:
         return ''
     return re.sub('\s+', ' ', value).strip()
