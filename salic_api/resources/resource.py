@@ -240,8 +240,12 @@ class SalicResource(Resource):
         Return a dictionary with arguments to be passed to the query method of
         the query class.
         """
+        unwanted_args = ('format', 'limit', 'offset')
         args = dict(self.args)
-        args.pop('format', None)
+
+        for arg in unwanted_args:
+            args.pop(arg, None)
+
         return args
 
     def render(self, data, headers=None, status_code=200, raw=False):
