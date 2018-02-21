@@ -20,64 +20,41 @@ def areas_example():
     ]
 
 
-def projeto_example():
-    return [Projeto(
-        IdPRONAC=20001234,
-        AnoProjeto='2000',
-        Sequencial='1234',
-        NomeProjeto='Test',
-        Localizacao='Brazil',
-        DtInicioExecucao=datetime(2000, 1, 1),
-        DtFimExecucao=datetime(2000, 2, 1),
-        UfProjeto='DF',
-        SolicitadoReal='R$1.000.000',
-        SolicitadoUfir='R$1.000.000',
-        SolicitadoCusteioUfir='R$1.000.000',
-        SolicitadoCusteioReal='R$1.000.000',
-        SolicitadoCapitalUfir='R$1.000.000',
-        SolicitadoCapitalReal='R$1.000.000',
-        ResumoProjeto='abstract',
-        ProvidenciaTomada='nenhuma',
-        Segmento='11',
-        Situacao='1',
-        Area='1',
-        CgcCpf=CPF,
-        idProjeto=1,
-        Mecanismo='1',
-    )]
+def projeto_example(size=1):
+    return [Projeto(IdPRONAC=20001234, AnoProjeto='2000', Sequencial='1234',
+                    NomeProjeto='Test', Localizacao='Brazil',
+                    DtInicioExecucao=datetime(2000, 1, 1),
+                    DtFimExecucao=datetime(2000, 2, 1),
+                    UfProjeto='DF', SolicitadoReal='R$%s.000.000' % i,
+                    SolicitadoUfir='R$%s.000.000' % i,
+                    SolicitadoCusteioUfir='R$%s.000.000' % i,
+                    SolicitadoCusteioReal='R$%s.000.000' % i,
+                    SolicitadoCapitalUfir='R$%s.000.000' % i,
+                    SolicitadoCapitalReal='R$%s.000.000' % i,
+                    ResumoProjeto='abstract', ProvidenciaTomada='nenhuma',
+                    Segmento='11', Situacao='%s' % i,
+                    Area='%s' % i, CgcCpf=CPF, idProjeto=i, Mecanismo='%s' % i)
+            for i in range(1, size + 1)]
 
 
-def pre_projeto_factoty(id, id_menanismo=1):
-    return PreProjeto(
-        idPreProjeto=id,
-        NomeProjeto='Test %d' % id,
-        DtInicioDeExecucao=datetime(2000, 1, 1),
-        DtFinalDeExecucao=datetime(2000, 2, 1),
-        dtAceite=datetime(2000, 1, 1),
-        DtArquivamento=datetime(2000, 3, 1),
-        Mecanismo=id_menanismo,
-        Objetivos='cultural',
-        Justificativa='Justificativa',
-        Acessibilidade='Acessibilidade',
-        DemocratizacaoDeAcesso='DemocratizacaoDeAcesso',
-        EtapaDeTrabalho='EtapaDeTrabalho',
-        FichaTecnica='FichaTecnica',
-        ResumoDoProjeto='ResumoDoProjeto',
-        Sinopse='Sinopse',
-        ImpactoAmbiental='ImpactoAmbiental',
-        EspecificacaoTecnica='EspecificacaoTecnica',
-        EstrategiadeExecucao='EstrategiadeExecucao',
-    )
-
-
-def pre_projeto_example():
-    pre_projetos = []
-
-    for i in range(1, 5):
-        pprojeto = pre_projeto_factoty(i, 1 if i % 2 != 0 else 2)
-        pre_projetos.append(pprojeto)
-
-    return pre_projetos
+def pre_projeto_example(size=1):
+    return [PreProjeto(idPreProjeto=i, NomeProjeto='NomeProjeto %s' % i,
+                        DtInicioDeExecucao=datetime(2000, 1, 1),
+                        DtFinalDeExecucao=datetime(2000, 2, 1),
+                        dtAceite=datetime(2000, 1, 1),
+                        DtArquivamento=datetime(2000, 3, 1),
+                        Mecanismo=i%2+1, Objetivos='cultural',
+                        Justificativa='Justificativa %s' % i,
+                        Acessibilidade='Acessibilidade',
+                        DemocratizacaoDeAcesso='DemocratizacaoDeAcesso',
+                        EtapaDeTrabalho='EtapaDeTrabalho',
+                        FichaTecnica='FichaTecnica',
+                        ResumoDoProjeto='ResumoDoProjeto %s' % i,
+                        Sinopse='Sinopse %s' % i,
+                        ImpactoAmbiental='ImpactoAmbiental %s' % i,
+                        EspecificacaoTecnica='EspecificacaoTecnica %s' % i,
+                        EstrategiadeExecucao='EstrategiadeExecucao %s' % i)
+            for i in range(1, 5)]
 
 
 def segmento_example():
@@ -88,15 +65,10 @@ def segmento_example():
     ]
 
 
-def enquadramento_example():
-    return [
-        Enquadramento(
-            Enquadramento=1,
-            AnoProjeto='2000',
-            Sequencial='1234',
-            IdPRONAC=20001234,
-        ),
-    ]
+def enquadramento_example(size=1):
+    return [Enquadramento(Enquadramento=i, AnoProjeto='2000',
+                          Sequencial='1234', IdPRONAC=20001234)
+            for i in range(1, size + 1)]
 
 
 def mecanismo_example():
@@ -106,19 +78,17 @@ def mecanismo_example():
     ]
 
 
-def situacao_example():
-    return [Situacao(Codigo='1', Descricao='Descricao')]
+def situacao_example(size=1):
+    return [Situacao(Codigo='%s' % i, Descricao='Descricao %s' % i)
+            for i in range(1, size + 1)]
 
 
-def interessado_example():
-    return [Interessado(
-        CgcCpf=CPF,
-        Nome='Nome',
-        Responsavel='Responsavel',
-        Uf='Uf',
-        Cidade='Cidade',
-        tipoPessoa='2',  # Juridica
-    )]
+def interessado_example(size=1):
+    # tipoPessoa 2 e pessoa juridica
+    return [Interessado(CgcCpf=CPF, Nome='Nome %s' % i,
+                        Responsavel='Responsavel %s' % i, Uf='UF %s' % i,
+                        Cidade='Cidade %s' % i, tipoPessoa='2')
+            for i in range(1, size + 1)]
 
 
 def captacao_example():
@@ -131,134 +101,96 @@ def captacao_example():
     )]
 
 
-def certidoes_negativas_example():
-    return [CertidoesNegativas(
-        AnoProjeto='2000',
-        Sequencial='1234',
-        DtEmissao=datetime(2000, 1, 1),
-        DtValidade=datetime(2000, 3, 1),
-        CodigoCertidao=1,
-        cdSituacaoCertidao=1,
-        CgcCpf=CPF,
-    )]
+def certidoes_negativas_example(size=1):
+    return [CertidoesNegativas(AnoProjeto='2000', Sequencial='1234',
+                                DtEmissao=datetime(2000, 1, 1),
+                                DtValidade=datetime(2000, 3, 1),
+                                CodigoCertidao=i, cdSituacaoCertidao=i,
+                                CgcCpf=CPF)
+            for i in range(1, size + 1)]
 
 
-def verificacao_example():
-    return [Verificacao(idTipo=1, Descricao='Descricao', stEstado=True)]
+def verificacao_example(size=1):
+    return [Verificacao(idTipo=i, Descricao='Descricao %s' % i, stEstado=True)
+            for i in range(1, size + 1)]
 
 
-def plano_divulgacao_example():
-    return [PlanoDivulgacao(
-        idPeca=1,
-        idVeiculo=1,
-        stPlanoDivulgacao=True,
-        idProjeto=1,
-    )]
+def plano_divulgacao_example(size=1):
+    return [PlanoDivulgacao(idPeca=i, idVeiculo=i, stPlanoDivulgacao=True,
+                            idProjeto=i)
+            for i in range(1, size + 1)]
 
 
-def produto_example():
-    return [Produto(
-        Descricao='Um Produto',
-        Area='Area',
-        Sintese='Sintese',
-        Idorgao=1,
-        stEstado=True,
-    )]
+def produto_example(size=1):
+    return [Produto(Descricao='Produto %s' % i, Area='Area %s' % i,
+                    Sintese='Sintese %s' % i, Idorgao=i, stEstado=True)
+            for i in range(1, size + 1)]
 
 
-def plano_distribuicao_example():
-    return [PlanoDistribuicao(
-        idPlanoDistribuicao=1,
-        idProjeto=1,
-        idProduto=1,
-        stPrincipal=True,
-        Segmento='11',
-        Area='1',
-        idPosicaoDaLogo=1,
-        PrecoUnitarioNormal='R$100',
-        PrecoUnitarioPromocional='R$10',
-        QtdeProduzida=0,
-        QtdeProponente=0,
-        QtdePatrocinador=0,
-        QtdeOutros=0,
-        QtdeVendaNormal=0,
-        QtdeVendaPromocional=0,
-        QtdeUnitarioNormal=0,
-        QtdeUnitarioPromocional=0,
-        stPlanoDistribuicaoProduto=False,
-    )]
+def plano_distribuicao_example(size=1):
+    return [PlanoDistribuicao(idPlanoDistribuicao=i, idProjeto=i, idProduto=i,
+                              stPrincipal=True, Segmento='11', Area='%s' % i,
+                              idPosicaoDaLogo=i,
+                              PrecoUnitarioNormal='R$%s00' % i,
+                              PrecoUnitarioPromocional='R$%s0' % i,
+                              QtdeProduzida=0, QtdeProponente=0,
+                              QtdePatrocinador=0, QtdeOutros=0,
+                              QtdeVendaNormal=0, QtdeVendaPromocional=0,
+                              QtdeUnitarioNormal=0, QtdeUnitarioPromocional=0,
+                              stPlanoDistribuicaoProduto=False)
+            for i in range(1, size + 1)]
 
 
-def tbarquivo_example():
-    return [Arquivo(
-        idArquivo=1,
-        nmArquivo='1',
-    )]
+def tbarquivo_example(size=1):
+    return [Arquivo(idArquivo=i, nmArquivo='%s' % i)
+            for i in range(1, size + 1)]
 
 
-def tbplanilhaaprovacao_example():
-    return [PlanilhaAprovacao(
-        idPlanilhaAprovacao=1,
-        idPlanilhaItem=1,
-        qtItem=99,
-        vlUnitario=3.1415,
-        idEtapa=1,
-        idUnidade=1,
-        IdPRONAC=20001234,
-    )]
+def tbplanilhaaprovacao_example(size=1):
+    return [PlanilhaAprovacao(idPlanilhaAprovacao=i, idPlanilhaItem=i,
+                              qtItem=i*99, vlUnitario=3.1415, idEtapa=i,
+                              idUnidade=i, IdPRONAC=20001234)
+            for i in range(1, size + 1)]
 
 
-def tbPlanilhaItens_example():
-    return [PlanilhaItens(
-        idPlanilhaItens=1,
-        Descricao='Figurino',
-    )]
+def tbPlanilhaItens_example(size=1):
+    return [PlanilhaItens(idPlanilhaItens=i, Descricao='Figurino %s' % i)
+            for i in range(1, size + 1)]
 
 
-def tbPlanilhaEtapa_example():
-    return [PlanilhaEtapa(
-        idPlanilhaEtapa=1,
-        Descricao='Planilha Etapa',
-    )]
+def tbPlanilhaEtapa_example(size=1):
+    return [PlanilhaEtapa(idPlanilhaEtapa=i, Descricao='Planilha Etapa %s' % i)
+            for i in range(1, size + 1)]
 
 
-def tbPlanilhaUnidade_example():
-    return [PlanilhaUnidade(
-        idUnidade=1,
-        Descricao='Planilha Unidade',
-    )]
+def tbPlanilhaUnidade_example(size=1):
+    return [PlanilhaUnidade(idUnidade=i, Descricao='Planilha Unidade %s' % i)
+            for i in range(1, size + 1)]
+
+def readequacao_example(size=1):
+    return [Readequacao(idReadequacao=i, IdPRONAC=20001234,
+                        dtSolicitacao = datetime(2000, 1, 1),
+                        dsJustificativa = "Descricao Justificativa %s" % i,
+                        idSolicitante = i, idAvaliador = i,
+                        dtAvaliador = datetime(2000, 1, 1),
+                        dsAvaliacao = "Descricao Avaliacao %s" % i,
+                        idTipoReadequacao = i,
+                        dsReadequacao ="Descricao Readequacao %s" % i,
+                        stAtendimento = "Atendido",
+                        siEncaminhamento = i,
+                        dsEncaminhamento = "Descricao Encaminhamento %s" % i,
+                        dsSolicitacao = 'Solicitacao %s' % i,
+                        stEstado = 'Estado %s' % i, idDocumento = i)
+            for i in range(1, size + 1)]
 
 
-def readequacao_example():
-    return [Readequacao(
-        idReadequacao=1,
-        IdPRONAC=20001234,
-        dtSolicitacao=datetime(2000, 1, 1),
-        dsJustificativa="Descricao Justificativa",
-        idSolicitante=1,
-        idAvaliador=1,
-        dtAvaliador=datetime(2000, 1, 1),
-        dsAvaliacao="Descricao Avaliacao",
-        idTipoReadequacao=1,
-        dsReadequacao="Descricao Readequacao",
-        stAtendimento="Atendido",
-        siEncaminhamento=1,
-        dsEncaminhamento="Descricao Encaminhamento",
-        dsSolicitacao='Solicitacao',
-        stEstado='Estado',
-        idDocumento=1,
-    )]
+def tipo_readequacao_example(size=1):
+    return [TipoReadequacao(idTipoReadequacao=i,
+                            dsReadequacao='Readequacao %s' % i)
+            for i in range(1, size + 1)]
 
 
-def tipo_readequacao_example():
-    return [TipoReadequacao(
-        idTipoReadequacao=1,
-        dsReadequacao='Readequacao'
-    )]
-
-
-def tipo_encaminhamento_example():
-    return [TipoEncaminhamento(
-        idTipoEncaminhamento=1,
-        dsEncaminhamento='Encaminhamento',
-    )]
+def tipo_encaminhamento_example(size=1):
+    return [TipoEncaminhamento(idTipoEncaminhamento=i,
+                               dsEncaminhamento = 'Encaminhamento %s' % i)
+            for i in range(1, size + 1)]
