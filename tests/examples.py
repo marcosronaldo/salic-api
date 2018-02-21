@@ -144,7 +144,7 @@ PROJETO_RESPONSE = {
         'prorrogacao': [
             {
                 'data_inicio': '2000-01-01',
-                'usuario': 'nome',
+                'usuario': 'nome1',
                 'observacao': 'Observacao',
                 'estado': 'Em analise',
                 'data_final': '2000-03-01',
