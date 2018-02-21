@@ -1,46 +1,14 @@
 Documentação da API
 ===================
 
+.. toctree::
+   :maxdepth: 2
 
-Flask Application
------------------
+    Modelos <api-models.rst>
+    Recursos <api-resources.rst>
+    Fixtures <api-fixtures.rst>
+    Conector <api-connector.rst>
+    Utils <api-utils.rst>
+    Aplicação Flask <api-flask.rst>
 
-.. automodule:: salic_api.app
-    :members:
-
-
-Models
-------
-
-.. automodule:: salic_api.models
-    :members:
-    :imported-members:
-
-
-Resources
----------
-
-.. automodule:: salic_api.resources
-    :members:
-
-
-Connector
----------
-
-.. automodule:: salic_api.connector
-    :members:
-
-
-Fixtures
---------
-
-.. automodule:: salic_api.fixtures
-    :members:
-
-
-Utils
------
-
-.. automodule:: salic_api.utils
-    :members:
 

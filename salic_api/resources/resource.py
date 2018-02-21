@@ -47,7 +47,7 @@ class SalicResource(Resource):
     resource_path = None
     query_class = None
     csv_columns = None
-    request_args = set()
+    request_args = {'format'}
 
     # Pre-defined error messages
     INTERNAL_ERROR = {
@@ -155,10 +155,10 @@ class SalicResource(Resource):
             path = '%s?%s' % (path, query_args)
         return '%s/%s' % (base, path.lstrip('/'))
 
-    def unique_cgccpf(self, cgccpf, elements):
+    def filter_cgccpf(self, cgccpf, elements):
         """
-        Given a cgc/cpf/cnpj, makes sure it return only elements with exact match
-        Used to correct the use of SQL LIKE statement
+        Given a cgc/cpf/cnpj, makes sure it return only elements with exact
+        match. Used to correct the use of SQL LIKE statement
         """
         return [e for e in elements if e['cgcpf'] == cgccpf]
 
@@ -172,15 +172,13 @@ class SalicResource(Resource):
         """
         Inject all request arguments to the dictionary of arguments.
         """
-        args = set(self.request_args)
-        args.add('format')
-        if not args.issuperset(request.args):
-            diff = args.symmetric_difference(request.args)
+        argset = self.request_args
+        if not self.request_args.issuperset(argset):
+            diff = self.request_args.symmetric_difference(argset)
             raise self.invalid_request_args_error(diff)
 
-        arg_getter = request.args.get
-        extra = {arg: arg_getter(arg) for arg in args}
-        return dict(kwargs, **extra)
+        args = {k: v[0] for k, v in request.args.items()}
+        return dict(kwargs, **args)
 
     #
     # Creating response
@@ -240,8 +238,12 @@ class SalicResource(Resource):
         Return a dictionary with arguments to be passed to the query method of
         the query class.
         """
+        unwanted_args = ('format', 'limit', 'offset')
         args = dict(self.args)
-        args.pop('format', None)
+
+        for arg in unwanted_args:
+            args.pop(arg, None)
+
         return args
 
     def render(self, data, headers=None, status_code=200, raw=False):
@@ -343,7 +345,7 @@ class ListResource(SalicResource):
     has_pagination = True
     detail_resource = None
     detail_pk = None
-    request_args = set(['limit', 'offset'])
+    request_args = {'format', 'limit', 'offset'}
 
     @property
     def _embedding_field(self):
@@ -613,3 +615,49 @@ class InvalidResult(Exception):
         """
         payload, status_code = self.args
         return resource.render(payload, status_code=status_code)
+
+
+#
+# Query requests
+# TODO: move this data to the proper resource classes.
+# Each list should be copied into a set under the request_args class variable
+#
+data = {
+    '/incentivadores/':
+        ['limit', 'offset', 'nome', 'incentivador_id', 'cgccpf', 'municipio',
+         'UF', 'tipo_pessoa', 'PRONAC', 'sort', 'format'],
+
+    '/incentivadores/{incentivador_id}':
+        ['incentivador_id', 'format'],
+
+    '/incentivadores/{incentivador_id}/doacoes':
+        ['incentivador_id', 'limit', 'offset', 'format'],
+
+    '/projetos/':
+        ['limit', 'offset', 'PRONAC', 'proponente', 'proponente_id', 'cgccpf',
+         'nome', 'area', 'segmento', 'UF', 'ano_projeto', 'data_inicio',
+         'data_termino', 'data_inicio_min', 'data_inicio_max',
+         'data_termino_min', 'data_termino_max', 'sort', 'format'],
+
+    '/projetos/areas':
+        [],
+
+    '/projetos/segmentos':
+        [],
+
+    '/projetos/{PRONAC}':
+        ['PRONAC', 'format'],
+
+    '/proponentes/':
+        ['limit', 'offset', 'nome', 'cgccpf', 'proponente_id', 'municipio',
+         'UF', 'tipo_pessoa', 'sort', 'format'],
+
+    '/proponentes/{proponente_id}':
+        ['proponente_id', 'format'],
+
+    '/propostas/':
+        ['limit', 'offset', 'nome', 'data_inicio', 'data_termino', 'format'],
+
+    '/propostas/{proposta_id}/':
+        ['proposta_id', 'format']
+}

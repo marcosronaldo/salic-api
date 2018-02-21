@@ -36,12 +36,12 @@ def check_csv(client, url, expected):
 
 
 INCENTIVADOR_CSV = """cgccpf,nome,responsavel,tipo_pessoa,UF,municipio,total_doado
-1234,Nome,Responsavel,juridica,Uf,Cidade,0.0
+1234,Nome 1,Responsavel 1,juridica,UF 1,Cidade 1,0.0
 """.replace('\n', '\r\n')
 
 
 PROPONENTE_CSV = """cgccpf,nome,responsavel,tipo_pessoa,UF,total_captado,municipio
-1234,Nome,Responsavel,juridica,Uf,1000,Cidade
+1234,Nome 1,Responsavel 1,juridica,UF 1,1000,Cidade 1
 """.replace('\n', '\r\n')
 
 PROPOSTA_CSV = (
@@ -50,13 +50,13 @@ PROPOSTA_CSV = (
     "estrategia_execucao,especificacao_tecnica,acessibilidade,objetivos,etapa,"
     "resumo,justificativa\r\n"
 
-    "ImpactoAmbiental,FichaTecnica,2000-02-01,1,Mecenato,2000-03-01,2000-01-01,"
-    "DemocratizacaoDeAcesso,2000-01-01,Sinopse,Test,EstrategiadeExecucao,"
-    "EspecificacaoTecnica,Acessibilidade,cultural,"
-    "EtapaDeTrabalho,ResumoDoProjeto,Justificativa\r\n")
+    "ImpactoAmbiental 1,FichaTecnica,2000-02-01,1,FNC,2000-03-01,2000-01-01,"
+    "DemocratizacaoDeAcesso,2000-01-01,Sinopse 1,NomeProjeto 1,EstrategiadeExecucao 1,"
+    "EspecificacaoTecnica 1,Acessibilidade,cultural,"
+    "EtapaDeTrabalho,ResumoDoProjeto 1,Justificativa 1\r\n")
 
 FORNECEDOR_CSV = """email,nome,cgccpf
-email,Name,1234
+email 1,Name 1,1234
 """.replace('\n', '\r\n')
 
 PROJETO_CSV = (
@@ -67,8 +67,8 @@ PROJETO_CSV = (
     "estrategia_execucao,resumo,outras_fontes,municipio,valor_aprovado,"
     "valor_proposta,ano_projeto,area,code,message\r\n"
 
-    "cultural,1234,1000,Descricao,2000-02-01,20001234,1000,EtapaDeTrabalho,"
-    "Teatro,Acessibilidade,EspecificacaoTecnica,Sinopse,1000,Artigo 26,DF,"
-    "Justificativa,nenhuma,Nome,DemocratizacaoDeAcesso,2000-01-01,FichaTecnica,"
-    "Mecenato,ImpactoAmbiental,Test,EstrategiadeExecucao,ResumoDoProjeto,0,"
-    "Cidade,1000,1000,2000,Artes Cênicas,,\r\n")
+    "cultural,1234,1000,Descricao 1,2000-02-01,20001234,1000,EtapaDeTrabalho,"
+    "Teatro,Acessibilidade,EspecificacaoTecnica 1,Sinopse 1,1000,Artigo 26,DF,"
+    "Justificativa 1,nenhuma,Nome 1,DemocratizacaoDeAcesso,2000-01-01,FichaTecnica,"
+    "Mecenato,ImpactoAmbiental 1,Test,EstrategiadeExecucao 1,ResumoDoProjeto 1,0,"
+    "Cidade 1,1000,1000,2000,Artes Cênicas,,\r\n")

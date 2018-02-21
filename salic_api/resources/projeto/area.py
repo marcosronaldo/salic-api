@@ -7,6 +7,7 @@ class Area(ListResource):
     query_class = AreaQuery
     embedding_field = 'areas'
     has_pagination = False
+    request_args = set()
 
     def hal_item_links(self, item):
         link = self.url('/projetos/?area=%s' % item['codigo'])

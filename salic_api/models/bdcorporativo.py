@@ -45,7 +45,6 @@ class ComprovantePagamentoxPlanilhaAprovacao(Base):  # noqa: N801
     ).label('tipo_documento')
 
 
-
 class ComprovantePagamento(Base):  # noqa: N801
     """
     BDCORPORATIVO.scSAC.tbComprovantePagamento

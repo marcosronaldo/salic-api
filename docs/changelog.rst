@@ -9,15 +9,14 @@ versão do LAPPIS.
 
 * Converteu projeto para o Python 3.
 * Atualizou para a última versão do Flask
-* Adotou esquema de versionamento semver
 * Conecta em banco de dados Sqlite durante desenvolvimento
-* Conecta em MS SQL Server na implantação
-* Docker e Docker compose para implantação
-* Alterações de código e melhorias de estilo
 * Refatoração para evitar duplicação de código
+* Adotou esquema de versionamento semver
+* Alterações de código e melhorias de estilo
 * Suite de testes baseada no Pytest
 * Documentação no Sphinx
 * Integração contínua para monitoramento de testes (travis-ci.org), monitoramento de
   cobertura (codecov.io), métricas de qualidade de código (codeclimate.com) e
   geração automática de documentação (readthedocs.org)
-* Converteu parte das strings de SQL para o ORM do Sql Alchemy
+* Docker e Docker compose para implantação utilizando NGNIX + GUnicorn
+* Converteu parte das strings de SQL para o ORM do SQL Alchemy

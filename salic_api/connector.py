@@ -1,3 +1,10 @@
+"""
+Este módulo contêm classes e funções responsáveis por estabelecer a conexão com
+o banco de dados. O SALIC API possui conectores para SQLite (para testes) e
+para o MS SQL Server. Futuramente, é possível criar conectores para outros
+bancos como postgres ou MySQL.
+"""
+
 import logging
 import urllib.error
 import urllib.parse
@@ -15,6 +22,18 @@ register_engine = (lambda name: lambda f: ENGINE_MAPPER.setdefault(name, f))
 
 
 class SqlConnector:
+    """
+    Represents a connection with the database.
+
+    Args:
+        driver (str):
+            An optional string describing which database should be used.
+            Valid values are: "sqlite", "memory", "pyodbc" (MS SQL Server),
+            "postgres", "pymssql".
+        app:
+            Optional Flask app instance.
+    """
+
     def __init__(self, driver=None, app=None):
         if app is None:
             app = current_app
@@ -40,6 +59,8 @@ class SqlConnector:
 def get_session(driver=None, app=None):
     """
     Return a session for the current SQL connector.
+
+    Accept the same arguments as :class:`salic_api.connector.SqlConnector`
     """
     return SqlConnector(driver=driver, app=app).session
 
@@ -47,6 +68,8 @@ def get_session(driver=None, app=None):
 def get_engine(driver=None, app=None):
     """
     Return the engine object for the current SQL connector.
+
+    Accept the same arguments as :class:`salic_api.connector.SqlConnector`
     """
     return SqlConnector(driver=driver, app=app).engine
 
@@ -54,6 +77,8 @@ def get_engine(driver=None, app=None):
 def load_engine(driver, app=None):
     """
     Return engine for the given driver and config mapping.
+
+    Accept the same arguments as :class:`salic_api.connector.SqlConnector`
     """
     try:
         if driver == 'sqlite':

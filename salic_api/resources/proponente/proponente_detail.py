@@ -1,5 +1,5 @@
 from .query import ProponenteQuery
-from ..format_utils import remove_blanks, cgccpf_mask
+from ..format_utils import cgccpf_mask
 from ..resource import DetailResource
 from ...utils import decrypt
 
@@ -26,5 +26,4 @@ class ProponenteDetail(DetailResource):
         return args
 
     def prepare_result(self, result):
-        result["cgccpf"] = remove_blanks(str(result["cgccpf"]))
         result["cgccpf"] = cgccpf_mask(result["cgccpf"])

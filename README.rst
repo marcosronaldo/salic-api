@@ -17,10 +17,9 @@
 
 API aberta para o sistema
 `SALIC <http://salic.cultura.gov.br/cidadao/consultar>`_. Tem por
-objetivo expor os dados de projetos da lei Rouanet.
-
-A documentação da API pode ser acessada
-`aqui <http://api.salic.cultura.gov.br/doc/>`_.
+objetivo expor os dados de projetos da lei Rouanet. A API está implantada em
+http://api.salic.cultura.gov.br/doc/ e possui uma documentação para o
+usuário no formato OpenAPI/Swagger.
 
 O projeto ainda se encontra em fase de **homologação**, sujeito ainda a muitas
 alterações, reformulações e atualizacões.
@@ -110,7 +109,5 @@ Licença
 Licensed under the `GPL
 License <http://www.gnu.org/licenses/gpl.html>`__.
 
-.. |Open Source Love| image:: https://badges.frapsoft.com/os/v1/open-source.svg?v=102
-   :target: https://github.com/ellerbrock/open-source-badge/
 .. |Open Source Love| image:: https://badges.frapsoft.com/os/gpl/gpl.svg?v=102
    :target: http://www.gnu.org/licenses/gpl.html

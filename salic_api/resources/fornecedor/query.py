@@ -138,7 +138,7 @@ class ProductQuery(Query):
                  .outerjoin(Projeto,
                             Comprovante.idFornecedor == Agentes.idAgente)
                  .filter(Agentes.CNPJCPF.like(cgccpf))
-                )
+                 )
 
         return query
 

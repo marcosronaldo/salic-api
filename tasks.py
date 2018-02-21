@@ -62,9 +62,8 @@ def run_gunicorn(ctx, debug=False, host=None, workers=1):
     "Run flask application with gunicorn."
 
     app_path = 'salic_api.app.default:app'
-
-    env = {        
-    }
+    pyexe = sys.executable
+    env = {}
     if debug:
         env['DEBUG'] = 'true'
 
@@ -74,7 +73,7 @@ def run_gunicorn(ctx, debug=False, host=None, workers=1):
     if workers is not None:
         args += ' --workers %s' % workers
 
-    ctx.run("gunicorn %s %s" % (args, app_path), env=env)
+    ctx.run("%s -m gunicorn.app.wsgiapp %s %s" % (pyexe, args, app_path), env=env)
 
 
 
