@@ -176,7 +176,9 @@ class SalicResource(Resource):
         if not self.request_args.issuperset(argset):
             diff = self.request_args.symmetric_difference(argset)
             raise self.invalid_request_args_error(diff)
-        return dict(kwargs, **request.args)
+
+        args = {k: v[0] for k, v in request.args.items()}
+        return dict(kwargs, **args)
 
     #
     # Creating response

@@ -106,7 +106,7 @@ class TestEndpointsIsolated:
 
 @pytest.mark.usefixtures('db_data')
 class TestEndpointPagination:
-    def _test_preprojetos_list_pagination(self, client):
+    def test_preprojetos_list_pagination(self, client):
         def get_data(offset):
             url = '/v1/propostas/?limit=2&offset=%s' % offset
             data = client.get(url).get_data(as_text=True)
