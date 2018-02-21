@@ -3,11 +3,11 @@ from sqlalchemy import Column, Integer, ForeignKey, String
 from .base import Base
 
 
-# This table actually describes city names!
 class Nomes(Base):
     """
-    Agentes.dbo.Nomes
+    Representa nomes de cidades (Agentes.dbo.Nomes)
     """
+
     __tablename__ = 'Nomes'
 
     idNome = Column(Integer, primary_key=True)
@@ -17,7 +17,8 @@ class Nomes(Base):
 
 class Agentes(Base):
     """
-    Agentes.dbo.Agentes
+    Representa um agente cultural como fornecedor, incentivador, etc.
+    (Agentes.dbo.Agentes)
     """
     __tablename__ = 'Agentes'
 
@@ -27,7 +28,7 @@ class Agentes(Base):
 
 class Internet(Base):
     """
-    Agentes.dbo.Internet
+    Endereço de e-mail e talvez outras coisas (!) (Agentes.dbo.Internet)
     """
     __tablename__ = 'Internet'
 

@@ -6,7 +6,7 @@
 Documentação do Salic-API
 =========================
 
-Contents:
+Conteúdo:
 
 .. toctree::
    :maxdepth: 1
@@ -14,7 +14,7 @@ Contents:
    Salic API <overview.rst>
    Changelog <changelog.rst>
    Roadmap <roadmap.rst>
-   API documentation <apidoc.rst>
+   Documentação de Código <apidoc.rst>
 
 
 Tabelas e índices
