@@ -7,7 +7,7 @@ from .base import Base, DateTime, date_column, Money
 
 class Projeto(Base):
     """
-    SAC.dbo.Projetos
+    Tabela: SAC.dbo.Projetos
     """
     __tablename__ = 'Projetos'
 
@@ -50,7 +50,7 @@ class Projeto(Base):
 
 class PreProjeto(Base):
     """
-    SAC.dbo.PreProjeto
+    Tabela: SAC.dbo.PreProjeto
     """
     __tablename__ = 'PreProjeto'
 
@@ -89,7 +89,7 @@ class PreProjeto(Base):
 
 class Segmento(Base):
     """
-    SAC.dbo.Segmento
+    Tabela: SAC.dbo.Segmento
     """
     __tablename__ = 'Segmento'
 
@@ -102,7 +102,7 @@ class Segmento(Base):
 
 class Enquadramento(Base):
     """
-    SAC.dbo.Enquadramento
+    Tabela: SAC.dbo.Enquadramento
     """
     __tablename__ = 'Enquadramento'
 
@@ -124,7 +124,7 @@ class Enquadramento(Base):
 
 class Mecanismo(Base):
     """
-    SAC.dbo.Mecanismo
+    Tabela: SAC.dbo.Mecanismo
     """
     __tablename__ = 'Mecanismo'
 
@@ -143,7 +143,7 @@ class Mecanismo(Base):
 
 class Situacao(Base):
     """
-    SAC.dbo.Situacao
+    Tabela: SAC.dbo.Situacao
     """
     __tablename__ = 'Situacao'
 
@@ -153,7 +153,7 @@ class Situacao(Base):
 
 class Area(Base):
     """
-    SAC.dbo.Area
+    Tabela: SAC.dbo.Area
     """
     __tablename__ = 'Area'
 
@@ -163,7 +163,7 @@ class Area(Base):
 
 class Interessado(Base):
     """
-    SAC.dbo.Interessado
+    Tabela: SAC.dbo.Interessado
     """
     __tablename__ = 'Interessado'
 
@@ -195,7 +195,7 @@ class Interessado(Base):
 
 class Captacao(Base):
     """
-    SAC.dbo.Captacao
+    Tabela: SAC.dbo.Captacao
     """
     __tablename__ = 'Captacao'
 
@@ -217,7 +217,7 @@ class Captacao(Base):
 
 class CertidoesNegativas(Base):
     """
-    SAC.dbo.CertidoesNegativas
+    Tabela: SAC.dbo.CertidoesNegativas
     """
     __tablename__ = 'CertidoesNegativas'
 
@@ -236,7 +236,7 @@ class CertidoesNegativas(Base):
 
 class Verificacao(Base):
     """
-    SAC.dbo.Verificacao
+    Tabela: SAC.dbo.Verificacao
     """
     __tablename__ = 'Verificacao'
 
@@ -248,7 +248,7 @@ class Verificacao(Base):
 
 class PlanoDivulgacao(Base):
     """
-    SAC.dbo.PlanoDivulgacao
+    Tabela: SAC.dbo.PlanoDivulgacao
     """
     __tablename__ = 'PlanoDeDivulgacao'
 
@@ -264,7 +264,7 @@ class PlanoDivulgacao(Base):
 
 class Produto(Base):
     """
-    SAC.dbo.Produto
+    Tabela: SAC.dbo.Produto
     """
     __tablename__ = 'Produto'
 
@@ -280,7 +280,7 @@ class Produto(Base):
 
 class PlanoDistribuicao(Base):
     """
-    SAC.dbo.PlanoDistribuicaoProduto
+    Tabela: SAC.dbo.PlanoDistribuicaoProduto
     """
     __tablename__ = 'PlanoDistribuicaoProduto'
 
@@ -316,7 +316,7 @@ class PlanoDistribuicao(Base):
 
 class PlanilhaAprovacao(Base):  # noqa: N801
     """
-    SAC.dbo.tbPlanilhaAprovacao
+    Tabela: SAC.dbo.tbPlanilhaAprovacao
     """
     __tablename__ = 'tbPlanilhaAprovacao'
 
@@ -332,7 +332,7 @@ class PlanilhaAprovacao(Base):  # noqa: N801
 
 class PlanilhaItens(Base):  # noqa: N801
     """
-    SAC.dbo.tbPlanilhaItens
+    Tabela: SAC.dbo.tbPlanilhaItens
     """
     __tablename__ = 'tbPlanilhaItens'
 
@@ -342,7 +342,7 @@ class PlanilhaItens(Base):  # noqa: N801
 
 class Deslocamento(Base):
     """
-    SAC.dbo.tbDeslocamento
+    Tabela: SAC.dbo.tbDeslocamento
     """
     __tablename__ = 'tbDeslocamento'
 
@@ -361,7 +361,7 @@ class Deslocamento(Base):
 
 class PlanilhaEtapa(Base):
     """
-    SAC.dbo.tbPlanilhaEtapa
+    Tabela: SAC.dbo.tbPlanilhaEtapa
     """
     __tablename__ = 'tbPlanilhaEtapa'
 
@@ -371,7 +371,7 @@ class PlanilhaEtapa(Base):
 
 class PlanilhaUnidade(Base):
     """
-    SAC.dbo.tbPlanilhaUnidade
+    Tabela: SAC.dbo.tbPlanilhaUnidade
     """
     __tablename__ = 'tbPlanilhaUnidade'
 
@@ -381,7 +381,7 @@ class PlanilhaUnidade(Base):
 
 class Readequacao(Base):
     """
-    SAC.dbo.tbReadequacao
+    Tabela: SAC.dbo.tbReadequacao
     """
     __tablename__ = 'tbReadequacao'
 
@@ -405,7 +405,7 @@ class Readequacao(Base):
 
 class TipoReadequacao(Base):
     """
-    SAC.dbo.tbTipoReadequacao
+    Tabela: SAC.dbo.tbTipoReadequacao
     """
     __tablename__ = 'tbTipoReadequacao'
 
@@ -415,7 +415,7 @@ class TipoReadequacao(Base):
 
 class TipoEncaminhamento(Base):
     """
-    SAC.dbo.tbTipoEncaminhamento
+    Tabela: SAC.dbo.tbTipoEncaminhamento
     """
     __tablename__ = 'tbTipoEncaminhamento'
 
