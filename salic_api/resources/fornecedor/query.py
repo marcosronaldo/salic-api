@@ -10,6 +10,9 @@ from ...models import Agentes, Nomes, Internet, \
 
 
 class FornecedorQuery(Query):
+    """
+    Responsável por criar a query da tabela Fornecedor
+    """
     query_fields = (
         Agentes.CNPJCPF.label('cgccpf'),
         Nomes.Descricao.label('nome'),
@@ -105,6 +108,9 @@ class FornecedorQuery(Query):
 
 
 class ProductQuery(Query):
+    """
+
+    """
     query_fields = (
         ComprovanteAprovacao.idPlanilhaAprovacao.label(
             "id_planilha_aprovacao"),

@@ -4,7 +4,11 @@ from ...utils import decrypt
 
 
 class ProdutoDetail(DetailResource):
+
     def hal_links(self, result):
+        """
+        Responsable for generate Projetos and Fornecedores' urls
+        """
         fornecedor_id = self.args['fornecedor_id']
         return {
             'projeto': self.url('/projetos/%s' % result['PRONAC']),

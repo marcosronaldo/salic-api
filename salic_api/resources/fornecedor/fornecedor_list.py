@@ -5,6 +5,10 @@ from ...utils import encrypt
 
 
 class FornecedorList(ListResource):
+    """
+    Class related with informations about Fornecedores' list of one project
+    """
+
     query_class = FornecedorQuery
     resource_path = 'fornecedores'
     embedding_field = 'fornecedores'
