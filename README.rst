@@ -108,7 +108,7 @@ Documentação
 
 A documentação da API é feita  de 2 formas:
 
-* [SWAGGER](https://swagger.io/)
+* `SWAGGER <https://swagger.io/>`_
 
   * SWAGGER está sendo usado para documentar os `endpoints` do projeto. Seus arquivos estáticos estão na pasta:
 
@@ -116,15 +116,15 @@ A documentação da API é feita  de 2 formas:
 
   * A documentação em produção pode ser acessada através desse link:
 
-    [Documentação](http://api.salic.cultura.gov.br/doc/).
+    `Documentação <http://api.salic.cultura.gov.br/doc/>`_.
 
-* [SPHINX](http://www.sphinx-doc.org/en/master/)
+* `SPHINX <http://www.sphinx-doc.org/en/master/>`_
 
   * Sphinx está sendo usado para a documentação do projeto como um todo, aproveitando as *docstrings* no código e também acrescentando informações nos arquivos de documentação que estão na pasta `docs/` no formato rst.
 
   * A documentação em produção pode ser acessada através desse link:
 
-    [Documentação](https://salic-api.readthedocs.org/pt/latest/).
+    `Documentação <https://salic-api.readthedocs.org/pt/latest/>`_.
 
   * Para construir a documentação do SPHINX é necessário criar uma pasta que irá conter os arquivos de documentação.
 
