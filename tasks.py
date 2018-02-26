@@ -52,6 +52,29 @@ def run(ctx, debug=False, host=None):
 
 
 @task(
+    help={'debug': 'enable debugging warnings.',
+          'host': 'set interface to bind to. Usage: HOST:PORT',
+          'workers': 'number of workers used'}
+)
+def run_gunicorn(ctx, debug=False, host=None, workers=1):
+    "Run flask application with gunicorn."
+
+    app_path = 'salic_api.app.default:app'
+    pyexe = sys.executable
+    env = {}
+    if debug:
+        env['DEBUG'] = 'true'
+
+    args = ''
+    if host is not None:
+        args += ' --bind %s' % host
+    if workers is not None:
+        args += ' --workers %s' % workers
+
+    ctx.run("%s -m gunicorn.app.wsgiapp %s %s" % (pyexe, args, app_path), env=env)
+
+
+@task(
     help={'force': 'delete sqlite database'}
 )
 def db(ctx, force=False):
