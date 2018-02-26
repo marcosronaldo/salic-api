@@ -24,7 +24,7 @@ from ..resources.test_resource import TestResource
 dirname = os.path.dirname
 BASE_PATH = dirname(dirname(__file__))
 STATIC_URL_PATH = os.path.join(BASE_PATH, 'static')
-#SWAGGER_DEF = 'swagger_specification_PT-BR.json'
+SWAGGER_DEF = 'swagger_specification_PT-BR.json'
 
 
 def make_urls(app=None):
@@ -62,18 +62,18 @@ def make_urls(app=None):
     register(FornecedorDetail, 'fornecedores/<string:fornecedor_id>/')
     register(Produto, 'fornecedores/<string:fornecedor_id>/produtos/')
 
-    # @app.route('/')
-    # def index():
-    #     return redirect("/doc/", code=302)
+    @app.route('/')
+    def index():
+        return redirect("/doc/", code=302)
 
-    # @app.route('/v1/swagger-def/')
-    # def swagger_def():
-    #     return send_from_directory(BASE_PATH, SWAGGER_DEF)
+    @app.route('/v1/swagger-def/')
+    def swagger_def():
+        return send_from_directory(BASE_PATH, SWAGGER_DEF)
 
-    # @app.route('/doc/')
-    # def documentation():
-    #     return send_from_directory(STATIC_URL_PATH, 'index.html')
+    @app.route('/doc/')
+    def documentation():
+        return send_from_directory(STATIC_URL_PATH, 'index.html')
 
-    # @app.route('/doc/<path:path>')
-    # def documentation_data(path):
-    #     return send_from_directory(STATIC_URL_PATH, path)
+    @app.route('/doc/<path:path>')
+    def documentation_data(path):
+        return send_from_directory(STATIC_URL_PATH, path)

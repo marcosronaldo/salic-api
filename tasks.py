@@ -51,8 +51,6 @@ def run(ctx, debug=False, host=None):
     ctx.run("%s -m flask run%s" % (sys.executable, args), env=env)
 
 
-
-
 @task(
     help={'debug': 'enable debugging warnings.',
           'host': 'set interface to bind to. Usage: HOST:PORT',
@@ -74,9 +72,6 @@ def run_gunicorn(ctx, debug=False, host=None, workers=1):
         args += ' --workers %s' % workers
 
     ctx.run("%s -m gunicorn.app.wsgiapp %s %s" % (pyexe, args, app_path), env=env)
-
-
-
 
 
 @task(
