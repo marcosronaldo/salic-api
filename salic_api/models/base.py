@@ -22,7 +22,8 @@ else:
 # for now using made up primary key
 class Prorrogacao(Base):
     """
-    ???.???.prorrogacao
+    Contem a data de início e de fim da projeto
+    (???.???.prorrogacao)
     """
     __tablename__ = 'prorrogacao'
 

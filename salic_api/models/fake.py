@@ -9,6 +9,11 @@ from .base import Base
 
 
 class Custos(Base):
+    """
+    Tabela que contem valores como a de proposta, valor solictado, aprovado e outras
+    fontes de subsídio
+    """
+
     __tablename__ = 'Custos'
 
     idCustos = Column(Integer, primary_key=True)

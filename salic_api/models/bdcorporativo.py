@@ -5,7 +5,7 @@ from .base import Base, DateTime
 
 class ItemCusto(Base):
     """
-    BDCORPORATIVO.scSAC.tbItemCusto
+    (BDCORPORATIVO.scSAC.ItemCusto)
     """
     __tablename__ = 'tbItemCusto'
 
@@ -16,7 +16,8 @@ class ItemCusto(Base):
 
 class ComprovantePagamentoxPlanilhaAprovacao(Base):  # noqa: N801
     """
-    BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao
+    Cruzamento de informação de comprovantes de pagamento e a planilha de aprovação
+    (BDCORPORATIVO.scSAC.ComprovantePagamentoxPlanilhaAprovacao)
     """
     __tablename__ = 'tbComprovantePagamentoxPlanilhaAprovacao'
 
@@ -47,7 +48,8 @@ class ComprovantePagamentoxPlanilhaAprovacao(Base):  # noqa: N801
 
 class ComprovantePagamento(Base):  # noqa: N801
     """
-    BDCORPORATIVO.scSAC.tbComprovantePagamento
+    Contem informações dos comprovantes de pagamentos realizados durante o projeto
+    (BDCORPORATIVO.scSAC.ComprovantePagamento)
     """
     __tablename__ = 'tbComprovantePagamento'
 
@@ -65,7 +67,7 @@ class ComprovantePagamento(Base):  # noqa: N801
 
 class Arquivo(Base):  # noqa: N801
     """
-    BDCORPORATIVO.scCorp.tbArquivo
+    (BDCORPORATIVO.scCorp.Arquivo)
     """
     __tablename__ = 'tbArquivo'
 
@@ -75,7 +77,7 @@ class Arquivo(Base):  # noqa: N801
 
 class ArquivoImagem(Base):
     """
-    BDCORPORATIVO.scCorp.tbArquivoImagem
+    (BDCORPORATIVO.scCorp.ArquivoImagem)
     """
     __tablename__ = 'tbArquivoImagem'
 
@@ -87,7 +89,7 @@ class ArquivoImagem(Base):
 
 class Documento(Base):
     """
-    BDCORPORATIVO.scCorp.tbDocumento
+    (BDCORPORATIVO.scCorp.Documento)
     """
     __tablename__ = 'tbDocumento'
 
@@ -97,7 +99,7 @@ class Documento(Base):
 
 class DocumentoProjeto(Base):
     """
-    BDCORPORATIVO.scCorp.tbDocumentoProjeto
+    (BDCORPORATIVO.scCorp.DocumentoProjeto)
     """
     __tablename__ = 'tbDocumentoProjeto'
 
