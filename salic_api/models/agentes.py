@@ -18,6 +18,7 @@ class Nomes(Base):
 class Agentes(Base):
     """
     Representa um agente cultural como fornecedor, incentivador, etc.
+
     (Agentes.dbo.Agentes)
     """
     __tablename__ = 'Agentes'

@@ -7,7 +7,9 @@ from .base import Base, DateTime, date_column, Money
 
 class Projeto(Base):
     """
-    Tabela: SAC.dbo.Projetos
+    Esta tabela contem vários dados do projeto, é a tabela mais utilizada na API.
+
+    (SAC.dbo.Projetos)
     """
     __tablename__ = 'Projetos'
 
@@ -50,7 +52,11 @@ class Projeto(Base):
 
 class PreProjeto(Base):
     """
-    Tabela: SAC.dbo.PreProjeto
+    Contém os dados do projeto antes dele ser aprovado.
+    A proposta é o projeto, e após conseguir aprovação,
+    recebe um PRONAC para se tornar um Projeto.
+
+    (SAC.dbo.PreProjeto)
     """
     __tablename__ = 'PreProjeto'
 
@@ -89,7 +95,9 @@ class PreProjeto(Base):
 
 class Segmento(Base):
     """
-    Tabela: SAC.dbo.Segmento
+    Representa o tipo de atividade como teatro, música, etc.
+
+    (SAC.dbo.Segmento)
     """
     __tablename__ = 'Segmento'
 
@@ -102,7 +110,9 @@ class Segmento(Base):
 
 class Enquadramento(Base):
     """
-    Tabela: SAC.dbo.Enquadramento
+    Relacionado com leis que o projeto se encaixa.
+
+    (SAC.dbo.Enquadramento)
     """
     __tablename__ = 'Enquadramento'
 
@@ -124,7 +134,9 @@ class Enquadramento(Base):
 
 class Mecanismo(Base):
     """
-    Tabela: SAC.dbo.Mecanismo
+    A forma de incentivo, mecenato ou FNC.
+
+    (SAC.dbo.Mecanismo)
     """
     __tablename__ = 'Mecanismo'
 
@@ -143,7 +155,9 @@ class Mecanismo(Base):
 
 class Situacao(Base):
     """
-    Tabela: SAC.dbo.Situacao
+    Descrição da situação atual do projeto.
+
+    (SAC.dbo.Situacao)
     """
     __tablename__ = 'Situacao'
 
@@ -153,7 +167,9 @@ class Situacao(Base):
 
 class Area(Base):
     """
-    Tabela: SAC.dbo.Area
+    Sobre a área de atuação da proposta como Artes Cênicas.
+
+    (SAC.dbo.Area)
     """
     __tablename__ = 'Area'
 
@@ -163,7 +179,9 @@ class Area(Base):
 
 class Interessado(Base):
     """
-    Tabela: SAC.dbo.Interessado
+    Responsável pelo andamento da proposta.
+
+    (SAC.dbo.Interessado)
     """
     __tablename__ = 'Interessado'
 
@@ -195,7 +213,9 @@ class Interessado(Base):
 
 class Captacao(Base):
     """
-    Tabela: SAC.dbo.Captacao
+    É referente aos dados de capital fornecidos ao projeto.
+
+    (SAC.dbo.Captacao)
     """
     __tablename__ = 'Captacao'
 
@@ -217,7 +237,9 @@ class Captacao(Base):
 
 class CertidoesNegativas(Base):
     """
-    Tabela: SAC.dbo.CertidoesNegativas
+    Significa que a proposta não possui pendências.
+
+    (SAC.dbo.CertidoesNegativas)
     """
     __tablename__ = 'CertidoesNegativas'
 
@@ -236,7 +258,7 @@ class CertidoesNegativas(Base):
 
 class Verificacao(Base):
     """
-    Tabela: SAC.dbo.Verificacao
+    (SAC.dbo.Verificacao)
     """
     __tablename__ = 'Verificacao'
 
@@ -248,7 +270,7 @@ class Verificacao(Base):
 
 class PlanoDivulgacao(Base):
     """
-    Tabela: SAC.dbo.PlanoDivulgacao
+    (SAC.dbo.PlanoDivulgacao)
     """
     __tablename__ = 'PlanoDeDivulgacao'
 
@@ -264,7 +286,7 @@ class PlanoDivulgacao(Base):
 
 class Produto(Base):
     """
-    Tabela: SAC.dbo.Produto
+    (SAC.dbo.Produto)
     """
     __tablename__ = 'Produto'
 
@@ -280,7 +302,9 @@ class Produto(Base):
 
 class PlanoDistribuicao(Base):
     """
-    Tabela: SAC.dbo.PlanoDistribuicaoProduto
+    A forma que o projeto será distruibuido como DVDs, etc.
+
+    (SAC.dbo.PlanoDistribuicaoProduto)
     """
     __tablename__ = 'PlanoDistribuicaoProduto'
 
@@ -316,7 +340,7 @@ class PlanoDistribuicao(Base):
 
 class PlanilhaAprovacao(Base):  # noqa: N801
     """
-    Tabela: SAC.dbo.tbPlanilhaAprovacao
+    (SAC.dbo.tbPlanilhaAprovacao)
     """
     __tablename__ = 'tbPlanilhaAprovacao'
 
@@ -332,7 +356,7 @@ class PlanilhaAprovacao(Base):  # noqa: N801
 
 class PlanilhaItens(Base):  # noqa: N801
     """
-    Tabela: SAC.dbo.tbPlanilhaItens
+    (SAC.dbo.tbPlanilhaItens)
     """
     __tablename__ = 'tbPlanilhaItens'
 
@@ -342,7 +366,10 @@ class PlanilhaItens(Base):  # noqa: N801
 
 class Deslocamento(Base):
     """
-    Tabela: SAC.dbo.tbDeslocamento
+    Refere-se ao planejamento em movimentação de turnês ou
+    qualquer necessidade de movimento do projeto.
+
+    (SAC.dbo.tbDeslocamento)
     """
     __tablename__ = 'tbDeslocamento'
 
@@ -361,7 +388,7 @@ class Deslocamento(Base):
 
 class PlanilhaEtapa(Base):
     """
-    Tabela: SAC.dbo.tbPlanilhaEtapa
+    (SAC.dbo.tbPlanilhaEtapa)
     """
     __tablename__ = 'tbPlanilhaEtapa'
 
@@ -371,7 +398,7 @@ class PlanilhaEtapa(Base):
 
 class PlanilhaUnidade(Base):
     """
-    Tabela: SAC.dbo.tbPlanilhaUnidade
+    (SAC.dbo.tbPlanilhaUnidade)
     """
     __tablename__ = 'tbPlanilhaUnidade'
 
@@ -381,7 +408,7 @@ class PlanilhaUnidade(Base):
 
 class Readequacao(Base):
     """
-    Tabela: SAC.dbo.tbReadequacao
+    (SAC.dbo.tbReadequacao)
     """
     __tablename__ = 'tbReadequacao'
 
@@ -405,7 +432,7 @@ class Readequacao(Base):
 
 class TipoReadequacao(Base):
     """
-    Tabela: SAC.dbo.tbTipoReadequacao
+    (SAC.dbo.tbTipoReadequacao)
     """
     __tablename__ = 'tbTipoReadequacao'
 
@@ -415,7 +442,7 @@ class TipoReadequacao(Base):
 
 class TipoEncaminhamento(Base):
     """
-    Tabela: SAC.dbo.tbTipoEncaminhamento
+    (SAC.dbo.tbTipoEncaminhamento)
     """
     __tablename__ = 'tbTipoEncaminhamento'
 

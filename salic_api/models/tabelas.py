@@ -5,7 +5,9 @@ from .base import Base
 
 class Usuarios(Base):
     """
-    TABELAS.dbo.Usuarios
+    Tabela que armazena dados do usuário.
+
+    (TABELAS.dbo.Usuarios)
     """
     __tablename__ = 'Usuarios'
 
