@@ -19,13 +19,16 @@ do SALIC.
 
 
 Base
-~~~~~~~
+~~~~
 
 .. autoclass:: salic_api.models.Prorrogacao
 
 
 BDCORPORATIVO
 ~~~~~~~~~~~~~
+
+O banco "BDCORPORATIVO" representa arquivos relacionados a pagamentos e
+informações do projeto.
 
 .. autoclass:: salic_api.models.Arquivo
 .. autoclass:: salic_api.models.ArquivoImagem
@@ -39,11 +42,16 @@ BDCORPORATIVO
 Fake
 ~~~~~~~
 
+O banco "fake" foi criado para criar informações em ambiente de desenvolvimento
+que não são acessíveis.
+
 .. autoclass:: salic_api.models.Custos
 
 
 SAC
-~~~~~~~
+~~~
+
+O banco "SAC" contém as principais informações das propostas e dos projetos.
 
 .. autoclass:: salic_api.models.Projeto
 .. autoclass:: salic_api.models.PreProjeto

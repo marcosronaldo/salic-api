@@ -43,7 +43,7 @@ Instalação
 Recomendamos que o desenvolvimento seja feito no virtualenv.
 
 Virtualenv
-~~~~~~~~~~
+----------
 
 Git clone + virtualenv + pip:
 
@@ -74,7 +74,7 @@ Não esqueça de rodar os testes com frequência::
     $ pytest --cov
 
 Docker
-~~~~~~
+------
 
 A implantação será feita em Docker. Para testar o ambiente de homologação execute
 dentro do diretório do salic-api::
@@ -85,7 +85,7 @@ dentro do diretório do salic-api::
 
 
 Dependências básicas
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 -  ``python-dev``
 -  ``python-pip``
@@ -102,6 +102,43 @@ Edite o arquivo **salic-api/app/example_config.py** de acordo com seu
 ambiente. Edite o arquivo **salic-api/app/general_config.py** apontando
 o arquivo de configuração a ser usado.
 
+
+Documentação
+------------
+
+A documentação da API é feita  de 2 formas:
+
+* [SWAGGER](https://swagger.io/)
+
+  * SWAGGER está sendo usado para documentar os `endpoints` do projeto. Seus arquivos estáticos estão na pasta:
+
+    `salic-api/salic_api/static`
+
+  * A documentação em produção pode ser acessada através desse link:
+
+    [Documentação](http://api.salic.cultura.gov.br/doc/).
+
+* [SPHINX](http://www.sphinx-doc.org/en/master/)
+
+  * Sphinx está sendo usado para a documentação do projeto como um todo, aproveitando as *docstrings* no código e também acrescentando informações nos arquivos de documentação que estão na pasta `docs/` no formato rst.
+
+  * A documentação em produção pode ser acessada através desse link:
+
+    [Documentação](https://salic-api.readthedocs.org/pt/latest/).
+
+  * Para construir a documentação do SPHINX é necessário criar uma pasta que irá conter os arquivos de documentação.
+
+    Crie a pasta `build` na raiz do projeto.
+
+    `mkdir build`
+
+    Construa a documentação na pasta criada:
+
+    `sphinx-autobuild docs build/docs`
+
+    Para acessar a documentação acesse:
+
+    `localhost:8000`
 
 Licença
 -------
