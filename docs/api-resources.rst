@@ -34,7 +34,63 @@ Resources
 
 * Pre Projeto
 
+  .. autoclass:: salic_api.resources.PreProjetoDetail
+    :members:
+
+  .. autoclass:: salic_api.resources.PreProjetoList
+    :members:
+
+  .. autoclass:: salic_api.resources.PreProjetoQuery
+    :members:
+
 * Projeto
+
+
+  .. autoclass:: salic_api.resources.Area
+    :members:
+
+  .. autoclass:: salic_api.resources.Captacao
+    :members:
+
+  .. autoclass:: salic_api.resources.ProjetoDetail
+    :members:
+
+  .. autoclass:: salic_api.resources.ProjetoList
+    :members:
+
+  * Query
+
+    .. autoclass:: salic_api.resources.ProjetoQuery
+
+    .. autoclass:: salic_api.resources.CaptacaoQuery
+
+    .. autoclass:: salic_api.resources.AreaQuery
+
+    .. autoclass:: salic_api.resources.SegmentoQuery
+
+    .. autoclass:: salic_api.resources.CertidoesNegativasQuery
+
+    .. autoclass:: salic_api.resources.DivulgacaoQuery
+
+    .. autoclass:: salic_api.resources.DeslocamentoQuery
+
+    .. autoclass:: salic_api.resources.DistribuicaoQuery
+
+    .. autoclass:: salic_api.resources.ReadequacaoQuery
+
+    .. autoclass:: salic_api.resources.AdequacoesPedidoQuery
+
+  .. automethod:: salic_api.resources.normalize_sql
+
+  .. automethod:: salic_api.resources.clean_sql_fields
+
+  .. automethod:: salic_api.resources.payments_listing_sql
+
+  .. autoclass:: salic_api.resources.Segmento
+
+  .. automethod:: salic_api.resources.build_brand_link
+
+  .. automethod:: salic_api.resources.build_file_link
 
 * Proponente
 
