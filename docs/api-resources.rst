@@ -94,6 +94,15 @@ Resources
 
 * Proponente
 
+  .. autoclass:: salic_api.resources.ProponenteDetail
+    :members:
+
+  .. autoclass:: salic_api.resources.ProponenteList
+    :members:
+
+  .. autoclass:: salic_api.resources.ProponenteQuery
+    :members:
+
 * format_utils
 
   .. automethod:: salic_api.resources.format_utils.cgccpf_mask

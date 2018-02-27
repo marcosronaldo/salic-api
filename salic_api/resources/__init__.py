@@ -22,6 +22,10 @@ from .projeto.raw_sql import normalize_sql, clean_sql_fields, payments_listing_s
 from .projeto.segmento import Segmento
 from .projeto.utils import build_brand_link, build_file_link
 
+from .proponente.proponente_detail import ProponenteDetail
+from .proponente.proponente_list import ProponenteList
+from .proponente.query import ProponenteQuery
+
 from .format_utils import cgccpf_mask, sanitize
 from .query import Query
 from .resource import SalicResource, ListResource, DetailResource, InvalidResult
