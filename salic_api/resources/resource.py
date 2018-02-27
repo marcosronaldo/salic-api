@@ -246,7 +246,58 @@ class SalicResource(Resource):
 
         return args
 
-    def render(self, data, headers=None, status_code=200, raw=False):
+    def _csv_response(self, data, headers={}, status_code=200, raw=False):
+        """
+        Response for CSV content type
+
+        Args:
+            data:
+                Raw data structure
+            headers (dict):
+                A mapping with extra headers for inclusion in the response.
+            status_code (int):
+                HTTP Response status code
+            raw (bool):
+                If True, do not serialize data to the desired format. Useful
+                for testing.
+        """
+        if not raw:
+            columns = self.csv_columns
+
+            if columns is None:
+                class_name = type(self).__name__
+                msg = 'resource %s must define a csv_columns attribute ' \
+                    'in order to support CSV' % class_name
+                raise RuntimeError(msg)
+
+            data = serialize(data, 'csv', columns=columns)
+            resource_path = request.path.split("/")
+
+            if resource_path[len(resource_path) - 1] != "":
+                resource_type = resource_path[len(resource_path) - 1]
+            else:
+                resource_type = resource_path[len(resource_path) - 2]
+
+            args_hash = md5hash(format_args(request.args))
+            fmt = (resource_type, args_hash)
+            filename = "attachment; filename=salicapi-%s-%s.csv" % fmt
+            headers["Content-Disposition"] = filename
+            response = Response(data, content_type=CSV_MIME)
+        else:
+            if not raw:
+                if status_code == 200:
+                    if 'X-Total-Count' in headers:
+                        total = headers['X-Total-Count']
+                        self.args.setdefault('total', total)
+                    data = self.apply_hal_data(data)
+
+                data = serialize(data, 'json')
+
+            response = Response(data, content_type=JSON_MIME)
+
+        return response
+
+    def render(self, data, headers={}, status_code=200, raw=False):
         """
         Render response for given data.
 
@@ -261,8 +312,6 @@ class SalicResource(Resource):
                 If True, do not serialize data to the desired format. Useful
                 for testing.
         """
-
-        headers = {} if headers is None else headers
         content_type = self.resolve_content()
 
         if content_type is None:
@@ -275,36 +324,7 @@ class SalicResource(Resource):
             response = Response(data, content_type=XML_MIME)
 
         elif content_type == 'csv':
-            if not raw:
-                columns = self.csv_columns
-                if columns is None:
-                    class_name = type(self).__name__
-                    msg = 'resource %s must define a csv_columns attribute ' \
-                          'in order to support CSV' % class_name
-                    raise RuntimeError(msg)
-                data = serialize(data, 'csv', columns=columns)
-            resource_path = request.path.split("/")
-
-            if resource_path[len(resource_path) - 1] != "":
-                resource_type = resource_path[len(resource_path) - 1]
-            else:
-                resource_type = resource_path[len(resource_path) - 2]
-
-            args_hash = md5hash(format_args(request.args))
-            fmt = (resource_type, args_hash)
-            filename = "attachment; filename=salicapi-%s-%s.csv" % fmt
-            headers["Content-Disposition"] = filename
-            response = Response(data, content_type=CSV_MIME)
-
-        else:
-            if not raw:
-                if status_code == 200:
-                    if 'X-Total-Count' in headers:
-                        total = headers['X-Total-Count']
-                        self.args.setdefault('total', total)
-                    data = self.apply_hal_data(data)
-                data = serialize(data, 'json')
-            response = Response(data, content_type=JSON_MIME)
+            response = self._csv_response(data, headers, status_code, raw)
 
         headers['Access-Control-Expose-Headers'] = ACCESS_CONTROL_HEADERS
         response.headers.extend(headers)

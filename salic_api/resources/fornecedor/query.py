@@ -1,8 +1,7 @@
 from sqlalchemy.sql import text
 
-from ..query import Query, filter_query
+from ..query import Query
 from ..serialization import listify_queryset
-from ...utils import encrypt
 from ...models import Agentes, Nomes, Internet, \
     ComprovantePagamento as Comprovante, \
     ComprovantePagamentoxPlanilhaAprovacao as ComprovanteAprovacao, \

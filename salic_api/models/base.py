@@ -9,7 +9,7 @@ Money = String
 use_sqlite = True
 
 if use_sqlite:
-    DateTime = Date
+    DateTime = Date  # noqa: F811
     date_column = (lambda x: func.cast(x, VARCHAR))
 else:
     date_column = (lambda x: func.cast(x, DATE))

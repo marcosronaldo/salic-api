@@ -437,8 +437,8 @@ class DivulgacaoQuery(Query):
         ).select_from(PlanoDivulgacao)
          .join(Projeto, Projeto.idProjeto == PlanoDivulgacao.idProjeto)
          .join(Verificacao,
-               Verificacao.idVerificacao == PlanoDivulgacao.idPeca
-               or Verificacao.idVerificacao == PlanoDivulgacao.idVeiculo)
+               Verificacao.idVerificacao == PlanoDivulgacao.idPeca or
+               Verificacao.idVerificacao == PlanoDivulgacao.idVeiculo)
          .filter(and_(Projeto.IdPRONAC == IdPRONAC,
                       PlanoDivulgacao.stPlanoDivulgacao == 1))
         )
