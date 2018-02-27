@@ -1,68 +1,36 @@
 from sqlalchemy import Column, Integer, ForeignKey, String
 
-from .base import Base
+from .base import *
 
 
-class Nomes(Base):
-    """
-    Representa nomes de cidades (Agentes.dbo.Nomes)
-    """
-
-    __tablename__ = 'Nomes'
-
+# This table actually describes city names!
+class Nomes(NomesBase, Base):
     idNome = Column(Integer, primary_key=True)
-    idAgente = Column(Integer, ForeignKey('Agentes.idAgente'))
+    idAgente = Column(Integer, ForeignKey(foreign_key(AgentesBase,'idAgente')))
     Descricao = Column(String)
 
 
-class Agentes(Base):
-    """
-    Representa um agente cultural como fornecedor, incentivador, etc.
-
-    (Agentes.dbo.Agentes)
-    """
-    __tablename__ = 'Agentes'
-
+class Agentes(AgentesBase, Base):
     idAgente = Column(Integer, primary_key=True)
     CNPJCPF = Column(String)
 
 
-class Internet(Base):
-    """
-    Endereço de e-mail e talvez outras coisas (!) (Agentes.dbo.Internet)
-    """
-    __tablename__ = 'Internet'
-
+class Internet(InternetBase, Base):
     idInternet = Column(Integer, primary_key=True)
-    idAgente = Column(Integer, ForeignKey('Agentes.idAgente'))
+    idAgente = Column(Integer, ForeignKey(foreign_key(AgentesBase,'idAgente')))
     Descricao = Column(String)
 
 
-class Pais(Base):
-    """
-    Agentes.dbo.Pais
-    """
-    __tablename__ = 'Pais'
-
+class Pais(PaisBase, Base):
     idPais = Column(Integer, primary_key=True)
     Descricao = Column(String)
 
 
-class UF(Base):
-    """
-    Agentes.dbo.uf
-    """
-    __tablename__ = 'uf'
-
+class UF(UFBase, Base):
     iduf = Column(Integer, primary_key=True)
     Descricao = Column(String)
 
 
-class Municipios(Base):
-    """
-    Agentes.dbo.Municipios
-    """
-    __tablename__ = 'Municipios'
-
+class Municipios(MunicipiosBase, Base):
     idMunicipioIBGE = Column(Integer, primary_key=True)
     Descricao = Column(String)

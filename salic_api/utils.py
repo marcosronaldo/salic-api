@@ -53,6 +53,9 @@ def encrypt(text):
 
     It saves the initialization vector with the resulting message.
     """
+    if text is None:
+        log.debug("None text on encrypt")
+        return ""
 
     if STATIC_IV is None:
         iv = Random.new().read(AES.block_size)

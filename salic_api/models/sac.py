@@ -2,64 +2,37 @@ from sqlalchemy import Column, Integer, CHAR, String, Text, ForeignKey, case, \
     Boolean
 from sqlalchemy.orm import column_property, relationship
 
-from .base import Base, DateTime, date_column, Money
+from .base import *
 
 
-class Projeto(Base):
-    """
-    Esta tabela contem vários dados do projeto, é a tabela mais utilizada na API.
+class Segmento(SegmentoBase, Base):
+    Codigo = Column(String, primary_key=True)
+    Descricao = Column(String)
 
-    (SAC.dbo.Projetos)
-    """
-    __tablename__ = 'Projetos'
-
-    IdPRONAC = Column(Integer, primary_key=True)
-    AnoProjeto = Column(CHAR)
-    Sequencial = Column(String)
-    PRONAC = column_property(AnoProjeto + Sequencial)
-    NomeProjeto = Column(String)
-    Localizacao = Column(String)
-    DtInicioExecucao = Column(DateTime)  # Date?
-    data_inicio_execucao = date_column(DtInicioExecucao)
-    DtFimExecucao = Column(DateTime)
-    data_fim_execucao = date_column(DtFimExecucao)
-    UfProjeto = Column(CHAR)
-    SolicitadoReal = Column(Money)
-    SolicitadoUfir = Column(Money)
-    SolicitadoCusteioUfir = Column(Money)
-    SolicitadoCusteioReal = Column(Money)
-    SolicitadoCapitalUfir = Column(Money)
-    SolicitadoCapitalReal = Column(Money)
-    ResumoProjeto = Column(Text)
-    ProvidenciaTomada = Column(String)
-    Segmento = Column(String, ForeignKey("Segmento.Codigo"))
-    Situacao = Column(CHAR, ForeignKey("Situacao.Codigo"))
-    CgcCpf = Column(String, ForeignKey("Interessado.CgcCpf"))
-    idProjeto = Column(Integer, ForeignKey("PreProjeto.idPreProjeto"))
-
-    # Original DB do not create a foreign key constraint
-    Area = Column(CHAR, ForeignKey("Area.Codigo"))
-    Mecanismo = Column(CHAR, ForeignKey("Mecanismo.Codigo"))
-
-    # Related fields
-    preprojeto_related = relationship("PreProjeto", foreign_keys=[idProjeto])
-    situacao_related = relationship("Situacao", foreign_keys=[Situacao])
-    interessado_related = relationship("Interessado", foreign_keys=[CgcCpf])
-    segmento_related = relationship("Segmento", foreign_keys=[Segmento])
-    area_related = relationship("Area", foreign_keys=[Area])
-    mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
+    # Values: 1 - Artigo 26 (30%), 2 - Artigo 18 (100%)
+    tpEnquadramento = Column(CHAR)
 
 
-class PreProjeto(Base):
-    """
-    Contém os dados do projeto antes dele ser aprovado.
-    A proposta é o projeto, e após conseguir aprovação,
-    recebe um PRONAC para se tornar um Projeto.
+class Situacao(SituacaoBase, Base):
+    Codigo = Column(CHAR, primary_key=True)
+    Descricao = Column(String)
 
-    (SAC.dbo.PreProjeto)
-    """
-    __tablename__ = 'PreProjeto'
 
+class Mecanismo(MecanismoBase, Base):
+    # Values:
+    # 1 - Mecenato
+    # 2 - FNC
+    # The values bellow were removed from the database
+    # 3 - Audiovisual (disabled)
+    # 4 - Conversão da dívida externa (disabled)
+    # 5 - Mecenato audiovisual (disabled)
+    # 6 - Recurso do Tesouro
+    # 7 - Outras fontes (disabled)
+    Codigo = Column(CHAR, primary_key=True)
+    Descricao = Column(String)
+
+
+class PreProjeto(PreProjetoBase, Base):
     idPreProjeto = Column(Integer, primary_key=True)
     NomeProjeto = Column(String)
     DtInicioDeExecucao = Column(DateTime)
@@ -87,35 +60,13 @@ class PreProjeto(Base):
     # CHAR primary key).
     #
     # Values: 1 - Mecenato, 2 - FNC (maybe more...)
-    Mecanismo = Column(Integer, ForeignKey("Mecanismo.Codigo"))
+    Mecanismo = Column(Integer, ForeignKey(foreign_key(MecanismoBase, "Codigo")))
 
     # Related fields
     mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
 
 
-class Segmento(Base):
-    """
-    Representa o tipo de atividade como teatro, música, etc.
-
-    (SAC.dbo.Segmento)
-    """
-    __tablename__ = 'Segmento'
-
-    Codigo = Column(String, primary_key=True)
-    Descricao = Column(String)
-
-    # Values: 1 - Artigo 26 (30%), 2 - Artigo 18 (100%)
-    tpEnquadramento = Column(CHAR)
-
-
-class Enquadramento(Base):
-    """
-    Relacionado com leis que o projeto se encaixa.
-
-    (SAC.dbo.Enquadramento)
-    """
-    __tablename__ = 'Enquadramento'
-
+class Enquadramento(EnquadramentoBase, Base):
     IdEnquadramento = Column(Integer, primary_key=True)
     Enquadramento = Column(Integer)
     AnoProjeto = Column(CHAR)
@@ -132,59 +83,12 @@ class Enquadramento(Base):
     ).label('enquadramento')
 
 
-class Mecanismo(Base):
-    """
-    A forma de incentivo, mecenato ou FNC.
-
-    (SAC.dbo.Mecanismo)
-    """
-    __tablename__ = 'Mecanismo'
-
-    # Values:
-    # 1 - Mecenato
-    # 2 - FNC
-    # The values bellow were removed from the database
-    # 3 - Audiovisual (disabled)
-    # 4 - Conversão da dívida externa (disabled)
-    # 5 - Mecenato audiovisual (disabled)
-    # 6 - Recurso do Tesouro
-    # 7 - Outras fontes (disabled)
-    Codigo = Column(CHAR, primary_key=True)
-    Descricao = Column(String)
-
-
-class Situacao(Base):
-    """
-    Descrição da situação atual do projeto.
-
-    (SAC.dbo.Situacao)
-    """
-    __tablename__ = 'Situacao'
-
-    Codigo = Column(CHAR, primary_key=True)
-    Descricao = Column(String)
-
-
-class Area(Base):
-    """
-    Sobre a área de atuação da proposta como Artes Cênicas.
-
-    (SAC.dbo.Area)
-    """
-    __tablename__ = 'Area'
-
+class Area(AreaBase, Base):
     Codigo = Column(String, primary_key=True)
     Descricao = Column(String)
 
 
-class Interessado(Base):
-    """
-    Responsável pelo andamento da proposta.
-
-    (SAC.dbo.Interessado)
-    """
-    __tablename__ = 'Interessado'
-
+class Interessado(InteressadoBase, Base):
     CgcCpf = Column(String, primary_key=True)
     Nome = Column(String)
     Responsavel = Column(String)
@@ -195,11 +99,15 @@ class Interessado(Base):
     # Related field
     captacao_related = relationship(
         'Captacao',
-        primaryjoin='Interessado.CgcCpf==Captacao.CgcCpfMecena',
+        primaryjoin='{}.CgcCpf=={}.CgcCpfMecena'.format(
+            table_name('sac.dbo.Interessado'),
+            table_name('sac.dbo.Captacao')),
     )
     projeto_related = relationship(
         'Projeto',
-        primaryjoin='Interessado.CgcCpf==Projeto.CgcCpf',
+        primaryjoin='{}.CgcCpf=={}.CgcCpf'.format(
+            table_name('sac.dbo.Interessado'),
+            table_name('sac.dbo.Projeto')),
     )
 
     # Computed fields
@@ -211,14 +119,7 @@ class Interessado(Base):
     ).label('tipo_pessoa')
 
 
-class Captacao(Base):
-    """
-    É referente aos dados de capital fornecidos ao projeto.
-
-    (SAC.dbo.Captacao)
-    """
-    __tablename__ = 'Captacao'
-
+class Captacao(CaptacaoBase, Base):
     Idcaptacao = Column(Integer, primary_key=True)
     AnoProjeto = Column(CHAR)
     Sequencial = Column(String)
@@ -226,7 +127,7 @@ class Captacao(Base):
     CaptacaoReal = Column(Money)
     DtRecibo = Column(DateTime)
     data_recibo = date_column(DtRecibo)
-    CgcCpfMecena = Column(String, ForeignKey('Interessado.CgcCpf'))
+    CgcCpfMecena = Column(String, ForeignKey(foreign_key(InteressadoBase, "CgcCpf")))
 
     # Related fields
     interessado_related = relationship(
@@ -235,14 +136,7 @@ class Captacao(Base):
     )
 
 
-class CertidoesNegativas(Base):
-    """
-    Significa que a proposta não possui pendências.
-
-    (SAC.dbo.CertidoesNegativas)
-    """
-    __tablename__ = 'CertidoesNegativas'
-
+class CertidoesNegativas(CertidoesNegativasBase, Base):
     idCertidoesNegativas = Column(Integer, primary_key=True)
     AnoProjeto = Column(CHAR)
     Sequencial = Column(String)
@@ -253,43 +147,28 @@ class CertidoesNegativas(Base):
     data_validade = date_column(DtValidade)
     CodigoCertidao = Column(Integer)
     cdSituacaoCertidao = Column(Integer)
-    CgcCpf = Column(String, ForeignKey('Interessado.CgcCpf'))
+    CgcCpf = Column(String, ForeignKey(foreign_key(InteressadoBase, "CgcCpf")))
 
 
-class Verificacao(Base):
-    """
-    (SAC.dbo.Verificacao)
-    """
-    __tablename__ = 'Verificacao'
-
+class Verificacao(VerificacaoBase, Base):
     idVerificacao = Column(Integer, primary_key=True)
     idTipo = Column(Integer)
     Descricao = Column(String)
     stEstado = Column(Boolean)
 
 
-class PlanoDivulgacao(Base):
-    """
-    (SAC.dbo.PlanoDivulgacao)
-    """
-    __tablename__ = 'PlanoDeDivulgacao'
-
+class PlanoDivulgacao(PlanoDivulgacaoBase, Base):
     idPlanoDivulgacao = Column(Integer, primary_key=True)
     stPlanoDivulgacao = Column(Boolean)
-    idPeca = Column(Integer, ForeignKey('Verificacao.idVerificacao'))
-    idVeiculo = Column(Integer, ForeignKey('Verificacao.idVerificacao'))
-    idProjeto = Column(Integer, ForeignKey('PreProjeto.idPreProjeto'))
+    idPeca = Column(Integer, ForeignKey(foreign_key(VerificacaoBase, "idVerificacao")))
+    idVeiculo = Column(Integer, ForeignKey(foreign_key(VerificacaoBase, "idVerificacao")))
+    idProjeto = Column(Integer, ForeignKey(foreign_key(PreProjetoBase, "idPreProjeto")))
 
     # Related fields
     projeto_related = relationship('PreProjeto', foreign_keys=[idProjeto])
 
 
-class Produto(Base):
-    """
-    (SAC.dbo.Produto)
-    """
-    __tablename__ = 'Produto'
-
+class Produto(ProdutoBase, Base):
     Codigo = Column(Integer, primary_key=True)
     Descricao = Column(String)
     Sintese = Column(Text)
@@ -297,123 +176,27 @@ class Produto(Base):
     stEstado = Column(Boolean)
 
     # Original table does not use a foreign key constraint
-    Area = Column(CHAR, ForeignKey('Area.Codigo'))
+    Area = Column(CHAR, ForeignKey(foreign_key(AreaBase, "Codigo")))
 
 
-class PlanoDistribuicao(Base):
-    """
-    A forma que o projeto será distruibuido como DVDs, etc.
-
-    (SAC.dbo.PlanoDistribuicaoProduto)
-    """
-    __tablename__ = 'PlanoDistribuicaoProduto'
-
-    idPlanoDistribuicao = Column(Integer, primary_key=True)
-    QtdeProduzida = Column(Integer)
-    QtdeProponente = Column(Integer)
-    QtdePatrocinador = Column(Integer)
-    QtdeOutros = Column(Integer)
-    QtdeVendaNormal = Column(Integer)
-    QtdeVendaPromocional = Column(Integer)
-    QtdeUnitarioNormal = Column(Integer)
-    QtdeUnitarioPromocional = Column(Integer)
-    PrecoUnitarioPromocional = Column(Money)
-    PrecoUnitarioNormal = Column(Money)
-    stPlanoDistribuicaoProduto = Column(Boolean)
-    stPrincipal = Column(Boolean)
-    idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
-    idProduto = Column(Integer, ForeignKey('Produto.Codigo'))
-    idPosicaoDaLogo = Column(Integer, ForeignKey('Verificacao.idVerificacao'))
-
-    # Original table does not use a foreign key constraint
-    Segmento = Column(String, ForeignKey('Segmento.Codigo'))
-    Area = Column(CHAR, ForeignKey('Area.Codigo'))
-
-    # Related fields
-    area_related = relationship('Area', foreign_keys=[Area])
-    produto_related = relationship('Produto', foreign_keys=[idProduto])
-    projeto_related = relationship('Projeto', foreign_keys=[idProjeto])
-    segmento_related = relationship('Segmento', foreign_keys=[Segmento])
-    verificacao_related = relationship('Verificacao',
-                                       foreign_keys=[idPosicaoDaLogo])
-
-
-class PlanilhaAprovacao(Base):  # noqa: N801
-    """
-    (SAC.dbo.tbPlanilhaAprovacao)
-    """
-    __tablename__ = 'tbPlanilhaAprovacao'
-
-    idPlanilhaAprovacao = Column(Integer, primary_key=True)
-    idPlanilhaItem = Column(Integer,
-                            ForeignKey('tbPlanilhaItens.idPlanilhaItens'))
-    IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
-    idEtapa = Column(Integer, ForeignKey('tbPlanilhaEtapa.idPlanilhaEtapa'))
-    idUnidade = Column(Integer, ForeignKey('tbPlanilhaUnidade.idUnidade'))
-    qtItem = Column(Integer)
-    vlUnitario = Column(Integer)
-
-
-class PlanilhaItens(Base):  # noqa: N801
-    """
-    (SAC.dbo.tbPlanilhaItens)
-    """
-    __tablename__ = 'tbPlanilhaItens'
-
+class PlanilhaItens(PlanilhaItensBase, Base):  # noqa: N801
     idPlanilhaItens = Column(Integer, primary_key=True)
     Descricao = Column(String)
 
 
-class Deslocamento(Base):
-    """
-    Refere-se ao planejamento em movimentação de turnês ou
-    qualquer necessidade de movimento do projeto.
-
-    (SAC.dbo.tbDeslocamento)
-    """
-    __tablename__ = 'tbDeslocamento'
-
-    idDeslocamento = Column(Integer, primary_key=True)
-    Qtde = Column(Integer)
-    idProjeto = Column(Integer, ForeignKey('Projetos.idProjeto'))
-    idPaisOrigem = Column(Integer, ForeignKey('Pais.idPais'))
-    idUFOrigem = Column(Integer, ForeignKey('uf.iduf'))
-    idMunicipioOrigem = Column(Integer,
-                               ForeignKey('Municipios.idMunicipioIBGE'))
-    idPaisDestino = Column(Integer, ForeignKey('Pais.idPais'))
-    idUFDestino = Column(Integer, ForeignKey('uf.iduf'))
-    idMunicipioDestino = Column(Integer,
-                                ForeignKey('Municipios.idMunicipioIBGE'))
-
-
-class PlanilhaEtapa(Base):
-    """
-    (SAC.dbo.tbPlanilhaEtapa)
-    """
-    __tablename__ = 'tbPlanilhaEtapa'
-
+class PlanilhaEtapa(PlanilhaEtapaBase, Base):
     idPlanilhaEtapa = Column(Integer, primary_key=True)
     Descricao = Column(String)
 
 
-class PlanilhaUnidade(Base):
-    """
-    (SAC.dbo.tbPlanilhaUnidade)
-    """
-    __tablename__ = 'tbPlanilhaUnidade'
-
+class PlanilhaUnidade(PlanilhaUnidadeBase, Base):
     idUnidade = Column(Integer, primary_key=True)
     Descricao = Column(String)
 
 
-class Readequacao(Base):
-    """
-    (SAC.dbo.tbReadequacao)
-    """
-    __tablename__ = 'tbReadequacao'
-
+class Readequacao(ReadequacaoBase, Base):
     idReadequacao = Column(Integer, primary_key=True)
-    IdPRONAC = Column(Integer, ForeignKey('Projetos.IdPRONAC'))
+    IdPRONAC = Column(Integer, ForeignKey(foreign_key(ProjetosBase, "IdPRONAC")))
     dtSolicitacao = Column(String)
     dsJustificativa = Column(String)
     idSolicitante = Column(Integer)
@@ -427,24 +210,108 @@ class Readequacao(Base):
     dsEncaminhamento = Column(String)
     dsSolicitacao = Column(String)
     stEstado = Column(String)
-    idDocumento = Column(Integer, ForeignKey('tbDocumento.idDocumento'))
+    idDocumento = Column(Integer, ForeignKey(foreign_key(DocumentoBase, "idDocumento")))
 
 
-class TipoReadequacao(Base):
-    """
-    (SAC.dbo.tbTipoReadequacao)
-    """
-    __tablename__ = 'tbTipoReadequacao'
-
+class TipoReadequacao(TipoReadequacaoBase, Base):
     idTipoReadequacao = Column(Integer, primary_key=True)
     dsReadequacao = Column(String)
 
 
-class TipoEncaminhamento(Base):
-    """
-    (SAC.dbo.tbTipoEncaminhamento)
-    """
-    __tablename__ = 'tbTipoEncaminhamento'
-
+class TipoEncaminhamento(TipoEncaminhamentoBase, Base):
     idTipoEncaminhamento = Column(Integer, primary_key=True)
     dsEncaminhamento = Column(String)
+
+
+class Projeto(ProjetosBase, Base):
+    IdPRONAC = Column(Integer, primary_key=True)
+    AnoProjeto = Column(CHAR)
+    Sequencial = Column(String)
+    PRONAC = column_property(AnoProjeto + Sequencial)
+    NomeProjeto = Column(String)
+    Localizacao = Column(String)
+    DtInicioExecucao = Column(DateTime)  # Date?
+    data_inicio_execucao = date_column(DtInicioExecucao)
+    DtFimExecucao = Column(DateTime)
+    data_fim_execucao = date_column(DtFimExecucao)
+    UfProjeto = Column(CHAR)
+    SolicitadoReal = Column(Money)
+    SolicitadoUfir = Column(Money)
+    SolicitadoCusteioUfir = Column(Money)
+    SolicitadoCusteioReal = Column(Money)
+    SolicitadoCapitalUfir = Column(Money)
+    SolicitadoCapitalReal = Column(Money)
+    ResumoProjeto = Column(Text)
+    ProvidenciaTomada = Column(String)
+    Segmento = Column(String, ForeignKey(foreign_key(SegmentoBase, "Codigo")))
+    Situacao = Column(CHAR, ForeignKey(foreign_key(SituacaoBase, "Codigo")))
+    CgcCpf = Column(String, ForeignKey(foreign_key(InteressadoBase, "CgcCpf")))
+    idProjeto = Column(Integer, ForeignKey(foreign_key(PreProjetoBase, "idPreProjeto")))
+
+    # Original DB do not create a foreign key constraint
+    Area = Column(CHAR, ForeignKey(foreign_key(AreaBase, "Codigo")))
+    Mecanismo = Column(CHAR, ForeignKey(foreign_key(MecanismoBase, "Codigo")))
+
+    # Related fields
+    preprojeto_related = relationship("PreProjeto", foreign_keys=[idProjeto])
+    situacao_related = relationship("Situacao", foreign_keys=[Situacao])
+    interessado_related = relationship("Interessado", foreign_keys=[CgcCpf])
+    segmento_related = relationship("Segmento", foreign_keys=[Segmento])
+    area_related = relationship("Area", foreign_keys=[Area])
+    mecanismo_related = relationship("Mecanismo", foreign_keys=[Mecanismo])
+
+
+class PlanoDistribuicao(PlanoDistribuicaoBase, Base):
+    idPlanoDistribuicao = Column(Integer, primary_key=True)
+    QtdeProduzida = Column(Integer)
+    QtdeProponente = Column(Integer)
+    QtdePatrocinador = Column(Integer)
+    QtdeOutros = Column(Integer)
+    QtdeVendaNormal = Column(Integer)
+    QtdeVendaPromocional = Column(Integer)
+    QtdeUnitarioNormal = Column(Integer)
+    QtdeUnitarioPromocional = Column(Integer)
+    PrecoUnitarioPromocional = Column(Money)
+    PrecoUnitarioNormal = Column(Money)
+    stPlanoDistribuicaoProduto = Column(Boolean)
+    stPrincipal = Column(Boolean)
+    idProjeto = Column(Integer, ForeignKey(foreign_key(ProjetosBase, "idProjeto")))
+    idProduto = Column(Integer, ForeignKey(foreign_key(ProdutoBase, "Codigo")))
+    idPosicaoDaLogo = Column(Integer, ForeignKey(foreign_key(VerificacaoBase, "idVerificacao")))
+
+    # Original table does not use a foreign key constraint
+    Segmento = Column(String, ForeignKey(foreign_key(SegmentoBase, "Codigo")))
+    Area = Column(CHAR, ForeignKey(foreign_key(AreaBase, "Codigo")))
+
+    # Related fields
+    area_related = relationship('Area', foreign_keys=[Area])
+    produto_related = relationship('Produto', foreign_keys=[idProduto])
+    projeto_related = relationship('Projeto', foreign_keys=[idProjeto])
+    segmento_related = relationship('Segmento', foreign_keys=[Segmento])
+    verificacao_related = relationship('Verificacao',
+                                       foreign_keys=[idPosicaoDaLogo])
+
+
+class PlanilhaAprovacao(PlanilhaAprovacaoBase, Base):  # noqa: N801
+    idPlanilhaAprovacao = Column(Integer, primary_key=True)
+    idPlanilhaItem = Column(Integer,
+                            ForeignKey(foreign_key(PlanilhaItensBase, "idPlanilhaItens")))
+    IdPRONAC = Column(Integer, ForeignKey(foreign_key(ProjetosBase, "IdPRONAC")))
+    idEtapa = Column(Integer, ForeignKey(foreign_key(PlanilhaEtapaBase, "idPlanilhaEtapa")))
+    idUnidade = Column(Integer, ForeignKey(foreign_key(PlanilhaUnidadeBase, "idUnidade")))
+    qtItem = Column(Integer)
+    vlUnitario = Column(Integer)
+
+
+class Deslocamento(DeslocamentoBase, Base):
+    idDeslocamento = Column(Integer, primary_key=True)
+    Qtde = Column(Integer)
+    idProjeto = Column(Integer, ForeignKey(foreign_key(ProjetosBase, "idProjeto")))
+    idPaisOrigem = Column(Integer, ForeignKey(foreign_key(PaisBase, "idPais")))
+    idUFOrigem = Column(Integer, ForeignKey(foreign_key(UFBase, "iduf")))
+    idMunicipioOrigem = Column(Integer,
+                               ForeignKey(foreign_key(MunicipiosBase, "idMunicipioIBGE")))
+    idPaisDestino = Column(Integer, ForeignKey(foreign_key(PaisBase, "idPais")))
+    idUFDestino = Column(Integer, ForeignKey(foreign_key(UFBase, "iduf")))
+    idMunicipioDestino = Column(Integer,
+                                ForeignKey(foreign_key(MunicipiosBase, "idMunicipioIBGE")))

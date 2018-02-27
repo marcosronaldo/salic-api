@@ -89,10 +89,12 @@ Dependências básicas
 
 -  ``python-dev``
 -  ``python-pip``
+-  ``freetds-bin``
 -  ``freetds-dev``
 -  ``libxml2-dev``
 -  ``libxslt1-dev``
 -  ``libz-dev``
+-  ``unixodbc-dev``
 
 
 Configuração

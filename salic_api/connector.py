@@ -118,14 +118,20 @@ def memory_engine(config):
 def pymssql_uri(config):
     quoted = urllib.parse.quote_plus(
         'DRIVER={FreeTDS};Server=%s;Database=%s;UID=%s;PWD=%s;'
-        'TDS_Version=8.0;CHARSET=UTF8;Port=1433;'
+        'TDS_Version=8.0;CHARSET=UTF8;Port=%s'
         % (current_app.config['DATABASE_HOST'],
            current_app.config['DATABASE_NAME'],
            current_app.config['DATABASE_USER'],
-           current_app.config['DATABASE_PASSWORD']))
-    return create_engine(
-        'mssql+pyodbc:///?odbc_connect={}'.format(quoted),
-        connect_args={'convert_unicode': True})
+           current_app.config['DATABASE_PASSWORD'],
+           current_app.config['DATABASE_PORT']))
+
+    engine = create_engine(
+             'mssql+pyodbc:///?odbc_connect={}'.format(quoted),
+             connect_args={'convert_unicode': True})
+    engine.dialect.identifier_preparer.initial_quote = ''
+    engine.dialect.identifier_preparer.final_quote = ''
+
+    return engine
 
 
 @register_engine('postgres')
