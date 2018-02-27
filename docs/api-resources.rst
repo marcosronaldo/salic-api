@@ -17,6 +17,21 @@ Resources
 
 * Incentivador
 
+  .. autoclass:: salic_api.resources.Doacao
+    :members:
+
+  .. autoclass:: salic_api.resources.IncentivadorDetail
+    :members:
+
+  .. autoclass:: salic_api.resources.IncentivadorList
+    :members:
+
+  .. autoclass:: salic_api.resources.IncentivadorQuery
+    :members:
+
+  .. autoclass:: salic_api.resources.DoacaoQuery
+    :members:
+
 * Pre Projeto
 
 * Projeto
