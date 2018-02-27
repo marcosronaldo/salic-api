@@ -58,6 +58,10 @@ Resources
   .. autoclass:: salic_api.resources.ProjetoList
     :members:
 
+  .. autoclass:: salic_api.resources.Segmento
+    :members:
+
+
   * Query
 
     .. autoclass:: salic_api.resources.ProjetoQuery
@@ -85,8 +89,6 @@ Resources
   .. automethod:: salic_api.resources.clean_sql_fields
 
   .. automethod:: salic_api.resources.payments_listing_sql
-
-  .. autoclass:: salic_api.resources.Segmento
 
   .. automethod:: salic_api.resources.build_brand_link
 

@@ -358,6 +358,9 @@ class ProjetoQuery(Query):
 
 
 class CaptacaoQuery(Query):
+    """
+    Returns Captacao value of a project
+    """
     def query(self, PRONAC):  # noqa: N803
         query = self.raw_query(
             Captacao.PRONAC,
@@ -376,16 +379,25 @@ class CaptacaoQuery(Query):
 
 
 class AreaQuery(Query):
+    """
+    Returns description and id of Area
+    """
     def query(self):
         return self.select_as(Area, Descricao='nome', Codigo='codigo')
 
 
 class SegmentoQuery(Query):
+    """
+    Returns description and id of Segmento
+    """
     def query(self):
         return self.select_as(Segmento, Descricao='nome', Codigo='codigo')
 
 
 class CertidoesNegativasQuery(Query):
+    """
+    Returns certificate's name and situation according to it's id
+    """
     @property
     def descricao(self):
         code = CertidoesNegativas.CodigoCertidao
@@ -414,6 +426,10 @@ class CertidoesNegativasQuery(Query):
 
 
 class DivulgacaoQuery(Query):
+    """
+    Returns instrument of propagation and its type. Ex: Peça - CARTAZ/POSTER,
+    Veiculo - IMPRESSOS
+    """
     def query(self, IdPRONAC):
         query = (self.raw_query(
             Verificacao.Descricao.label('peca'),
@@ -431,6 +447,9 @@ class DivulgacaoQuery(Query):
 
 
 class DeslocamentoQuery(Query):
+    """
+    Returns descriptions of places which the project may pass.
+    """
     def query(self, IdPRONAC):  # noqa: N803
         stmt = text(normalize_sql("""
             SELECT
@@ -459,6 +478,9 @@ class DeslocamentoQuery(Query):
 
 
 class DistribuicaoQuery(Query):
+    """
+    Returns information of how the project will be distributed. Ex: ticket prices...
+    """
     def query(self, IdPRONAC):  # noqa: N803
         return (
             self.raw_query(
@@ -488,6 +510,9 @@ class DistribuicaoQuery(Query):
 
 
 class ReadequacaoQuery(Query):
+    """
+
+    """
     def query(self, IdPRONAC):  # noqa: N803
         stmt = text(normalize_sql("""
             SELECT
