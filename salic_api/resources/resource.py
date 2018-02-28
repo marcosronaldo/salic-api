@@ -282,18 +282,8 @@ class SalicResource(Resource):
             fmt = (resource_type, args_hash)
             filename = "attachment; filename=salicapi-%s-%s.csv" % fmt
             headers["Content-Disposition"] = filename
-            response = Response(data, content_type=CSV_MIME)
-        else:
-            if not raw:
-                if status_code == 200:
-                    if 'X-Total-Count' in headers:
-                        total = headers['X-Total-Count']
-                        self.args.setdefault('total', total)
-                    data = self.apply_hal_data(data)
 
-                data = serialize(data, 'json')
-
-            response = Response(data, content_type=JSON_MIME)
+        response = Response(data, content_type=CSV_MIME)
 
         return response
 
@@ -313,6 +303,7 @@ class SalicResource(Resource):
                 for testing.
         """
         content_type = self.resolve_content()
+        headers = {} if headers is None else headers
 
         if content_type is None:
             data = dict(self.INVALID_FORMAT)
@@ -325,6 +316,17 @@ class SalicResource(Resource):
 
         elif content_type == 'csv':
             response = self._csv_response(data, headers, status_code, raw)
+        else:
+            if not raw:
+                if status_code == 200:
+                    if 'X-Total-Count' in headers:
+                        total = headers['X-Total-Count']
+                        self.args.setdefault('total', total)
+                    data = self.apply_hal_data(data)
+
+                data = serialize(data, 'json')
+
+            response = Response(data, content_type=JSON_MIME)
 
         headers['Access-Control-Expose-Headers'] = ACCESS_CONTROL_HEADERS
         response.headers.extend(headers)
