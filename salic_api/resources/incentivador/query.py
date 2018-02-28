@@ -5,7 +5,6 @@ from ..query import Query, filter_query_like, filter_query
 from ...models import Interessado, Projeto, Captacao
 from ...utils import pc_quote
 
-
 class IncentivadorQuery(Query):
     group_by_fields = (
         Interessado.Nome,
@@ -13,7 +12,7 @@ class IncentivadorQuery(Query):
         Interessado.Uf,
         Interessado.Responsavel,
         Interessado.CgcCpf,
-        Interessado.tipo_pessoa,
+        Interessado.tipoPessoa,
     )
 
     total_doado = func.sum(Captacao.CaptacaoReal).label('total_doado')
@@ -25,7 +24,7 @@ class IncentivadorQuery(Query):
         Interessado.Responsavel.label('responsavel'),
         Interessado.CgcCpf.label('cgccpf'),
         total_doado,
-        Interessado.tipo_pessoa,
+        Interessado.tipoPessoa.label('tipo_pessoa'),
     )
 
     TIPOS_PESSOA = {'fisica': '1', 'juridica': '2'}

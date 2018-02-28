@@ -15,7 +15,7 @@ class ProponenteQuery(Query):
         Interessado.Uf.label('UF'),
         Interessado.Responsavel.label('responsavel'),
         Interessado.CgcCpf.label('cgccpf'),
-        Interessado.tipo_pessoa.label('tipo_pessoa'),
+        Interessado.tipoPessoa.label('tipo_pessoa'),
     )
 
     group_by_fields = (
@@ -24,7 +24,7 @@ class ProponenteQuery(Query):
         Interessado.Uf,
         Interessado.Responsavel,
         Interessado.CgcCpf,
-        Interessado.tipo_pessoa,
+        Interessado.tipoPessoa,
     )
 
     tipo_pessoa_map = {
