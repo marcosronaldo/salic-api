@@ -112,11 +112,11 @@ A documentação da API é feita  de 2 formas:
 
   * SWAGGER está sendo usado para documentar os `endpoints` do projeto. Seus arquivos estáticos estão na pasta:
 
-    `salic-api/salic_api/static`
+    **salic-api/salic_api/static**
 
   * A documentação em produção pode ser acessada através desse link:
 
-    `Documentação <http://api.salic.cultura.gov.br/doc/>`_.
+    `Documentação ENDPOINTS <http://api.salic.cultura.gov.br/doc/>`_.
 
 * `SPHINX <http://www.sphinx-doc.org/en/master/>`_
 
@@ -124,21 +124,25 @@ A documentação da API é feita  de 2 formas:
 
   * A documentação em produção pode ser acessada através desse link:
 
-    `Documentação <https://salic-api.readthedocs.org/pt/latest/>`_.
+    `Documentação API <https://salic-api.readthedocs.org/pt/latest/>`_.
 
   * Para construir a documentação do SPHINX é necessário criar uma pasta que irá conter os arquivos de documentação.
 
     Crie a pasta `build` na raiz do projeto.
 
-    `mkdir build`
+    .. code-block:: shell
+
+      mkdir build
 
     Construa a documentação na pasta criada:
 
-    `sphinx-autobuild docs build/docs`
+    .. code-block:: shell
+
+      sphinx-autobuild docs build/docs
 
     Para acessar a documentação acesse:
 
-    `localhost:8000`
+    **localhost:8000**
 
 Licença
 -------
