@@ -17,8 +17,12 @@ from .projeto.area import Area
 from .projeto.captacao import Captacao
 from .projeto.projeto_detail import ProjetoDetail
 from .projeto.projeto_list import ProjetoList
-from .projeto.query import ProjetoQuery, CaptacaoQuery, AreaQuery, SegmentoQuery, CertidoesNegativasQuery, DivulgacaoQuery, DeslocamentoQuery, DistribuicaoQuery, ReadequacaoQuery, AdequacoesPedidoQuery
-from .projeto.raw_sql import normalize_sql, clean_sql_fields, payments_listing_sql
+from .projeto.query import ProjetoQuery, CaptacaoQuery, AreaQuery, \
+    SegmentoQuery, CertidoesNegativasQuery, DivulgacaoQuery, \
+    DeslocamentoQuery, DistribuicaoQuery, ReadequacaoQuery, \
+    AdequacoesPedidoQuery
+from .projeto.raw_sql import normalize_sql, clean_sql_fields,\
+    payments_listing_sql
 from .projeto.segmento import Segmento
 from .projeto.utils import build_brand_link, build_file_link
 
@@ -29,5 +33,6 @@ from .proponente.query import ProponenteQuery
 from .format_utils import cgccpf_mask, sanitize
 from .query import Query
 from .resource import SalicResource, ListResource, DetailResource, InvalidResult
-from .serialization import listify_queryset, serialize, convert_atom, convert_object, to_xml, to_json, to_csv
+from .serialization import listify_queryset, serialize, convert_atom, \
+    convert_object, to_xml, to_json, to_csv
 from .test_resource import TestResource
