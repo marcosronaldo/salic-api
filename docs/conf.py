@@ -35,6 +35,12 @@ extensions = [
     'sphinx.ext.imgmath',
 ]
 
+extensions = ['sphinx.ext.autosummary',]
+# NOTE: Don't overwrite your old extension list! Just add to it!
+
+autodoc_default_flags = ['members']
+autosummary_generate = True
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

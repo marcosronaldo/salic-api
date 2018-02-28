@@ -1,10 +1,13 @@
 Resources
 ---------
 
+Este módulo que contem as queries de acordo com cada entidade do projeto.
+
 .. automodule:: salic_api.resources
     :members:
 
-* Fornecedor
+Fornecedor
+~~~~~~~~~~
 
   .. autoclass:: salic_api.resources.FornecedorDetail
       :members:
@@ -15,7 +18,8 @@ Resources
   .. autoclass:: salic_api.resources.Produto
       :members:
 
-* Incentivador
+Incentivador
+~~~~~~~~~~~~
 
   .. autoclass:: salic_api.resources.Doacao
     :members:
@@ -32,7 +36,8 @@ Resources
   .. autoclass:: salic_api.resources.DoacaoQuery
     :members:
 
-* Pre Projeto
+Pre Projeto
+~~~~~~~~~~~~~
 
   .. autoclass:: salic_api.resources.PreProjetoDetail
     :members:
@@ -43,8 +48,8 @@ Resources
   .. autoclass:: salic_api.resources.PreProjetoQuery
     :members:
 
-* Projeto
-
+Projeto
+~~~~~~~
 
   .. autoclass:: salic_api.resources.Area
     :members:
@@ -61,8 +66,8 @@ Resources
   .. autoclass:: salic_api.resources.Segmento
     :members:
 
-
-  * Query
+Query
+=====
 
     .. autoclass:: salic_api.resources.ProjetoQuery
 
@@ -94,7 +99,8 @@ Resources
 
   .. automethod:: salic_api.resources.build_file_link
 
-* Proponente
+Proponente
+~~~~~~~~~~
 
   .. autoclass:: salic_api.resources.ProponenteDetail
     :members:
@@ -105,18 +111,21 @@ Resources
   .. autoclass:: salic_api.resources.ProponenteQuery
     :members:
 
-* format_utils
+format_utils
+~~~~~~~~~~~~
 
   .. automethod:: salic_api.resources.format_utils.cgccpf_mask
 
   .. automethod:: salic_api.resources.format_utils.sanitize
 
-* query
+query
+~~~~~
 
   .. autoclass:: salic_api.resources.Query
     :members:
 
-* resource
+resource
+~~~~~~~~
 
   .. autoclass:: salic_api.resources.SalicResource
     :members:
@@ -130,7 +139,8 @@ Resources
   .. autoclass:: salic_api.resources.InvalidResult
     :members:
 
-* serialization
+serialization
+~~~~~~~~~~~~~
 
   .. automethod:: salic_api.resources.serialization.listify_queryset
 
@@ -146,7 +156,8 @@ Resources
 
   .. automethod:: salic_api.resources.serialization.to_csv
 
-* test_resource
+test_resource
+~~~~~~~~~~~~~
 
   .. autoclass:: salic_api.resources.TestResource
     :members:
