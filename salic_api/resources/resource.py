@@ -480,6 +480,7 @@ class ListResource(SalicResource):
             self.prepare_item(item)
 
         result = {self._embedding_field: items}
+        self.apply_hal_data(result)
         if self.has_pagination:
             result.update(total=self.queryset_size, count=len(items))
         return result
