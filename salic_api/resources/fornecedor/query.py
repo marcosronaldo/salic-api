@@ -26,6 +26,10 @@ class FornecedorQuery(Query):
                  .join(Comprovante,
                        ComprovanteAprovacao.idComprovantePagamento ==
                        Comprovante.idComprovantePagamento)
+                 .outerjoin(Agentes,
+                            Comprovante.idFornecedor == Agentes.idAgente)
+                 .outerjoin(Nomes,
+                            Comprovante.idFornecedor == Nomes.idAgente)
                  .outerjoin(Internet,
                             Comprovante.idFornecedor == Internet.idAgente)
                  .outerjoin(PlanilhaAprovacao,
@@ -36,19 +40,21 @@ class FornecedorQuery(Query):
                  .outerjoin(PlanilhaItens,
                             PlanilhaAprovacao.idPlanilhaItem ==
                             PlanilhaItens.idPlanilhaItens)
-                 .outerjoin(Nomes,
-                            Comprovante.idFornecedor == Nomes.idAgente)
                  .outerjoin(Arquivo,
                             Comprovante.idArquivo == Arquivo.idArquivo)
-                 .outerjoin(Agentes,
-                            Comprovante.idFornecedor == Agentes.idAgente)
 
                  )
 
+        query = query.filter(Agentes.CNPJCPF.isnot(None))
+
         if cgccpf is not None:
             query = query.filter(Agentes.CNPJCPF.like(cgccpf))
+        else:
+            query = query.join(Projeto,
+                               PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
 
-        # query = query.order_by('cgccpf')
+        query = query.order_by('cgccpf')
+
         return query
 
         # FIXME: move this to a separarte function

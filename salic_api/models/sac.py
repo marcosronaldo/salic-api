@@ -296,7 +296,7 @@ class PlanilhaAprovacao(PlanilhaAprovacaoBase, Base):  # noqa: N801
     idPlanilhaAprovacao = Column(Integer, primary_key=True)
     idPlanilhaItem = Column(Integer,
                             ForeignKey(foreign_key(PlanilhaItensBase, "idPlanilhaItens")))
-    IdPRONAC = Column(Integer, ForeignKey(foreign_key(ProjetosBase, "IdPRONAC")))
+    idPronac = Column(Integer, ForeignKey(foreign_key(ProjetosBase, "IdPRONAC")))
     idEtapa = Column(Integer, ForeignKey(foreign_key(PlanilhaEtapaBase, "idPlanilhaEtapa")))
     idUnidade = Column(Integer, ForeignKey(foreign_key(PlanilhaUnidadeBase, "idUnidade")))
     qtItem = Column(Integer)

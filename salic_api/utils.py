@@ -82,7 +82,11 @@ def decrypt(text):
 
     cipher = AES.new(SECRET_KEY, AES.MODE_CFB, iv)
     decoded = cipher.decrypt(msg[AES.block_size:])
-    return decoded.decode('utf8')
+
+    try:
+        return decoded.decode('utf8')
+    except Exception:
+        return 'invalid'
 
 
 def md5hash(text):
