@@ -7,7 +7,7 @@ from flask_restful import Api
 from ..resources.fornecedor.fornecedor_detail import FornecedorDetail
 from ..resources.fornecedor.fornecedor_list import FornecedorList
 from ..resources.fornecedor.produto import Produto
-from ..resources.incentivador.doacao import Doacao
+from ..resources.incentivador.doacao import DoacaoList
 from ..resources.incentivador.incentivador_detail import IncentivadorDetail
 from ..resources.incentivador.incentivador_list import IncentivadorList
 from ..resources.preprojeto.pre_projeto_detail import PreProjetoDetail
@@ -57,7 +57,7 @@ def make_urls(app=None):
     register(PreProjetoDetail, 'propostas/<string:id>/')
     register(IncentivadorList, 'incentivadores/')
     register(IncentivadorDetail, 'incentivadores/<string:incentivador_id>/')
-    register(Doacao, 'incentivadores/<string:incentivador_id>/doacoes/')
+    register(DoacaoList, 'incentivadores/<string:incentivador_id>/doacoes/')
     register(FornecedorList, 'fornecedores/')
     register(FornecedorDetail, 'fornecedores/<string:fornecedor_id>/')
     register(Produto, 'fornecedores/<string:fornecedor_id>/produtos/')

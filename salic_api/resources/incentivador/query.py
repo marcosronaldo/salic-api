@@ -78,7 +78,7 @@ class DoacaoQuery(Query):
         Interessado.Nome.label('nome_doador'),
     )
 
-    def query(self, limit=None, offset=0, cgccpf=None):
+    def query(self, cgccpf, limit=100, offset=0):
         query = (
             self.raw_query(*self.query_fields)
             .join(Projeto, Captacao.PRONAC == Projeto.PRONAC)
