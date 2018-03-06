@@ -21,6 +21,10 @@ class DoacaoDetail(DetailResource):
             'incentivador': incentivador_url,
         }
 
+    def prepare_result(self, result):
+        result["cgccpf"] = cgccpf_mask(result["cgccpf"])
+
+
 
 class DoacaoList(ListResource):
     query_class = DoacaoQuery
@@ -35,9 +39,6 @@ class DoacaoList(ListResource):
         incentivador_id = args.pop('incentivador_id')
         args['cgccpf'] = decrypt(incentivador_id)
         return args
-
-    def prepare_result(self, result):
-        result["cgccpf"] = cgccpf_mask(result["cgccpf"])
 
     @property
     def resource_path(self):
