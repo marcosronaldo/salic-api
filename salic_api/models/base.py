@@ -1,3 +1,4 @@
+from os import environ as env
 from sqlalchemy import Column, Date, DateTime, Integer, String, DATE, func, \
     VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
@@ -6,7 +7,7 @@ Base = declarative_base()
 
 # TODO: can we support the money type in the SQL Server?
 Money = String
-use_sqlite = True
+use_sqlite = True if env.get('SQL_DRIVER', 'sqlite') == 'sqlite' else False
 
 if use_sqlite:
     DateTime = Date  # noqa: F811
