@@ -322,7 +322,6 @@ class SalicResource(Resource):
                     if 'X-Total-Count' in headers:
                         total = headers['X-Total-Count']
                         self.args.setdefault('total', total)
-                    data = self.apply_hal_data(data)
 
                 data = serialize(data, 'json')
 
@@ -477,7 +476,6 @@ class ListResource(SalicResource):
         items = self.query_db()
         if len(items) == 0:
             raise self.empty_query_error()
-
         for item in items:
             self.prepare_item(item)
 
@@ -492,7 +490,9 @@ class ListResource(SalicResource):
         """
         if self.detail_resource is None:
             return
-        self.prepared_detail_object(item).prepare_result(item)
+        obj = self.prepared_detail_object(item)
+        obj.apply_hal_data(item)
+        obj.prepare_result(item)
 
     def prepared_detail_object(self, item):
         """
@@ -558,6 +558,7 @@ class DetailResource(SalicResource):
     def fetch_result(self):
         result = self.query_db()
         self.insert_related(result)
+        self.apply_hal_data(result)
         self.prepare_result(result)
         return result
 
