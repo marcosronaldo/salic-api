@@ -400,12 +400,6 @@ class ListResource(SalicResource):
         items = result.pop(embedding_field)
         result['_embedded'] = {embedding_field: items}
 
-        # Create links for each item
-        for item in items:
-            links = self.hal_item_links(item)
-            if links:
-                item['_links'] = links
-
         # Create pagination links
         if self.has_pagination:
             links = self.hal_pagination_links(items)

@@ -14,10 +14,11 @@ log = logging.getLogger('salic-api')
 class DoacaoDetail(DetailResource):
     def hal_links(self, result):
         encrypted_id = self.args['incentivador_id']
-        url = self.url('/incentivadores/%s' % encrypted_id)
+        incentivador_url = self.url('/incentivadores/%s' % encrypted_id)
+        projeto_url = self.url('/projetos/%s' % result['PRONAC'])
         return {
-            'self': ('%s/doacoes' % url),
-            'incentivador': url
+            'projeto': projeto_url,
+            'incentivador': incentivador_url,
         }
 
 
