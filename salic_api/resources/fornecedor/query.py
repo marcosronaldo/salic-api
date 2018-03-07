@@ -12,11 +12,12 @@ class FornecedorQuery(Query):
     """
     Responsável por criar a query da tabela Fornecedor
     """
-    query_fields = (
-        Agentes.CNPJCPF.label('cgccpf'),
-        Nomes.Descricao.label('nome'),
-        Internet.Descricao.label('email'),
-    )
+
+    labels_to_fields = {
+        'cgccpf': Agentes.CNPJCPF,
+        'nome': Nomes.Descricao,
+        'email': Internet.Descricao,
+    }
 
     def query(self, limit=1, offset=0, cgccpf=None, PRONAC=None, nome=None):
         query = self.raw_query(*self.query_fields)
