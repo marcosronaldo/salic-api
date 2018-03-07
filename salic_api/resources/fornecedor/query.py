@@ -53,8 +53,6 @@ class FornecedorQuery(Query):
             query = query.join(Projeto,
                                PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
 
-        query = query.order_by('cgccpf')
-
         return query
 
         # FIXME: move this to a separarte function

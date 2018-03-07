@@ -14,8 +14,9 @@ class FornecedorList(ListResource):
     embedding_field = 'fornecedores'
     detail_resource_class = FornecedorDetail
     detail_pk = 'cgccpf'
+    default_sort_field = 'cgccpf'
     sort_fields = {
-        'cgccpf'
+        'cgccpf', 'nome'
     }
     filter_fields = {
         'nome', 'email', 'cgccpf'
