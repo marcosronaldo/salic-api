@@ -7,6 +7,7 @@ from flask import request
 from flask_cache import Cache
 from flask_restful import Resource
 
+from .query import filter_query, filter_query_like
 from .serialization import serialize, listify_queryset
 from ..utils import md5hash
 
@@ -243,6 +244,9 @@ class SalicResource(Resource):
         for arg in unwanted_args:
             args.pop(arg, None)
 
+        for field in self.filter_fields:
+            args.pop(field, None)
+
         return args
 
     def _csv_response(self, data, headers={}, status_code=200, raw=False):
@@ -365,8 +369,8 @@ class ListResource(SalicResource):
     has_pagination = True
     detail_resource = None
     detail_pk = None
-    default_sort_field=None
-    request_args = {'format', 'limit', 'offset','sort','order'}
+    default_sort_field = None
+    request_args = {'format', 'limit', 'offset', 'sort', 'order'}
 
     @property
     def _embedding_field(self):
@@ -467,6 +471,11 @@ class ListResource(SalicResource):
         """
         Filter query according to the filtering arguments.
         """
+        filter_args = set(self.filter_fields) & self.args.keys()
+        query_fields = self.query_class().labels_to_fields
+        fields_to_filter = {query_fields[field]: self.args[field] for field in filter_args}
+        query = filter_query_like(query, fields_to_filter)
+
         return query
 
     def sort_query(self, query):
