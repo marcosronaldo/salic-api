@@ -10,14 +10,13 @@ class IncentivadorList(ListResource):
     embedding_field = 'incentivadores'
     detail_resource_class = IncentivadorDetail
     detail_pk = 'cgccpf'
-    sort_fields = {'cgccpf','nome','total_doado'}
-    default_sort_field='cgccpf'
+    sort_fields = {'cgccpf', 'nome', 'total_doado'}
+    default_sort_field = 'cgccpf'
 
     filter_fields = {
         'nome', 'incentivador_id', 'cgccpf', 'municipio', 'UF', 'tipo_pessoa',
         'PRONAC'
     }
-
 
     def prepared_detail_object(self, item):
         detail_resource = super().prepared_detail_object(item)

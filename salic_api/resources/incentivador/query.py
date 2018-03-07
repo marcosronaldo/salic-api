@@ -6,6 +6,7 @@ from ...models import Interessado, Projeto, Captacao
 from ...utils import pc_quote
 
 class IncentivadorQuery(Query):
+
     group_by_fields = (
         Interessado.Nome,
         Interessado.Cidade,
@@ -15,17 +16,15 @@ class IncentivadorQuery(Query):
         Interessado.tipoPessoa,
     )
 
-    total_doado = func.sum(Captacao.CaptacaoReal).label('total_doado')
-
-    query_fields = (
-        Interessado.Nome.label('nome'),
-        Interessado.Cidade.label('municipio'),
-        Interessado.Uf.label('UF'),
-        Interessado.Responsavel.label('responsavel'),
-        Interessado.CgcCpf.label('cgccpf'),
-        total_doado,
-        Interessado.tipoPessoa.label('tipo_pessoa'),
-    )
+    labels_to_fields = {
+        'nome': Interessado.Nome,
+        'municipio': Interessado.Cidade,
+        'UF': Interessado.Uf,
+        'responsavel': Interessado.Responsavel,
+        'cgccpf': Interessado.CgcCpf,
+        'total_doado': func.sum(Captacao.CaptacaoReal),
+        'tipo_pessoa': Interessado.tipoPessoa,
+    }
 
     TIPOS_PESSOA = {'fisica': '1', 'juridica': '2'}
 

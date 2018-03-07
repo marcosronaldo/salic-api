@@ -11,6 +11,11 @@ class Query:
     """
 
     session = property(lambda self: self.sql_connector.session)
+    labels_to_fields = ()  # Override on child
+
+    @property
+    def query_fields(self):
+        return tuple(v.label(k) for k, v in self.labels_to_fields.items())
 
     def __init__(self):
         self.sql_connector = SqlConnector()
