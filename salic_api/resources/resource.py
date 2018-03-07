@@ -176,8 +176,7 @@ class SalicResource(Resource):
         if not self.request_args.issuperset(argset):
             diff = self.request_args.symmetric_difference(argset)
             raise self.invalid_request_args_error(diff)
-
-        args = {k: v[0] for k, v in request.args.items()}
+        args = {k: v for k, v in request.args.items()}
         return dict(kwargs, **args)
 
     #
@@ -238,7 +237,7 @@ class SalicResource(Resource):
         Return a dictionary with arguments to be passed to the query method of
         the query class.
         """
-        unwanted_args = ('format', 'limit', 'offset')
+        unwanted_args = ('format', 'limit', 'offset', 'sort', 'order')
         args = dict(self.args)
 
         for arg in unwanted_args:
@@ -366,7 +365,8 @@ class ListResource(SalicResource):
     has_pagination = True
     detail_resource = None
     detail_pk = None
-    request_args = {'format', 'limit', 'offset'}
+    default_sort_field=None
+    request_args = {'format', 'limit', 'offset','sort','order'}
 
     @property
     def _embedding_field(self):
@@ -388,6 +388,14 @@ class ListResource(SalicResource):
     @property
     def offset(self):
         return self.args.get('offset', 0)
+
+    @property
+    def sort_field(self):
+        return self.args.get('sort', None)
+
+    @property
+    def sort_order(self):
+        return self.args.get('order', None)
 
     def __init__(self):
         self.queryset_size = 0
@@ -450,6 +458,7 @@ class ListResource(SalicResource):
         query = super().query_db()
         query = self.filter_query(query)
         query = self.sort_query(query)
+
         self.queryset_size = query.count()
         limited_query = query.limit(self.limit).offset(self.offset)
         return listify_queryset(limited_query)
@@ -464,6 +473,19 @@ class ListResource(SalicResource):
         """
         Sort query according to sorting arguments.
         """
+
+        if self.sort_field in self.sort_fields:
+            field = self.sort_field
+        else:
+            field = self.default_sort_field
+
+        if not field:
+            return query
+
+        if self.sort_order == 'desc':
+            query = query.order_by(desc(field))
+        else:
+            query = query.order_by(field)
         return query
 
     def fetch_result(self):

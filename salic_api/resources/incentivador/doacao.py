@@ -32,6 +32,8 @@ class DoacaoList(ListResource):
     detail_resource_class = DoacaoDetail
     detail_pk = 'cgccpf'
     request_args = {'incentivador_id', 'limit', 'offset', 'format'}
+    sort_fields = {'data_recibo','valor'}
+    default_sort_field='valor'
 
 
     def build_query_args(self):

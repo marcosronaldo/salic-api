@@ -51,22 +51,7 @@ class IncentivadorQuery(Query):
                 .join(Projeto, Captacao.PRONAC == Projeto.PRONAC) \
                 .filter(Captacao.PRONAC == PRONAC)
 
-        query = query.group_by(*self.group_by_fields)
-        return self.sort_query(query, sort_field, sort_order)
-
-    def sort_query(self, query, sort_field, sort_order):
-        sorting_fields = {
-            'cgccpf': Interessado.CgcCpf,
-            'total_doado': self.total_doado
-        }
-        sort_field = sorting_fields[sort_field or 'cgccpf']
-
-        if sort_order == 'desc':
-            query = query.order_by(desc(sort_field))
-        else:
-            query = query.order_by(sort_field)
-        return query
-
+        return query.group_by(*self.group_by_fields)
 
 class DoacaoQuery(Query):
     query_fields = (
@@ -85,7 +70,7 @@ class DoacaoQuery(Query):
             .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
         if cgccpf is not None:
-            return query.filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
+            query =  query.filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
         return query
 
     def total(self, cgccpf):
@@ -95,3 +80,4 @@ class DoacaoQuery(Query):
                 .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
                 .filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
         )
+
