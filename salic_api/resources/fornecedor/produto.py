@@ -23,9 +23,9 @@ class Produto(ListResource):
     detail_pk = 'cgccpf'
     request_args = {'fornecedor_id', 'limit', 'offset', 'format'}
 
-    default_sort_field = 'cgccpf'
+    default_sort_field = 'data_pagamento'
     sort_fields = {
-        'cgccpf', 'nome'
+        'data_pagamento'
     }
 
     def build_query_args(self):

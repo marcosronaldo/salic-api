@@ -14,7 +14,6 @@ class ComprovantePagamentoxPlanilhaAprovacao(ComprovantePagamentoxPlanilhaAprova
     idComprovantePagamento=Column(
         Integer,
         ForeignKey(foreign_key(ComprovantePagamentoBase, 'idComprovantePagamento')))
-    tpDocumento=Column(Integer)
     vlComprovado=Column(Float)
     nrOcorrencia=Column(Integer)
     DtEmissao=Column(DateTime)
@@ -22,24 +21,13 @@ class ComprovantePagamentoxPlanilhaAprovacao(ComprovantePagamentoxPlanilhaAprova
     dsMarca=Column(String)
     dsFabricante=Column(String)
 
-    # Computed properties
-    tpDocumentoLabel=case(
-        [
-            (tpDocumento == 1, 'Boleto Bancario'),
-            (tpDocumento == 2, 'Cupom Fiscal'),
-            (tpDocumento == 3, 'Nota Fiscal / Fatura'),
-            (tpDocumento == 4, 'Recibo de Pagamento'),
-            (tpDocumento == 5, 'RPA'),
-        ],
-        else_='Nao identificado',
-    )
-
 
 class ComprovantePagamento(ComprovantePagamentoBase, Base):  # noqa: N801
     idComprovantePagamento=Column(Integer, primary_key=True)
     idFornecedor=Column(Integer)
     idArquivo=Column(Integer, ForeignKey(foreign_key(ArquivoBase, 'idArquivo')))
     DtPagamento=Column(DateTime)
+    tpDocumento=Column(Integer)
     dtEmissao=Column(DateTime)
     tpFormaDePagamento=Column(String)
     nrDocumentoDePagamento=Column(String)
@@ -55,6 +43,17 @@ class ComprovantePagamento(ComprovantePagamentoBase, Base):  # noqa: N801
             (tpFormaDePagamento == 3, 'Saque/Dinheiro'),
         ],
         else_='',
+    )
+
+    tpDocumentoLabel=case(
+        [
+            (tpDocumento == 1, 'Boleto Bancario'),
+            (tpDocumento == 2, 'Cupom Fiscal'),
+            (tpDocumento == 3, 'Nota Fiscal / Fatura'),
+            (tpDocumento == 4, 'Recibo de Pagamento'),
+            (tpDocumento == 5, 'RPA'),
+        ],
+        else_='Nao identificado',
     )
 
 
