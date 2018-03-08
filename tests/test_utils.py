@@ -27,8 +27,11 @@ def check_fields(salic_data, api_data, specific_field=None):
 
     return True
 
-def validates_list_and_detail(endpoint):
-    salic, api = make_request(endpoint)
+def validates_list_and_detail(endpoint, salic_object=None, api_object=None):
+    if salic_object and api_object:
+        salic, api = salic_object, api_object
+    else:
+        salic, api = make_request(endpoint)
 
     assert check_fields(salic, api)
     assert check_fields(salic, api, '_embedded')

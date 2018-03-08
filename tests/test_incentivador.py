@@ -17,11 +17,4 @@ class TestIncentivador:
         result_api = requests.get("http://localhost:5000/" + api_donations_link)
         api_data = json.loads(result_api.text)
 
-
-        assert check_fields(salic_data, api_data)
-        assert check_fields(salic_data, api_data, '_embedded')
-        assert check_fields(salic_data, api_data, '_links')
-        assert check_fields(salic_data['_embedded']['doacoes'][0],
-                            api_data['_embedded']['doacoes'][0])
-        assert check_fields(salic_data['_embedded']['doacoes'][0]['_links'],
-                            api_data['_embedded']['doacoes'][0]['_links'])
+        validates_list_and_detail('doacoes', salic_data, api_data)
