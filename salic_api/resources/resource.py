@@ -7,6 +7,7 @@ from flask import request
 from flask_cache import Cache
 from flask_restful import Resource
 
+from .query import filter_query, filter_query_like
 from .serialization import serialize, listify_queryset
 from ..utils import md5hash
 
@@ -243,6 +244,9 @@ class SalicResource(Resource):
         for arg in unwanted_args:
             args.pop(arg, None)
 
+        for field in self.filter_fields:
+            args.pop(field, None)
+
         return args
 
     def _csv_response(self, data, headers={}, status_code=200, raw=False):
@@ -365,8 +369,11 @@ class ListResource(SalicResource):
     has_pagination = True
     detail_resource = None
     detail_pk = None
-    default_sort_field=None
-    request_args = {'format', 'limit', 'offset','sort','order'}
+    default_sort_field = None
+    request_args = {'format', 'limit', 'offset', 'sort', 'order'}
+    filter_fields = {}
+    filter_likeable_fields = {}
+    transform_args = {}
 
     @property
     def _embedding_field(self):
@@ -463,10 +470,41 @@ class ListResource(SalicResource):
         limited_query = query.limit(self.limit).offset(self.offset)
         return listify_queryset(limited_query)
 
+    def transform_args_values(self):
+        """
+        Transform args values from human readable to db values
+        Eg. tipo_pessoa=fisica -> tipo_pessoa=1
+        """
+        for key in self.args.keys():
+            if key in self.transform_args.keys():
+                self.args[key] = self.transform_args[key][self.args[key]]
+
     def filter_query(self, query):
         """
         Filter query according to the filtering arguments.
         """
+        self.transform_args_values()
+
+        def validate_fields(fields):
+            """
+            Take the intersection between the key args and the fields
+            Eg. {name, email, etc} & {name} -> {name}
+            """
+            return set(fields) & self.args.keys()
+
+        def map_to_column(filter_args):
+            """
+            Map each filter with a Column name and args value to the query
+            """
+            query_fields = self.query_class().labels_to_fields
+            return {query_fields[field]: self.args[field] for field in filter_args}
+
+        filter_args = map_to_column(validate_fields(self.filter_fields))
+        filter_args_like = map_to_column(validate_fields(self.filter_likeable_fields))
+
+        query = filter_query_like(query, filter_args_like)
+        query = filter_query(query, filter_args)
+
         return query
 
     def sort_query(self, query):

@@ -14,9 +14,15 @@ class IncentivadorList(ListResource):
     default_sort_field = 'cgccpf'
 
     filter_fields = {
-        'nome', 'incentivador_id', 'cgccpf', 'municipio', 'UF', 'tipo_pessoa',
+        'incentivador_id', 'cgccpf', 'UF', 'tipo_pessoa',
         'PRONAC'
     }
+
+    filter_likeable_fields = {
+        'nome', 'municipio'
+    }
+
+    transform_args = {'tipo_pessoa': {'fisica': '1', 'juridica': '2'}}
 
     def prepared_detail_object(self, item):
         detail_resource = super().prepared_detail_object(item)
