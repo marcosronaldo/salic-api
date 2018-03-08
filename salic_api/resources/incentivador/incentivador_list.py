@@ -15,7 +15,6 @@ class IncentivadorList(ListResource):
 
     filter_fields = {
         'incentivador_id', 'cgccpf', 'UF', 'tipo_pessoa',
-        'PRONAC'
     }
 
     filter_likeable_fields = {

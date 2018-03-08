@@ -30,11 +30,10 @@ class IncentivadorQuery(Query):
     def query(self, limit=1, offset=0, **kwargs):
         query = self.raw_query(*self.query_fields).join(Captacao)
 
-        # TODO: verify if it will be necessary later
-        # if PRONAC is not None:
-        #    query = query \
-        #        .join(Projeto, Captacao.PRONAC == Projeto.PRONAC) \
-        #        .filter(Captacao.PRONAC == PRONAC)
+        if 'PRONAC' in kwargs:
+            query = query \
+                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC) \
+                .filter(Captacao.PRONAC == kwargs['PRONAC'])
 
         return query.group_by(*self.group_by_fields)
 
