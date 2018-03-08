@@ -471,10 +471,25 @@ class ListResource(SalicResource):
         """
         Filter query according to the filtering arguments.
         """
-        filter_args = set(self.filter_fields) & self.args.keys()
-        query_fields = self.query_class().labels_to_fields
-        fields_to_filter = {query_fields[field]: self.args[field] for field in filter_args}
-        query = filter_query_like(query, fields_to_filter)
+        def validate_fields(fields):
+            """
+            Take the intersection between the key args and the fields
+            {name, email, etc} & {name} -> {name}
+            """
+            return set(fields) & self.args.keys()
+
+        def map_to_column(filter_args):
+            """
+            Map each filter with a Column name and args value to the query
+            """
+            query_fields = self.query_class().labels_to_fields
+            return {query_fields[field]: self.args[field] for field in filter_args}
+
+        filter_args = map_to_column(validate_fields(self.filter_fields))
+        filter_args_like = map_to_column(validate_fields(self.filter_likeable_fields))
+
+        query = filter_query_like(query, filter_args_like)
+        query = filter_query(query, filter_args)
 
         return query
 

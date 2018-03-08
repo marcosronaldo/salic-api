@@ -14,8 +14,12 @@ class IncentivadorList(ListResource):
     default_sort_field = 'cgccpf'
 
     filter_fields = {
-        'nome', 'incentivador_id', 'cgccpf', 'municipio', 'UF', 'tipo_pessoa',
+        'incentivador_id', 'cgccpf', 'UF', 'tipo_pessoa',
         'PRONAC'
+    }
+
+    filter_likeable_fields = {
+        'nome', 'municipio'
     }
 
     def prepared_detail_object(self, item):

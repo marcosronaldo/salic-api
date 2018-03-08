@@ -5,6 +5,7 @@ from ..query import Query, filter_query_like, filter_query
 from ...models import Interessado, Projeto, Captacao
 from ...utils import pc_quote
 
+
 class IncentivadorQuery(Query):
 
     group_by_fields = (
@@ -28,29 +29,28 @@ class IncentivadorQuery(Query):
 
     TIPOS_PESSOA = {'fisica': '1', 'juridica': '2'}
 
-    def query(self, limit=1, offset=0, nome=None, cgccpf=None, municipio=None,
-              UF=None, tipo_pessoa=None, PRONAC=None, sort_field=None,
-              sort_order=None):
+    def query(self, limit=1, offset=0, **kwargs):
 
         query = self.raw_query(*self.query_fields).join(Captacao)
 
-        query = filter_query_like(query, {
-            Interessado.CgcCpf: cgccpf,
-            Interessado.Nome: nome,
-        })
+        # query = filter_query_like(query, {
+        #    Interessado.CgcCpf: cgccpf,
+        #    Interessado.Nome: nome,
+        #})
 
-        query = filter_query(query, {
-            Interessado.Uf: UF,
-            Interessado.Cidade: municipio,
-            Interessado.tipoPessoa: self.TIPOS_PESSOA.get(tipo_pessoa),
-        })
+        # query = filter_query(query, {
+        #    Interessado.Uf: UF,
+        #    Interessado.Cidade: municipio,
+        #    Interessado.tipoPessoa: self.TIPOS_PESSOA.get(tipo_pessoa),
+        #})
 
-        if PRONAC is not None:
-            query = query \
-                .join(Projeto, Captacao.PRONAC == Projeto.PRONAC) \
-                .filter(Captacao.PRONAC == PRONAC)
+        # if PRONAC is not None:
+        #    query = query \
+        #        .join(Projeto, Captacao.PRONAC == Projeto.PRONAC) \
+        #        .filter(Captacao.PRONAC == PRONAC)
 
         return query.group_by(*self.group_by_fields)
+
 
 class DoacaoQuery(Query):
     query_fields = (
@@ -69,7 +69,7 @@ class DoacaoQuery(Query):
             .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
         )
         if cgccpf is not None:
-            query =  query.filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
+            query = query.filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
         return query
 
     def total(self, cgccpf):
@@ -79,4 +79,3 @@ class DoacaoQuery(Query):
                 .join(Interessado, Captacao.CgcCpfMecena == Interessado.CgcCpf)
                 .filter(Interessado.CgcCpf.like(pc_quote(cgccpf)))
         )
-
