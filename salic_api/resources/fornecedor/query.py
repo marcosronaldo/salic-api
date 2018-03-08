@@ -46,13 +46,24 @@ class FornecedorQuery(Query):
 
                  )
 
-        query = query.filter(Agentes.CNPJCPF.isnot(None))
+        query = (query.filter(Agentes.CNPJCPF.isnot(None)))
 
         if cgccpf is not None:
             query = query.filter(Agentes.CNPJCPF.like(cgccpf))
+
+        elif nome is not None:
+            query = query.filter(Nomes.Descricao.like(nome))
+
+        elif PRONAC is not None:
+            query = query.join(Projeto,
+                               PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
+            query = query.filter((Projeto.AnoProjeto + Projeto.Sequencial)
+                                 .like(PRONAC))
+
         else:
             query = query.join(Projeto,
                                PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
+
 
         return query
 
