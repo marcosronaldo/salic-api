@@ -115,40 +115,47 @@ class ProductQuery(Query):
     """
 
     """
-    query_fields = (
-        ComprovanteAprovacao.idPlanilhaAprovacao.label(
-            "id_planilha_aprovacao"),
-        Comprovante.dsJustificativa.label("justificativa"),
-        Comprovante.dtEmissao.label("data_pagamento"),
-        Produto.Descricao.label("nome"),
-        Agentes.CNPJCPF.label("cgccpf"),
-        Comprovante.tpFormaDePagamento.label("tipo_forma_pagamento"),
-        Comprovante.DtPagamento.label("data_aprovacao"),
-        ComprovanteAprovacao.vlComprovado.label("valor_pagamento"),
-        Comprovante.idArquivo.label("id_arquivo"),
-        Comprovante.nrComprovante.label("nr_comprovante"),
-        Nomes.Descricao.label("nome_fornecedor"),
-        Comprovante.idComprovantePagamento.label("id_comprovante_pagamento"),
-        ComprovanteAprovacao.tpDocumentoLabel,
-        Comprovante.nrDocumentoDePagamento.label("nr_documento_pagamento"),
-        Arquivo.nmArquivo.label("nm_arquivo"),
-        Projeto.PRONAC.label("PRONAC"),
-    )
+    labels_to_fields = {
+        'nome': PlanilhaItens.Descricao,
+        'id_comprovante_pagamento': Comprovante.idComprovantePagamento,
+        'id_planilha_aprovacao': ComprovanteAprovacao.idPlanilhaAprovacao,
+        'cgccpf': Agentes.CNPJCPF,
+        'nome_fornecedor': Nomes.Descricao,
+        'data_aprovacao': Comprovante.DtPagamento,
+        'PRONAC': Projeto.AnoProjeto + Projeto.Sequencial,
+        # 'tipo_documento': ComprovanteAprovacao.tpDocumentoLabel,
+        'nr_comprovante': Comprovante.nrComprovante,
+        'data_pagamento': Comprovante.dtEmissao,
+        'tipo_forma_pagamento': Comprovante.tpFormaDePagamento,
+        'nr_documento_pagamento': Comprovante.nrDocumentoDePagamento,
+        'valor_pagamento': ComprovanteAprovacao.vlComprovado,
+        'id_arquivo': Comprovante.idArquivo,
+        'justificativa': Comprovante.dsJustificativa,
+        'nm_arquivo': Arquivo.nmArquivo,
+    }
 
     def query(self, cgccpf, limit=100, offset=0):
         query = self.raw_query(*self.query_fields)
 
-        query = query.select_from(Comprovante)
-        query = query.order_by(ComprovanteAprovacao.idPlanilhaAprovacao)
+        query = query.select_from(ComprovanteAprovacao)
         query = (query
+                 .join(Comprovante,
+                       ComprovanteAprovacao.idComprovantePagamento ==
+                       Comprovante.idComprovantePagamento)
+                 .outerjoin(PlanilhaAprovacao,
+                            ComprovanteAprovacao.idPlanilhaAprovacao == PlanilhaAprovacao.idPlanilhaAprovacao)
+                 .outerjoin(PlanilhaItens,
+                            PlanilhaAprovacao.idPlanilhaItem == PlanilhaItens.idPlanilhaItens)
                  .outerjoin(Nomes,
                             Comprovante.idFornecedor == Nomes.idAgente)
+                 .outerjoin(Arquivo,
+                            Comprovante.idArquivo == Arquivo.idArquivo)
+                 .outerjoin(Projeto,
+                            PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
                  .outerjoin(Agentes,
                             Comprovante.idFornecedor == Agentes.idAgente)
-                 .outerjoin(Projeto,
-                            Comprovante.idFornecedor == Agentes.idAgente)
                  .filter(Agentes.CNPJCPF.like(cgccpf))
-                 )
+                )
 
         return query
 

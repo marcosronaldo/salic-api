@@ -32,7 +32,7 @@ class ComprovantePagamentoxPlanilhaAprovacao(ComprovantePagamentoxPlanilhaAprova
             (tpDocumento == 5, 'RPA'),
         ],
         else_='Nao identificado',
-    ).label('tipo_documento')
+    )
 
 
 class ComprovantePagamento(ComprovantePagamentoBase, Base):  # noqa: N801
@@ -46,6 +46,16 @@ class ComprovantePagamento(ComprovantePagamentoBase, Base):  # noqa: N801
     nrComprovante=Column(String)
     dsJustificativa=Column(String)
     vlComprovacao=Column(Float)
+
+    # Computed properties
+    tpFormaDePagamentoLabel=case(
+        [
+            (tpFormaDePagamento == 1, 'Cheque'),
+            (tpFormaDePagamento == 2, 'Transferencia Bancaria'),
+            (tpFormaDePagamento == 3, 'Saque/Dinheiro'),
+        ],
+        else_='',
+    )
 
 
 class Arquivo(ArquivoBase, Base):  # noqa: N801

@@ -23,6 +23,11 @@ class Produto(ListResource):
     detail_pk = 'cgccpf'
     request_args = {'fornecedor_id', 'limit', 'offset', 'format'}
 
+    default_sort_field = 'cgccpf'
+    sort_fields = {
+        'cgccpf', 'nome'
+    }
+
     def build_query_args(self):
         args = super().build_query_args()
         fornecedor_id = args.pop('fornecedor_id')
