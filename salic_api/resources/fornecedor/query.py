@@ -46,7 +46,7 @@ class FornecedorQuery(Query):
 
                  )
 
-        query = (query.filter(Agentes.CNPJCPF.isnot(None)))
+        # query = (query.filter(Agentes.CNPJCPF.isnot(None)))
 
         if cgccpf is not None:
             query = query.filter(Agentes.CNPJCPF.like(cgccpf))
