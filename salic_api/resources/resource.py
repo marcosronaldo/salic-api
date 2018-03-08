@@ -371,6 +371,9 @@ class ListResource(SalicResource):
     detail_pk = None
     default_sort_field = None
     request_args = {'format', 'limit', 'offset', 'sort', 'order'}
+    filter_fields = {}
+    filter_likeable_fields = {}
+    transform_args = {}
 
     @property
     def _embedding_field(self):
@@ -467,14 +470,25 @@ class ListResource(SalicResource):
         limited_query = query.limit(self.limit).offset(self.offset)
         return listify_queryset(limited_query)
 
+    def transform_args_values(self):
+        """
+        Transform args values from human readable to db values
+        Eg. tipo_pessoa=fisica -> tipo_pessoa=1
+        """
+        for key in self.args.keys():
+            if key in self.transform_args.keys():
+                self.args[key] = self.transform_args[key][self.args[key]]
+
     def filter_query(self, query):
         """
         Filter query according to the filtering arguments.
         """
+        self.transform_args_values()
+
         def validate_fields(fields):
             """
             Take the intersection between the key args and the fields
-            {name, email, etc} & {name} -> {name}
+            Eg. {name, email, etc} & {name} -> {name}
             """
             return set(fields) & self.args.keys()
 

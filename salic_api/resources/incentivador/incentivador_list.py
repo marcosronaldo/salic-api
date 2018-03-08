@@ -22,6 +22,8 @@ class IncentivadorList(ListResource):
         'nome', 'municipio'
     }
 
+    transform_args = {'tipo_pessoa': {'fisica': '1', 'juridica': '2'}}
+
     def prepared_detail_object(self, item):
         detail_resource = super().prepared_detail_object(item)
         detail_resource.args['incentivador_id'] = encrypt(item['cgccpf'])
