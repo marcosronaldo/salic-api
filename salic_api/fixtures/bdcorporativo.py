@@ -13,7 +13,6 @@ def tbcomprovantepagamentoxplanilhaaprovacao_example(size=1):
         dsItemDeCusto='Descricao item',
         dsMarca='Descricao marca',
         dsFabricante='Descricao fabricante',
-        tpDocumento=i,
         vlComprovado=2000.0,)
         for i in range(1, size + 1)
     ]
@@ -28,6 +27,7 @@ def tbcomprovantepagamento_example(size=1):
         nrComprovante='%s' % i,
         nrDocumentoDePagamento='%s' % i,
         vlComprovacao=3.1415,
+        tpDocumento=i,
         DtPagamento=datetime(2000, 2, 2),
         dtEmissao=datetime(2000, 1, 1),
         dsJustificativa='Descricao Justificativa',)

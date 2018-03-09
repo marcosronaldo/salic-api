@@ -149,7 +149,7 @@ def tbarquivo_example(size=1):
 def tbplanilhaaprovacao_example(size=1):
     return [PlanilhaAprovacao(idPlanilhaAprovacao=i, idPlanilhaItem=i,
                               qtItem=i * 99, vlUnitario=3.1415, idEtapa=i,
-                              idUnidade=i, IdPRONAC=20001234)
+                              idUnidade=i, idPronac=20001234)
             for i in range(1, size + 1)]
 
 
