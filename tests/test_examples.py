@@ -14,8 +14,9 @@ from tests.examples import PROJETOS_AREAS, PROJETO_RESPONSE, \
 class TestCoreUrls:
     valid_core_urls = [
         '/test',
-        '/v1/projetos/areas',
-        '/v1/projetos/segmentos',
+        '/v1/fornecedores',
+        '/v1/incentivadores',
+        '/v1/proponentes'
     ]
 
     def test_core_url_examples(self, client):
