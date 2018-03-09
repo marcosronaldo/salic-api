@@ -295,9 +295,9 @@ PRODUTOS_RESPONSE = {
                 "id_planilha_aprovacao": 1,
                 "justificativa": 'Descricao Justificativa',
                 "data_pagamento": '2000-01-01',
-                "nome": "Produto 1",
+                "nome": "Figurino 1",
                 "cgccpf": "1234",
-                "tipo_forma_pagamento": 'Dinheiro',
+                "tipo_forma_pagamento": 'Cheque',
                 "data_aprovacao": '2000-02-02',
                 "valor_pagamento": 2000.0,
                 "_links": {
