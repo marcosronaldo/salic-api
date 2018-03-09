@@ -24,7 +24,7 @@ class IncentivadorQuery(Query):
         'responsavel': Interessado.Responsavel,
         'cgccpf': Interessado.CgcCpf,
         'total_doado': func.sum(Captacao.CaptacaoReal),
-        'tipo_pessoa': Interessado.tipoPessoa,
+        'tipo_pessoa': Interessado.tipoPessoaLabel,
     }
 
     def query(self, limit=1, offset=0, **kwargs):

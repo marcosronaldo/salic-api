@@ -111,12 +111,12 @@ class Interessado(InteressadoBase, Base):
     )
 
     # Computed fields
-    tipo_pessoa = case(
+    tipoPessoaLabel = case(
         [
             (tipoPessoa == '1', 'fisica'),
         ],
         else_='juridica'
-    ).label('tipo_pessoa')
+    )
 
 
 class Captacao(CaptacaoBase, Base):

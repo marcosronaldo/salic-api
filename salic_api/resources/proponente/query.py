@@ -9,15 +9,26 @@ use_sql_procedures = False
 
 class ProponenteQuery(Query):
 
-    labels_to_fields = {
-        'total_captado': func.sum(func.sac.dbo.fnCustoProjeto (Projeto.AnoProjeto, Projeto.Sequencial)),
-        'nome': Interessado.Nome,
-        'municipio': Interessado.Cidade,
-        'UF': Interessado.Uf,
-        'responsavel': Interessado.Responsavel,
-        'cgccpf': Interessado.CgcCpf,
-        'tipo_pessoa': Interessado.tipoPessoa,
-    }
+    if not use_sql_procedures:
+        labels_to_fields = {
+            'total_captado': custo_projeto,
+            'nome': Interessado.Nome,
+            'municipio': Interessado.Cidade,
+            'UF': Interessado.Uf,
+            'responsavel': Interessado.Responsavel,
+            'cgccpf': Interessado.CgcCpf,
+            'tipo_pessoa': Interessado.tipoPessoaLabel,
+        }
+    else:
+        labels_to_fields = {
+            'total_captado': func.sum(func.sac.dbo.fnCustoProjeto (Projeto.AnoProjeto, Projeto.Sequencial)),
+            'nome': Interessado.Nome,
+            'municipio': Interessado.Cidade,
+            'UF': Interessado.Uf,
+            'responsavel': Interessado.Responsavel,
+            'cgccpf': Interessado.CgcCpf,
+            'tipo_pessoa': Interessado.tipoPessoaLabel,
+        }
 
     group_by_fields = (
         Interessado.Nome,
