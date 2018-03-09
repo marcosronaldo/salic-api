@@ -92,7 +92,7 @@ PROJETO_RESPONSE = {
                 'nr_comprovante': '1',
                 'justificativa': 'Descricao Justificativa',
                 'tipo_documento': 'Boleto Bancario',
-                'tipo_forma_pagamento': '',
+                'tipo_forma_pagamento': 'Cheque',
                 'id_comprovante_pagamento': 1,
                 'id_planilha_aprovacao': 1,
                 'nm_arquivo': '1',
