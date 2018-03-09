@@ -8,15 +8,16 @@ use_sql_procedures = False
 
 
 class ProponenteQuery(Query):
-    query_fields = (
-        custo_projeto.label('total_captado'),
-        Interessado.Nome.label('nome'),
-        Interessado.Cidade.label('municipio'),
-        Interessado.Uf.label('UF'),
-        Interessado.Responsavel.label('responsavel'),
-        Interessado.CgcCpf.label('cgccpf'),
-        Interessado.tipoPessoa.label('tipo_pessoa'),
-    )
+
+    labels_to_fields = {
+        'total_captado': func.sum(func.sac.dbo.fnCustoProjeto (Projeto.AnoProjeto, Projeto.Sequencial)),
+        'nome': Interessado.Nome,
+        'municipio': Interessado.Cidade,
+        'UF': Interessado.Uf,
+        'responsavel': Interessado.Responsavel,
+        'cgccpf': Interessado.CgcCpf,
+        'tipo_pessoa': Interessado.tipoPessoa,
+    }
 
     group_by_fields = (
         Interessado.Nome,
@@ -26,11 +27,6 @@ class ProponenteQuery(Query):
         Interessado.CgcCpf,
         Interessado.tipoPessoa,
     )
-
-    tipo_pessoa_map = {
-        'fisica': '1',
-        'juridica': '2',
-    }
 
     def query(self, limit=1, offset=0, nome=None, cgccpf=None, municipio=None,
               UF=None, tipo_pessoa=None, sort_field=None, sort_order=None):
@@ -50,10 +46,25 @@ class ProponenteQuery(Query):
         query = filter_query(query, {
             Interessado.Uf: UF,
             Interessado.Cidade: municipio,
-            Interessado.tipoPessoa: self.tipo_pessoa_map.get(tipo_pessoa),
         })
 
-        return self.sorted(query, sort_field, sort_order)
+        if cgccpf is not None:
+            query = query.filter(Interessado.CgcCpf.like('%' + cgccpf + '%'))
+
+        if nome is not None:
+            query = query.filter(Interessado.Nome.like('%' + nome + '%'))
+
+        if UF is not None:
+            query = query.filter(Interessado.Uf == UF)
+
+        if municipio is not None:
+            query = query.filter(Interessado.Cidade == municipio)
+
+        if tipo_pessoa is not None:
+            tipo_pessoa_code = '1' if tipo_pessoa == 'fisica' else '2'
+            query = query.filter(Interessado.tipoPessoa == tipo_pessoa)
+
+        return query
 
     def sorted(self, query, sort_field, sort_order):
         # start_row = offset

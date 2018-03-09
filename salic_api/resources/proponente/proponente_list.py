@@ -10,6 +10,7 @@ class ProponenteList(ListResource):
     embedding_field = 'proponentes'
     detail_resource_class = ProponenteDetail
     detail_pk = 'cgccpf'
+    default_sort_field = 'total_captado'
 
     sort_fields = {
         'total_captado'
@@ -17,6 +18,13 @@ class ProponenteList(ListResource):
 
     filter_fields = {
         'nome', 'cgccpf', 'proponente_id', 'municipio', 'UF', 'tipo_pessoa'
+    }
+
+    transform_args = {'tipo_pessoa': {'fisica': '1', 'juridica': '2'}}
+
+    request_args = {
+        'nome', 'cgccpf', 'proponente_id', 'municipio', 'UF', 'tipo_pessoa',
+        'limit', 'offset', 'format'
     }
 
     def prepared_detail_object(self, item):
