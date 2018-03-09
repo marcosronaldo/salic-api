@@ -15,5 +15,9 @@ class PreProjetoList(ListResource):
         'data_arquivamento',
     }
     filter_fields = {
-        'id', 'nome', 'data_inicio', 'data_termino'
+        'id', 'data_inicio', 'data_termino'
+    }
+
+    filter_likeable_fields = {
+        'nome',
     }

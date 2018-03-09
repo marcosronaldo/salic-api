@@ -571,6 +571,7 @@ class DetailResource(SalicResource):
     """
     Base class for all end points that return dictionaries.
     """
+    filter_fields = {}
 
     def apply_hal_data(self, result):
         links = self.hal_links(result)
