@@ -19,7 +19,10 @@ class FornecedorList(ListResource):
         'cgccpf', 'nome'
     }
     filter_fields = {
-        'nome', 'email', 'cgccpf'
+        'email',
+    }
+    filter_likeable_fields = {
+        'cgccpf', 'nome'
     }
     request_args = {
         'nome', 'fornecedor_id', 'cgccpf', 'PRONAC', 'limit', 'offset',

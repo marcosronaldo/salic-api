@@ -9,15 +9,18 @@ class PreProjetoList(ListResource):
     embedding_field = 'propostas'
     detail_resource_class = PreProjetoDetail
     detail_pk = 'id'
-
     sort_fields = {
-        'nome', 'id', 'data_inicio', 'data_termino', 'data_aceite',
+        'nome',
+        'id',
+        'data_inicio',
+        'data_termino',
+        'data_aceite',
         'data_arquivamento',
     }
+    default_sort_field = 'id'
     filter_fields = {
-        'id', 'data_inicio', 'data_termino'
+        'id',
+        'data_inicio',
+        'data_termino'
     }
-
-    filter_likeable_fields = {
-        'nome',
-    }
+    filter_likeable_fields = {'nome'}

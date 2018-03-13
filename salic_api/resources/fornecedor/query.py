@@ -21,8 +21,7 @@ class FornecedorQuery(Query):
 
     def query(self, limit=1, offset=0, cgccpf=None, PRONAC=None, nome=None):
         query = self.raw_query(*self.query_fields)
-        query = query.select_from(ComprovanteAprovacao)
-        query = query.distinct(*self.query_fields)
+        query = query.select_from(ComprovanteAprovacao).distinct()
         query = (query
                  .join(Comprovante,
                        ComprovanteAprovacao.idComprovantePagamento ==
@@ -46,57 +45,16 @@ class FornecedorQuery(Query):
 
                  )
 
-        # query = (query.filter(Agentes.CNPJCPF.isnot(None)))
+        query = query.filter(Agentes.CNPJCPF.isnot(None))
 
-        if cgccpf is not None:
-            query = query.filter(Agentes.CNPJCPF.like(cgccpf))
+        query = query.join(Projeto,
+                PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
 
-        elif nome is not None:
-            query = query.filter(Nomes.Descricao.like(nome))
-
-        elif PRONAC is not None:
-            query = query.join(Projeto,
-                               PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
+        if PRONAC is not None:
             query = query.filter((Projeto.AnoProjeto + Projeto.Sequencial)
                                  .like(PRONAC))
 
-        else:
-            query = query.join(Projeto,
-                               PlanilhaAprovacao.idPronac == Projeto.IdPRONAC)
-
-
         return query
-
-        # FIXME: move this to a separarte function
-        if cgccpf is not None:
-            query = text(FORNECEDOR_CGCCPF)
-            return self.session.execute(query, {
-                'cgccpf': '%{}%'.format(cgccpf),
-                'offset': offset,
-                'limit': limit,
-            })
-
-        elif nome is not None:
-            query = text(FORNECEDOR_NOME)
-            return self.session.execute(query, {
-                'nome': '%{}%'.format(nome),
-                'offset': offset,
-                'limit': limit,
-            }).fetchall()
-
-        elif PRONAC is not None:
-            query = text(FORNECEDOR_PRONAC)
-            return self.session.execute(query, {
-                'PRONAC': PRONAC,
-                'offset': offset,
-                'limit': limit,
-            }).fetchall()
-        else:
-            query = text(FORNECEDOR)
-            return self.session.execute(query, {
-                'offset': offset,
-                'limit': limit,
-            }).fetchall()
 
     def count(self, cgccpf=None, PRONAC=None, nome=None):
         if cgccpf is not None:

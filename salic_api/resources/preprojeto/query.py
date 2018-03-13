@@ -31,17 +31,5 @@ class PreProjetoQuery(Query):
         query = self.raw_query(*self.query_fields)
         query = query.select_from(PreProjeto)
         query = query.join(Mecanismo)
-        query = query.order_by(PreProjeto.idPreProjeto)
 
         return query
-
-    def sort_field(self, sort_field=None):
-        sorting_fields = {
-            'nome': PreProjeto.NomeProjeto,
-            'id': PreProjeto.idPreProjeto,
-            'data_inicio': PreProjeto.DtInicioDeExecucao,
-            'data_termino': PreProjeto.DtFinalDeExecucao,
-            'data_aceite': PreProjeto.dtAceite,
-            'data_arquivamento': PreProjeto.DtArquivamento,
-        }
-        return sorting_fields[sort_field or 'data_inicio']

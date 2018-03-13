@@ -520,6 +520,8 @@ class ListResource(SalicResource):
         if not field:
             return query
 
+        field = self.query_class().labels_to_fields[field]
+
         if self.sort_order == 'desc':
             query = query.order_by(desc(field))
         else:
