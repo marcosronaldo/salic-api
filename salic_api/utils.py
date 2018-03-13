@@ -3,6 +3,7 @@ import logging
 import time
 from contextlib import contextmanager
 from hashlib import md5
+from html.parser import HTMLParser
 
 from Crypto import Random
 from Crypto.Cipher import AES
@@ -91,3 +92,26 @@ def decrypt(text):
 
 def md5hash(text):
     return md5(text.encode('utf8')).hexdigest()
+
+
+class MLStripper(HTMLParser):
+    """
+    Strip HTML from strings in Python
+    https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
+    """
+
+    def __init__(self):
+        self.reset()
+        self.strict = False
+        self.convert_charrefs = True
+        self.fed = []
+
+    def handle_data(self, d):
+        self.fed.append(d)
+
+    def get_data(self):
+        return ''.join(self.fed)
+
+    def strip_tags(self, html=""):
+        self.feed(html)
+        return self.get_data()
