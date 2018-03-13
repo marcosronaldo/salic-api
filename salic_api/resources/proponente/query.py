@@ -40,7 +40,7 @@ class ProponenteQuery(Query):
     )
 
     def query(self, limit=1, offset=0, nome=None, cgccpf=None, municipio=None,
-              UF=None, tipo_pessoa=None, sort_field=None, sort_order=None):
+              UF=None, tipo_pessoa=None):
 
         query = self.raw_query(*self.query_fields)
         query = query.select_from(Interessado)
@@ -50,30 +50,6 @@ class ProponenteQuery(Query):
 
         query = query.group_by(*self.group_by_fields)
         query = query.filter(Projeto.idProjeto.isnot(None))
-        query = filter_query_like(query, {
-            Interessado.CgcCpf: cgccpf,
-            Interessado.Nome: nome,
-        })
-        query = filter_query(query, {
-            Interessado.Uf: UF,
-            Interessado.Cidade: municipio,
-        })
-
-        if cgccpf is not None:
-            query = query.filter(Interessado.CgcCpf.like('%' + cgccpf + '%'))
-
-        if nome is not None:
-            query = query.filter(Interessado.Nome.like('%' + nome + '%'))
-
-        if UF is not None:
-            query = query.filter(Interessado.Uf == UF)
-
-        if municipio is not None:
-            query = query.filter(Interessado.Cidade == municipio)
-
-        if tipo_pessoa is not None:
-            tipo_pessoa_code = '1' if tipo_pessoa == 'fisica' else '2'
-            query = query.filter(Interessado.tipoPessoa == tipo_pessoa)
 
         return query
 
