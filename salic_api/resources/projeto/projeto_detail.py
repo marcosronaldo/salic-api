@@ -59,6 +59,9 @@ class ProjetoDetail(DetailResource):
                    'resumo', 'outras_fontes', 'municipio', 'valor_aprovado',
                    'valor_proposta', 'ano_projeto', 'area', 'code', 'message',
                    ]
+    strip_html_fields = {'objetivos','etapa','acessibilidade',
+    'justificativa','democratizacao','ficha_tecnica', 'impacto_ambiental',
+    'sinopse','especificacao_tecnica','estrategia_execucao'}
 
     pronac = property(lambda self: self.args['PRONAC'])
 
@@ -74,18 +77,27 @@ class ProjetoDetail(DetailResource):
 
     def hal_embedded(self, data):
         fields = [
-            'captacoes', 'certidoes_negativas', 'deslocamento', 'distribuicao',
-            'divulgacao', 'documentos_anexados', 'marcas_anexadas',
-            'prorrogacao', 'readequacoes', 'relacao_bens_captal',
-            'relatorio_fisco', 'relacao_pagamentos']
+            #'captacoes',
+            #'certidoes_negativas',
+            #'deslocamento',
+            #'distribuicao',
+            #'divulgacao',
+            #'documentos_anexados',
+            #'marcas_anexadas',
+            #'prorrogacao',
+            #'readequacoes',
+            #'relacao_bens_captal',
+            #'relatorio_fisco',
+            #'relacao_pagamentos',
+            ]
         return {field: data.pop(field) for field in fields}
 
     def hal_embedded_links(self, data):
         return {
-            # 'captacoes':
-            #     self.links_captacoes(data['captacoes'], PRONAC),
-            # 'relacao_pagamentos':
-            #     self.links_produtos(data['relacao_pagamentos'], PRONAC),
+            'captacoes':
+                self.links_captacoes(data['captacoes'], PRONAC),
+             'relacao_pagamentos':
+                 self.links_produtos(data['relacao_pagamentos'], PRONAC),
         }
 
     def links_captacoes(self, captacoes, pronac):
@@ -141,53 +153,53 @@ class ProjetoDetail(DetailResource):
     def insert_related(self, projeto):
         pronac = self.pronac
 
-        # Certidões
+        ## Certidões
         certidoes_negativas = CertidoesNegativasQuery().query(pronac)
         projeto['certidoes_negativas'] = listify_queryset(certidoes_negativas)
 
-        # Documentos anexados
-        documentos = ProjetoQuery().attached_documents(pronac)
-        projeto['documentos_anexados'] = self.cleaned_documentos(documentos)
+        ## Documentos anexados #FIXME permission denied
+        #documentos = ProjetoQuery().attached_documents(pronac)
+        #projeto['documentos_anexados'] = self.cleaned_documentos(documentos)
 
-        # Marcas anexadas
+        ## Marcas anexadas
         marcas = ProjetoQuery().attached_brands(pronac)
         projeto['marcas_anexadas'] = marcas = listify_queryset(marcas)
         for marca in marcas:
             marca['link'] = utils.build_brand_link(marca)
 
-        # Divulgação
+        ## Divulgação
         divulgacao = DivulgacaoQuery().query(pronac)
         projeto['divulgacao'] = listify_queryset(divulgacao)
 
-        # Deslocamentos
+        ## Deslocamentos
         deslocamentos = DeslocamentoQuery().query(pronac)
         projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
 
-        # Distribuições
-        distribuicoes = DistribuicaoQuery().query(pronac)
-        projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
+        ## Distribuições #FIXME ??????????????????
+        #distribuicoes = DistribuicaoQuery().query(pronac)
+        #projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
 
-        # Readequações
+        ## Readequações
         readequacoes = ReadequacaoQuery().query(pronac)
         projeto['readequacoes'] = self.cleaned_readequacoes(readequacoes)
 
-        # Prorrogação
+        ## Prorrogação
         prorrogacao = ProjetoQuery().postpone_request(pronac)
         projeto['prorrogacao'] = listify_queryset(prorrogacao)
 
-        # Relação de pagamentos
+        ## Relação de pagamentos
         pagamentos = ProjetoQuery().payments_listing(idPronac=pronac)
         projeto['relacao_pagamentos'] = listify_queryset(pagamentos)
 
-        # Relatório fisco
+        ## Relatório fisco
         relatorio_fisco = ProjetoQuery().taxing_report(pronac)
         projeto['relatorio_fisco'] = listify_queryset(relatorio_fisco)
 
-        # Relação de bens de capital
+        ## Relação de bens de capital
         capital_goods = ProjetoQuery().goods_capital_listing(pronac)
         projeto['relacao_bens_captal'] = listify_queryset(capital_goods)
 
-        # Captações
+        ## Captações
         captacoes = CaptacaoQuery().query(PRONAC=pronac)
         projeto['captacoes'] = listify_queryset(captacoes)
 

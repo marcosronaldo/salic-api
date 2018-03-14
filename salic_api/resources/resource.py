@@ -466,7 +466,7 @@ class ListResource(SalicResource):
         query = self.filter_query(query)
         query = self.sort_query(query)
 
-        self.queryset_size = query.count()
+        #self.queryset_size = query.count()
         limited_query = query.limit(self.limit).offset(self.offset)
         return listify_queryset(limited_query)
 

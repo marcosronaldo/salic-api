@@ -15,9 +15,14 @@ class ProjetoList(ListResource):
         'valor_solicitado', 'outras_fontes', 'valor_captado', 'valor_proposta',
         'valor_aprovado', 'valor_projeto',
     }
+    default_sort_field = 'ano_projeto'
     filter_fields = {
-        'PRONAC', 'nome', 'proponente', 'cgccpf', 'area', 'segmento',
-        'segmento', 'UF', 'municipio', 'data_inicio', 'data_inicio_min',
-        'data_inicio_max', 'data_termino', 'data_termino_min',
-        'data_termino_max', 'ano_projeto',
+        'PRONAC', 'area', 'segmento', 'UF', 'municipio', 'ano_projeto',
+        'data_inicio', 'data_inicio_min', 'data_inicio_max', 'data_termino',
+        'data_termino_min', 'data_termino_max',
+    }
+    filter_likeable_fields = {
+        'proponente',
+        'cgccpf',
+        'nome',
     }

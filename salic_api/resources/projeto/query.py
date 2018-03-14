@@ -18,7 +18,7 @@ from ...utils import timer
 #
 # SQL procedures
 #
-use_sql_procedures = False
+use_sql_procedures = True
 
 
 def dummy(field, id_projeto, *args):
@@ -71,147 +71,102 @@ valor_proposta = coalesce(valor_proposta_base, valor_solicitado)
 
 
 class ProjetoQuery(Query):
-    #
-    # Global info
-    #
-    query_fields = (
+    labels_to_fields = {
         # Projeto
-        Projeto.ProvidenciaTomada.label('providencia'),
-        Projeto.NomeProjeto.label('nome'),
-        Projeto.PRONAC.label('PRONAC'),
-        Projeto.UfProjeto.label('UF'),
-        Projeto.data_inicio_execucao.label('data_inicio'),
-        Projeto.data_fim_execucao.label('data_termino'),
-        Projeto.IdPRONAC,
-        Projeto.AnoProjeto.label('ano_projeto'),
+        'nome': Projeto.NomeProjeto,
+        'providencia': Projeto.ProvidenciaTomada,
+        'PRONAC': Projeto.PRONAC,
+        'UF': Projeto.UfProjeto,
+        'data_incio': Projeto.data_inicio_execucao,
+        'data_termino': Projeto.data_fim_execucao,
+        'IdPRONAC': Projeto.IdPRONAC,
+        'ano_projeto': Projeto.AnoProjeto,
 
-        # Pre-projeto
-        PreProjeto.Acessibilidade.label('acessibilidade'),
-        PreProjeto.Objetivos.label('objetivos'),
-        PreProjeto.Justificativa.label('justificativa'),
-        PreProjeto.DemocratizacaoDeAcesso.label('democratizacao'),
-        PreProjeto.EtapaDeTrabalho.label('etapa'),
-        PreProjeto.FichaTecnica.label('ficha_tecnica'),
-        PreProjeto.ResumoDoProjeto.label('resumo'),
-        PreProjeto.Sinopse.label('sinopse'),
-        PreProjeto.ImpactoAmbiental.label('impacto_ambiental'),
-        PreProjeto.EspecificacaoTecnica.label('especificacao_tecnica'),
-        PreProjeto.EstrategiadeExecucao.label('estrategia_execucao'),
+        ## Pre-projeto
+        'acessibilidade': PreProjeto.Acessibilidade,
+        'objetivos': PreProjeto.Objetivos,
+        'justificativa': PreProjeto.Justificativa,
+        'democratizacao': PreProjeto.DemocratizacaoDeAcesso,
+        'etapa': PreProjeto.EtapaDeTrabalho,
+        'ficha_tecnica': PreProjeto.FichaTecnica,
+        'resumo': PreProjeto.ResumoDoProjeto,
+        'sinopse': PreProjeto.Sinopse,
+        'impacto_ambiental': PreProjeto.ImpactoAmbiental,
+        'especificacao_tecnica': PreProjeto.EspecificacaoTecnica,
+        'estrategia_execucao': PreProjeto.EstrategiadeExecucao,
 
-        # Interessado
-        Interessado.Cidade.label('municipio'),
-        Interessado.Nome.label('proponente'),
-        Interessado.CgcCpf.label('cgccpf'),
+        ## Interessado
+        'municipio': Interessado.Cidade,
+        'proponente': Interessado.Nome,
+        'cgccpf': Interessado.CgcCpf,
 
-        # Info
-        Area.Descricao.label('area'),
-        Segmento.Descricao.label('segmento'),
-        Situacao.Descricao.label('situacao'),
-        Mecanismo.Descricao.label('mecanismo'),
+        ## Info
+        'area': Area.Descricao,
+        'segmento': Segmento.Descricao,
+        'situacao': Situacao.Descricao,
+        'mecanismo': Mecanismo.Descricao,
 
-        # Derived info
-        Enquadramento.enquadramento,
-        valor_solicitado.label('valor_solicitado'),
-        outras_fontes.label('outras_fontes'),
-        custo_projeto.label('valor_captado'),
-        valor_proposta.label('valor_proposta'),
-        valor_aprovado.label('valor_aprovado'),
-        valor_projeto.label('valor_projeto'),
-    )
+        ## Derived info
+        'enquadramento': Enquadramento.enquadramento,
+        #'valor_solicitado': valor_solicitado, #permission denied
+        #'outras_fontes': outras_fontes, #permission denied
+        'valor_captado': custo_projeto,
+        #'valor_proposta': valor_proposta, #permission denied
+        #'valor_aprovado': valor_aprovado, #permission denied
+        #'valor_projeto': valor_projeto, #permission denied
+    }
 
     #
     # Queries
     #
-    def query(self, limit=1, offset=0,
-              PRONAC=None, UF=None,  # noqa: N803
-              proponente=None, nome=None,
-              cgccpf=None, area=None, segmento=None,
-              municipio=None, data_inicio=None,
-              data_inicio_min=None, data_inicio_max=None,
-              data_termino=None, data_termino_min=None,
-              data_termino_max=None, year=None, sort_field=None,
-              sort_order=None):
-
-        with timer('query projetos_list'):
+    def query(self, limit=1, offset=0, data_inicio=None, data_inicio_min=None,
+        data_inicio_max=None, data_termino=None, data_termino_min=None,
+        data_termino_max=None, **kwargs):
+        #with timer('query projetos_list'):
             # Prepare query
-            query = self.raw_query(*self.query_fields)
-            query = (
-                query
-                .join(PreProjeto)
-                .join(Interessado)
-                .join(Area)
-                .join(Segmento)
-                .join(Situacao)
-                .join(Mecanismo,
-                      Mecanismo.Codigo == Projeto.Mecanismo)
-                .outerjoin(Enquadramento,
-                           Enquadramento.IdPRONAC == Projeto.IdPRONAC)
+        query = self.raw_query(*self.query_fields)
+        query = (
+            query
+            .join(PreProjeto)
+            .join(Interessado)
+            .join(Area)
+            .join(Segmento)
+            .join(Situacao)
+            .join(Mecanismo,
+                Mecanismo.Codigo == Projeto.Mecanismo)
+            .outerjoin(Enquadramento,
+                Enquadramento.IdPRONAC == Projeto.IdPRONAC)
             )
-            if not use_sql_procedures:
-                query = query.join(Custos,
-                                   Custos.IdPRONAC == Projeto.IdPRONAC)
 
-            # Filter query by specified fields and dates
-            query = filter_query(query, {
-                Projeto.PRONAC: PRONAC,
-                Area.Codigo: area,
-                Segmento.Codigo: segmento,
-                Interessado.Uf: UF,
-                Interessado.Cidade: municipio,
-                Projeto.AnoProjeto: year,
-            })
-            query = filter_query_like(query, {
-                Interessado.Nome: proponente,
-                Interessado.CgcCpf: cgccpf,
-                Projeto.NomeProjeto: nome,
-            })
+        # For sqlite use
+        if not use_sql_procedures:
+            query = query.join(Custos,
+                    Custos.IdPRONAC == Projeto.IdPRONAC)
 
-            # Filter query by dates
-            end_of_day = (lambda x: None if x is None else x + '23:59:59')
-            query = filter_query(query, {
-                Projeto.data_inicio_execucao: data_inicio or data_inicio_min,
-                Projeto.data_fim_execucao: data_termino or data_termino_min,
-            }, op=operator.ge)
+        # # Filter query by dates
+        end_of_day = (lambda x: None if x is None else x + '23:59:59')
+        query = filter_query(query, {
+            Projeto.data_inicio_execucao: data_inicio or data_inicio_min,
+            Projeto.data_fim_execucao: data_termino or data_termino_min,
+        }, op=operator.ge)
 
-            query = filter_query(query, [
-                (Projeto.data_inicio_execucao, end_of_day(data_inicio)),
-                (Projeto.data_inicio_execucao, end_of_day(data_inicio_max)),
-                (Projeto.data_inicio_execucao, end_of_day(data_termino)),
-                (Projeto.data_fim_execucao, end_of_day(data_termino_max)),
-            ], op=operator.le)
+        query = filter_query(query, [
+            (Projeto.data_inicio_execucao, end_of_day(data_inicio)),
+            (Projeto.data_inicio_execucao, end_of_day(data_inicio_max)),
+            (Projeto.data_inicio_execucao, end_of_day(data_termino)),
+            (Projeto.data_fim_execucao, end_of_day(data_termino_max)),
+        ], op=operator.le)
 
-            # Sort result
-            sort_field = self.sort_field(sort_field)
-            if sort_order == 'desc':
-                query = query.order_by(desc(sort_field))
-            else:
-                query = query.order_by(sort_field)
-            return query
+        return query
 
-    def sort_field(self, sort_field=None):
-        sorting_fields = {
-            'valor_solicitado': valor_solicitado,
-            'PRONAC': Projeto.PRONAC,
-            'outras_fontes': outras_fontes,
-            'valor_captado': custo_projeto,
-            'valor_proposta': valor_proposta,
-            'valor_aprovado_case': valor_aprovado,
-            'valor_projeto': valor_projeto,
-            'ano_projeto': ano_projeto,
-            'data_inicio': Projeto.DtInicioExecucao,
-            'data_termino': Projeto.DtFimExecucao,
-        }
-        return sorting_fields[sort_field or 'ano_projeto']
+    # FIXME: using SQL procedure SAC.dbo.paDocumentos #permission denied
+    #def attached_documents(self, pronac_id):
+    #    if use_sql_procedures:
+    #        query = text('SAC.dbo.paDocumentos :idPronac')
+    #        return self.execute_query(query, {'idPronac': pronac_id}).fetchall()
+    #    else:
+    #        return []
 
-    # FIXME: using SQL procedure SAC.dbo.paDocumentos
-    def attached_documents(self, pronac_id):
-        if use_sql_procedures:
-            query = text('SAC.dbo.paDocumentos :idPronac')
-            return self.execute_query(query, {'idPronac': pronac_id}).fetchall()
-        else:
-            return []
-
-    # FIXME: ???
     def attached_brands(self, idPronac):  # noqa: N803
         query = text(normalize_sql("""
                 SELECT a.idArquivo as id_arquivo
@@ -223,7 +178,7 @@ class ProjetoQuery(Query):
             """))
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
-    def postpone_request(self, idPronac):  # noqa: N803
+    def postpone_request(self, idPronac):  # noqa: N804
         query = text(normalize_sql("""
                 SELECT a.DtPedido as data_pedido, a.DtInicio as data_inicio, a.DtFinal as data_final, a.Observacao as observacao, a.Atendimento as atendimento,
                     CASE
@@ -251,43 +206,43 @@ class ProjetoQuery(Query):
         query = payments_listing_sql(idPronac, limit is not None)
         return self.execute_query(query, params).fetchall()
 
-    def payments_listing_count(self, idPronac=None, cgccpf=None):  # noqa: N803
-        if idPronac is not None:
-            query = text(normalize_sql("""
-                    SELECT
-                        COUNT(b.idArquivo) AS total
+    #def payments_listing_count(self, idPronac=None, cgccpf=None):  # noqa: N803
+    #    if idPronac is not None:
+    #        query = text(normalize_sql("""
+    #                SELECT
+    #                    COUNT(b.idArquivo) AS total
 
-                        FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
-                        INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
-                        LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
-                        LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
-                        LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
-                        LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
-                        LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
-                    """))
-            params = {'idPronac': idPronac}
-            result = self.execute_query(query, params).fetchall()
+    #                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
+    #                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
+    #                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
+    #                    LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
+    #                    LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
+    #                    LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
+    #                    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (c.idPronac = :idPronac)
+    #                """))
+    #        params = {'idPronac': idPronac}
+    #        result = self.execute_query(query, params).fetchall()
 
-        else:
-            query = text(normalize_sql("""
-                    SELECT
-                        COUNT(b.idArquivo) AS total
+    #    else:
+    #        query = text(normalize_sql("""
+    #                SELECT
+    #                    COUNT(b.idArquivo) AS total
 
-                        FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
-                        INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
-                        LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
-                        LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
-                        LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
-                        LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
-                        JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
-                        LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
-                    """))
+    #                    FROM BDCORPORATIVO.scSAC.tbComprovantePagamentoxPlanilhaAprovacao AS a
+    #                    INNER JOIN BDCORPORATIVO.scSAC.tbComprovantePagamento AS b ON a.idComprovantePagamento = b.idComprovantePagamento
+    #                    LEFT JOIN SAC.dbo.tbPlanilhaAprovacao AS c ON a.idPlanilhaAprovacao = c.idPlanilhaAprovacao
+    #                    LEFT JOIN SAC.dbo.tbPlanilhaItens AS d ON c.idPlanilhaItem = d.idPlanilhaItens
+    #                    LEFT JOIN Agentes.dbo.Nomes AS e ON b.idFornecedor = e.idAgente
+    #                    LEFT JOIN BDCORPORATIVO.scCorp.tbArquivo AS f ON b.idArquivo = f.idArquivo
+    #                    JOIN SAC.dbo.Projetos AS Projetos ON c.idPronac = Projetos.IdPRONAC
+    #                    LEFT JOIN Agentes.dbo.Agentes AS g ON b.idFornecedor = g.idAgente WHERE (g.CNPJCPF LIKE :cgccpf)
+    #                """))
 
-            params = {'cgccpf': '%' + cgccpf + '%'}
-            result = self.execute_query(query, params).fetchall()
+    #        params = {'cgccpf': '%' + cgccpf + '%'}
+    #        result = self.execute_query(query, params).fetchall()
 
-        n_records = listify_queryset(result)
-        return n_records[0]['total']
+    #    n_records = listify_queryset(result)
+    #    return n_records[0]['total']
 
     def taxing_report(self, idPronac):  # noqa: N803
         # Relatório fisco
@@ -340,10 +295,10 @@ class ProjetoQuery(Query):
                     END as Titulo,
                     b.nrComprovante,
                     d.Descricao as Item,
-                    a.DtEmissao as dtPagamento,
-                    a.dsItemDeCusto Especificacao,
-                    a.dsMarca as Marca,
-                    a.dsFabricante as Fabricante,
+                    b.DtEmissao as dtPagamento,
+                    dsItemDeCusto Especificacao,
+                    dsMarca as Marca,
+                    dsFabricante as Fabricante,
                     (c.qtItem*nrOcorrencia) as Qtde,
                     c.vlUnitario,
                     (c.qtItem*nrOcorrencia*c.vlUnitario) as vlTotal
@@ -392,7 +347,6 @@ class SegmentoQuery(Query):
     """
     def query(self):
         return self.select_as(Segmento, Descricao='nome', Codigo='codigo')
-
 
 class CertidoesNegativasQuery(Query):
     """

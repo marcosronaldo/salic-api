@@ -1,3 +1,5 @@
+from os import environ as env
+
 SALIC_SCHEMAS = {
     'BDCORPORATIVO.scSAC',
     'BDCORPORATIVO.scCorp',
@@ -8,8 +10,7 @@ SALIC_SCHEMAS = {
     'TABELAS.dbo',
 }
 
-USE_SQLITE = True
-
+USE_SQLITE = True if env.get('SQL_DRIVER', 'sqlite') == 'sqlite' else False
 
 def normalize_sql(sql):
     """
