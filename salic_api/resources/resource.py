@@ -9,7 +9,7 @@ from flask_restful import Resource
 
 from .query import filter_query, filter_query_like
 from .serialization import serialize, listify_queryset
-from ..utils import md5hash
+from ..utils import md5hash, MLStripper
 
 log = logging.getLogger('salic-api')
 DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
@@ -550,6 +550,7 @@ class ListResource(SalicResource):
         obj = self.prepared_detail_object(item)
         obj.apply_hal_data(item)
         obj.prepare_result(item)
+        obj.remove_html(item)
 
     def prepared_detail_object(self, item):
         """
@@ -574,6 +575,7 @@ class DetailResource(SalicResource):
     Base class for all end points that return dictionaries.
     """
     filter_fields = {}
+    strip_html_fields = {}
 
     def apply_hal_data(self, result):
         links = self.hal_links(result)
@@ -618,7 +620,21 @@ class DetailResource(SalicResource):
         self.insert_related(result)
         self.apply_hal_data(result)
         self.prepare_result(result)
+        self.remove_html(result)
         return result
+
+    def remove_html(self, result):
+        stripper = MLStripper()
+        fields_to_strip = self.strip_html_fields & result.keys()
+
+        for field in fields_to_strip:
+            field_data = result.get(field, "")
+
+            if not isinstance(field_data, str):
+                continue  # Should only strip strings
+
+            without_html = stripper.strip_tags(field_data)
+            result[field] = without_html
 
     def insert_related(self, result):
         """

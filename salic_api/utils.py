@@ -97,6 +97,7 @@ def md5hash(text):
 class MLStripper(HTMLParser):
     """
     Strip HTML from strings in Python
+    Has some fixes to the stackoverflow version
     https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
     """
 
@@ -106,12 +107,26 @@ class MLStripper(HTMLParser):
         self.convert_charrefs = True
         self.fed = []
 
-    def handle_data(self, d):
-        self.fed.append(d)
+    def handle_data(self, data):
+        if not isinstance(self.fed, list):
+            self.fed = []
+
+        if isinstance(data, str):
+            self.fed.append(data)
+        else:
+            log.debug(
+                'MLStripper: data must be a str, but it is %s' % type(data))
+            self.fed.append("")
 
     def get_data(self):
-        return ''.join(self.fed)
+        return "".join(self.fed)
 
-    def strip_tags(self, html=""):
+    def strip_tags(self, html):
+        if not isinstance(html, str):
+            return ""
+
         self.feed(html)
-        return self.get_data()
+        data = self.get_data()
+        self.fed = []
+
+        return data
