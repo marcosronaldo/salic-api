@@ -107,24 +107,30 @@ class TestEndpointsIsolated:
 
 class TestEndpointPagination:
     def test_preprojetos_list_pagination(self, client):
-        def get_data(offset):
-            url = '/v1/propostas/?limit=2&offset=%s' % offset
+
+        def get_data(limit, offset):
+            url = '/v1/propostas/?limit=%s&offset=%s' % (limit, offset)
             data = client.get(url).get_data(as_text=True)
             return json.loads(data)
+
+        def assert_pagination(total, count, fields):
+            assert data.get('total') == total
+            assert data.get('count') == count
+
+            for k, v in fields.items():
+                assert propostas[0][k] == v
 
         with examples([ex.mecanismo_example]):
             with examples([ex.pre_projeto_example], 4):
 
-                data = get_data(0)
+                data = get_data(2, 0)
                 propostas = data.get('_embedded').get('propostas')
+                assert_pagination(4, 2, {'id': 1})
 
-                assert data.get('total') == 4
-                assert data.get('count') == 2
-                assert propostas[0]['id'] == 1
 
-                data = get_data(2)
+                data = get_data(3, 3)
                 propostas = data.get('_embedded').get('propostas')
-                assert propostas[0]['id'] == 3
+                assert_pagination(4, 1, {'id': 4})
 
 
 def check_endpoint(client, url, expected):
