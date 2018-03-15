@@ -122,40 +122,40 @@ class ProjetoQuery(Query):
     def query(self, limit=1, offset=0, data_inicio=None, data_inicio_min=None,
         data_inicio_max=None, data_termino=None, data_termino_min=None,
         data_termino_max=None, **kwargs):
-        #with timer('query projetos_list'):
-            # Prepare query
-        query = self.raw_query(*self.query_fields)
-        query = (
-            query
-            .join(PreProjeto)
-            .join(Interessado)
-            .join(Area)
-            .join(Segmento)
-            .join(Situacao)
-            .join(Mecanismo,
-                Mecanismo.Codigo == Projeto.Mecanismo)
-            .outerjoin(Enquadramento,
-                Enquadramento.IdPRONAC == Projeto.IdPRONAC)
-            )
+        with timer('query projetos_list'):
+        # Prepare query
+            query = self.raw_query(*self.query_fields)
+            query = (
+                query
+                .join(PreProjeto)
+                .join(Interessado)
+                .join(Area)
+                .join(Segmento)
+                .join(Situacao)
+                .join(Mecanismo,
+                    Mecanismo.Codigo == Projeto.Mecanismo)
+                .outerjoin(Enquadramento,
+                    Enquadramento.IdPRONAC == Projeto.IdPRONAC)
+                )
 
-        # For sqlite use
-        if not use_sql_procedures:
-            query = query.join(Custos,
-                    Custos.IdPRONAC == Projeto.IdPRONAC)
+            # For sqlite use
+            if not use_sql_procedures:
+                query = query.join(Custos,
+                        Custos.IdPRONAC == Projeto.IdPRONAC)
 
-        # # Filter query by dates
-        end_of_day = (lambda x: None if x is None else x + '23:59:59')
-        query = filter_query(query, {
-            Projeto.data_inicio_execucao: data_inicio or data_inicio_min,
-            Projeto.data_fim_execucao: data_termino or data_termino_min,
-        }, op=operator.ge)
+            # # Filter query by dates
+            end_of_day = (lambda x: None if x is None else x + '23:59:59')
+            query = filter_query(query, {
+                Projeto.data_inicio_execucao: data_inicio or data_inicio_min,
+                Projeto.data_fim_execucao: data_termino or data_termino_min,
+            }, op=operator.ge)
 
-        query = filter_query(query, [
-            (Projeto.data_inicio_execucao, end_of_day(data_inicio)),
-            (Projeto.data_inicio_execucao, end_of_day(data_inicio_max)),
-            (Projeto.data_inicio_execucao, end_of_day(data_termino)),
-            (Projeto.data_fim_execucao, end_of_day(data_termino_max)),
-        ], op=operator.le)
+            query = filter_query(query, [
+                (Projeto.data_inicio_execucao, end_of_day(data_inicio)),
+                (Projeto.data_inicio_execucao, end_of_day(data_inicio_max)),
+                (Projeto.data_inicio_execucao, end_of_day(data_termino)),
+                (Projeto.data_fim_execucao, end_of_day(data_termino_max)),
+            ], op=operator.le)
 
         return query
 
@@ -438,20 +438,20 @@ class DistribuicaoQuery(Query):
     def query(self, IdPRONAC):  # noqa: N803
         return (
             self.raw_query(
-                PlanoDistribuicao.idPlanoDistribuicao,
-                PlanoDistribuicao.QtdeVendaNormal,
-                PlanoDistribuicao.QtdeVendaPromocional,
-                PlanoDistribuicao.PrecoUnitarioNormal,
-                PlanoDistribuicao.PrecoUnitarioPromocional,
-                PlanoDistribuicao.QtdeOutros,
-                PlanoDistribuicao.QtdeProponente,
-                PlanoDistribuicao.QtdeProduzida,
-                PlanoDistribuicao.QtdePatrocinador,
+                PlanoDistribuicao.idPlanoDistribuicao.label('idPlanoDistribuicao'),
+                PlanoDistribuicao.QtdeVendaNormal.label('QtdeVendaNormal'),
+                PlanoDistribuicao.QtdeVendaPromocional.label('QtdeVendaPromocional'),
+                PlanoDistribuicao.PrecoUnitarioNormal.label('PrecoUnitarioNormal'),
+                PlanoDistribuicao.PrecoUnitarioPromocional.label('PrecoUnitarioPromocional'),
+                PlanoDistribuicao.QtdeOutros.label('QtdeOutros'),
+                PlanoDistribuicao.QtdeProponente.label('QtdeProponente'),
+                PlanoDistribuicao.QtdeProduzida.label('QtdeProduzida'),
+                PlanoDistribuicao.QtdePatrocinador.label('qtdePatrocinador'),
                 Area.Descricao.label('area'),
                 Segmento.Descricao.label('segmento'),
                 Produto.Descricao.label('produto'),
                 Verificacao.Descricao.label('posicao_logo'),
-                Projeto.Localizacao,
+                Projeto.Localizacao.label('localizacao'),
             )
             .join(Projeto)
             .join(Produto)

@@ -77,27 +77,28 @@ class ProjetoDetail(DetailResource):
 
     def hal_embedded(self, data):
         fields = [
-            #'captacoes',
-            #'certidoes_negativas',
-            #'deslocamento',
-            #'distribuicao',
-            #'divulgacao',
-            #'documentos_anexados',
-            #'marcas_anexadas',
-            #'prorrogacao',
-            #'readequacoes',
-            #'relacao_bens_captal',
-            #'relatorio_fisco',
-            #'relacao_pagamentos',
+            'captacoes',
+            'certidoes_negativas',
+            'deslocamento',
+            'distribuicao',
+            'divulgacao',
+            'documentos_anexados',
+            'marcas_anexadas',
+            'prorrogacao',
+            'readequacoes',
+            'relacao_bens_captal',
+            'relatorio_fisco',
+            'relacao_pagamentos',
             ]
-        return {field: data.pop(field) for field in fields}
+        return {field: data.pop(field) for field in fields
+                                       if field in data.keys()}
 
     def hal_embedded_links(self, data):
         return {
             'captacoes':
-                self.links_captacoes(data['captacoes'], PRONAC),
+                self.links_captacoes(data['captacoes'], self.pronac),
              'relacao_pagamentos':
-                 self.links_produtos(data['relacao_pagamentos'], PRONAC),
+                 self.links_produtos(data['relacao_pagamentos'], self.pronac),
         }
 
     def links_captacoes(self, captacoes, pronac):
@@ -175,9 +176,9 @@ class ProjetoDetail(DetailResource):
         deslocamentos = DeslocamentoQuery().query(pronac)
         projeto['deslocamento'] = self.cleaned_deslocamentos(deslocamentos)
 
-        ## Distribuições #FIXME ??????????????????
-        #distribuicoes = DistribuicaoQuery().query(pronac)
-        #projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
+        ## Distribuições
+        distribuicoes = DistribuicaoQuery().query(pronac)
+        projeto['distribuicao'] = self.cleaned_distribuicoes(distribuicoes)
 
         ## Readequações
         readequacoes = ReadequacaoQuery().query(pronac)
