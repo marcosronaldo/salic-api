@@ -12,7 +12,8 @@ from ..serialization import listify_queryset
 from ...models import (
     Projeto, Interessado, Situacao, Enquadramento, PreProjeto,
     Captacao, CertidoesNegativas, Verificacao, PlanoDistribuicao, Produto, Area,
-    Segmento, Custos, Mecanismo)
+    Segmento, Custos, Mecanismo, Arquivo, ArquivoImagem, Documento,
+    DocumentoProjeto)
 from ...utils import timer
 
 #
@@ -167,15 +168,19 @@ class ProjetoQuery(Query):
         else:
             return []
 
-    def attached_brands(self, idPronac):  # noqa: N803
-        query = text(normalize_sql("""
-                SELECT a.idArquivo as id_arquivo
-                    FROM BDCORPORATIVO.scCorp.tbArquivoImagem AS ai
-                    INNER JOIN BDCORPORATIVO.scCorp.tbArquivo AS a ON ai.idArquivo = a.idArquivo
-                    INNER JOIN BDCORPORATIVO.scCorp.tbDocumento AS d ON a.idArquivo = d.idArquivo
-                    INNER JOIN BDCORPORATIVO.scCorp.tbDocumentoProjeto AS dp ON dp.idDocumento = d.idDocumento
-                    INNER JOIN SAC.dbo.Projetos AS p ON dp.idPronac = p.IdPRONAC WHERE (dp.idTipoDocumento = 1) AND (p.idPronac = :IdPRONAC)
-            """))
+    def attached_brands(self, idPronac):
+        query = self.raw_query(Arquivo.idArquivo.label('id_arquivo'))
+
+        query = (
+            query
+            .select_from(ArquivoImagem)
+            .join(Arquivo, Arquivo.idArquivo == ArquivoImagem.idArquivo)
+            .join(Documento, Documento.idArquivo == Arquivo.idArquivo)
+            .join(DocumentoProjeto, DocumentoProjeto.idDocumento == Documento.idDocumento)
+            .join(Projeto, DocumentoProjeto.idPronac == Projeto.IdPRONAC)
+            .filter(DocumentoProjeto.idTipoDocumento==1, Projeto.IdPRONAC==idPronac)
+        )
+
         return self.execute_query(query, {'IdPRONAC': idPronac}).fetchall()
 
     def postpone_request(self, idPronac):  # noqa: N804
