@@ -13,19 +13,17 @@ class ProponenteList(ListResource):
     default_sort_field = 'total_captado'
 
     sort_fields = {
-        'total_captado', 'nome', 'cgccpf', 'proponente_id', 'municipio', 'UF',
+        'total_captado', 'nome', 'cgccpf', 'municipio', 'UF',
         'tipo_pessoa'
     }
 
     filter_fields = {
-        'proponente_id', 'municipio', 'UF', 'tipo_pessoa'
+        'municipio', 'UF', 'tipo_pessoa'
     }
 
     filter_likeable_fields = {
         'nome', 'cgccpf'
     }
-
-    transform_args = {'tipo_pessoa': {'fisica': '1', 'juridica': '2'}}
 
     request_args = {
         'nome', 'cgccpf', 'proponente_id', 'municipio', 'UF', 'tipo_pessoa',
