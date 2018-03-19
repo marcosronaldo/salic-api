@@ -79,7 +79,7 @@ Docker
 A implantação será feita em Docker. Para testar o ambiente de homologação execute
 dentro do diretório do salic-api::
 
-    $ docker built -t salic-api .
+    $ docker build -t salic-api .
     $ docker run -it --name salic-api -p 5000:5000 -v $PWD:/app salic-api
 
 
