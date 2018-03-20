@@ -159,13 +159,13 @@ class ProjetoQuery(Query):
 
         return query
 
-    # FIXME: using SQL procedure SAC.dbo.paDocumentos #permission denied
-    #def attached_documents(self, pronac_id):
-    #    if use_sql_procedures:
-    #        query = text('SAC.dbo.paDocumentos :idPronac')
-    #        return self.execute_query(query, {'idPronac': pronac_id}).fetchall()
-    #    else:
-    #        return []
+   #  FIXME: using SQL procedure SAC.dbo.paDocumentos #permission denied
+    def attached_documents(self, pronac_id):
+        if use_sql_procedures:
+            query = text('SAC.dbo.paDocumentos :idPronac')
+            return self.execute_query(query, {'idPronac': pronac_id}).fetchall()
+        else:
+            return []
 
     def attached_brands(self, idPronac):  # noqa: N803
         query = text(normalize_sql("""
